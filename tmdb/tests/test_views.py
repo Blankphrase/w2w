@@ -1,6 +1,7 @@
 from django.test import TestCase
 
 from tmdb.util import tmdb_request
+from tmdb.models import Movie, MoviePopularQuery
 
 import json
 import unittest
@@ -8,7 +9,7 @@ import unittest
 
 class TMDB_API_Test(TestCase):
 
-    @unittest.skip
+    
     def test_get_the_most_popular_movies(self):
         response = self.client.get("/tmdb/movie/popular", 
             data = {"force": True}
@@ -22,7 +23,7 @@ class TMDB_API_Test(TestCase):
         for movie in movies_test:
             self.assertIn(movie["title"], movies_ref_titles)
 
-    @unittest.skip
+    
     def test_get_the_most_popular_movies_from_10th_page(self):
         response = self.client.get("/tmdb/movie/popular", 
             data = {"force": True, "page": 10}
@@ -36,6 +37,7 @@ class TMDB_API_Test(TestCase):
         for movie in movies_test:
             self.assertIn(movie["title"], movies_ref_titles)
 
+    
     def test_check_for_source_in_response(self):
         response = self.client.get("/tmdb/movie/popular", 
             data = {"page": 2}
@@ -43,7 +45,31 @@ class TMDB_API_Test(TestCase):
         response_json = json.loads(response.content.decode())
         self.assertIn("source", response_json)
                
+    
     def test_save_the_most_popular_movies_query(self):
+        response = self.client.get("/tmdb/movie/popular", 
+            data = {"page": 2}
+        )
+        response_json = json.loads(response.content.decode()).get("results")
+        self.assertTrue(MoviePopularQuery.objects.filter(page=2).exists())
+
+    def test_save_once_the_same_popular_movies_query(self):
+        self.client.get("/tmdb/movie/popular", data = {"page": 3})
+        self.client.get("/tmdb/movie/popular", data = {"page": 3})
+
+        self.assertEqual(MoviePopularQuery.objects.count(), 1)
+
+    def test_save_movies_from_popular_movie_query(self):
+        response = self.client.get("/tmdb/movie/popular", data = {"page": 3})
+        movies_first = json.loads(response.content.decode()).get("results")
+
+        response = self.client.get("/tmdb/movie/popular", data = {"page": 3})      
+        movies_next = json.loads(response.content.decode()).get("results")
+
+        self.assertEqual(len(movies_next), len(movies_first))
+
+    
+    def test_movie_popular_change_of_source(self):
         response = self.client.get("/tmdb/movie/popular", 
             data = {"page": 2}
         )
@@ -56,3 +82,7 @@ class TMDB_API_Test(TestCase):
         )
         response_json = json.loads(response.content.decode())
         self.assertEqual(response_json["source"], "w2w")
+
+    @unittest.skip
+    def test_compare_saved_popular_movie_with_tmdb(self):
+        pass
