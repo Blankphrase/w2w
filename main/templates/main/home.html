@@ -1,3 +1,5 @@
+{% load static %}
+
 <!doctype html>
 <html>
 
@@ -5,11 +7,25 @@
 </head>
 
 <body>
+    <h4>Movies</h4>
     <ul id="movies-list">
         {% for movie in movies %}
-            <li class="movie-item">{{movie}}</li>
+            <li class="movie-item">
+                <input class="movie-item-checkbox" type="checkbox" 
+                       name="movie" value="{{movie.id}}">
+                <span class="movie-item-title">{{movie.title}}</span>
+            </li>
         {% endfor %}
     </ul>
+    <h4>Your preferences</h4>
+    <ul id="pref-list">
+
+    </ul>
+
+    <button id="ask-for-reco" type="button">Give Me Reco</button>
+
+    <script src="{% static 'main/jquery-3.1.0.min.js' %}"></script>
+    <script src="{% static 'main/reco.ui.js' %}"></script>
 </body>
 
 </html>

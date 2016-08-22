@@ -1,10 +1,10 @@
 from django.conf.urls import url, include
 from django.contrib import admin
 
-from main.views import home_page
+from tmdb.views import movie_popular
 
 
 app_name = "tmdb"
 urlpatterns = [
-    url(r"^popular", home_page, name = "home")
+    url(r"^movie/popular", movie_popular, name = "movie_popular")
 ]
