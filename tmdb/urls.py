@@ -3,8 +3,8 @@ from django.contrib import admin
 
 from main.views import home_page
 
+
+app_name = "tmdb"
 urlpatterns = [
-    url(r"^$", home_page, name = "home"),
-    url(r"^tmdb/", include("tmdb.urls")),
-    url(r'^admin/', admin.site.urls)
+    url(r"^popular", home_page, name = "home")
 ]

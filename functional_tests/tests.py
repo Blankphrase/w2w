@@ -3,25 +3,27 @@ from selenium import webdriver
 import unittest
 
 
-class NewVisitorTest(unittest.TestCase):
+class AnonymousUserRecoTest(unittest.TestCase):
 
     def setUp(self):
         self.browser = webdriver.Firefox()
-        self.browser.implicitly_wait(3)
 
     def tearDown(self):
         self.browser.quit()
 
-    def test_display_list_of_the_most_popular_movies(self):
+    def test_make_standalone_reco(self):
         # Kate has heard about a cool new web application which recommends
         # movies worth to watch. She goes check out how it works. 
         self.browser.get("http://localhost:8000")
 
-        # She notices the list of movies and message informing that
-        # she can choose (by clicing) her favourite movies from given list.
+        # She notices the list of 10 different movies' titles and message 
+        # informing that she can choose (by clicing) her favourite movies 
+        # from given list.
+        movies = self.browser.find_elements_by_css_selector(".movie-item")
+        self.assertEqual(len(movies), 10)
 
         # Kate find three movies that she watched recently and choose them.
-        # Chosen movies appears in the list below titled "Your preferences".
+        # Chosen movies appear in the list titled "Movies preferences".
 
         # Kate compares whether appeared movies are execly thoes she
         # has selected from the list.
