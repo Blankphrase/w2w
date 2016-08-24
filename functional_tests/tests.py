@@ -60,7 +60,7 @@ class AnonymousUserRecoTest(unittest.TestCase):
         # Suddenly Kate notices in the area of initial movies list two buttons
         # with 'Prev' and 'Next' labels. She clicks next button and new list of 
         # movies appears.
-        self.browser.find_element_by_id("movies-list-next")
+        self.browser.find_element_by_id("movies-list-next").click()
 
         # New list is quite different from the previous one
         movies = self.browser.find_elements_by_css_selector(".movie-item")
@@ -80,7 +80,7 @@ class AnonymousUserRecoTest(unittest.TestCase):
         self.assertEqual(len(kate_movies), 6)
 
         # Kate clicks left arrow below the movies' list.
-        self.browser.find_element_by_id("movies-list-prev")
+        self.browser.find_element_by_id("movies-list-prev").click()
 
         # Movies' list returns to previous one.
         movies = self.browser.find_elements_by_css_selector(".movie-item")
@@ -90,7 +90,9 @@ class AnonymousUserRecoTest(unittest.TestCase):
             for movie_title in movies_titles_prev))
 
         # She notices that the movies she has chosen are checked.
-        self.fail("Finish the test")
+        self.assertTrue(movies[0].find_element_by_tag_name("input").is_selected());
+        self.assertTrue(movies[1].find_element_by_tag_name("input").is_selected());
+        self.assertTrue(movies[2].find_element_by_tag_name("input").is_selected());
 
         # Kate decides to uncheck one movie.
 
@@ -101,6 +103,12 @@ class AnonymousUserRecoTest(unittest.TestCase):
         # System presents list of recommended movies. 
         self.browser.find_element_by_id("ask-for-reco").click()
 
+        self.fail("Finish the test")
+
+
+class AnonymousUserSearchMoviesTest(class):
+
+    pass
 
 if __name__ == "__main__":
     unittest.main(warnings = "ignore")

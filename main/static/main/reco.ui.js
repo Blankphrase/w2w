@@ -1,6 +1,6 @@
-
 // User clicks checkbox.
-$(".movie-item-checkbox").change(function() {
+
+$(document).on("change", ".movie-item-checkbox", function() {
     var $prefList = $("#pref-list");
     var $prefItem = undefined;
 
@@ -17,12 +17,50 @@ $(".movie-item-checkbox").change(function() {
     }
 });
 
-// User clicks movies-list-next button
 $("#movies-list-next").click(function() {
-    alert("Do you want new list of movies?");
+    loadMovies("/movies/browse/next");
 });
 
-// User clicks movies-list-prev button
 $("#movies-list-prev").click(function() {
-    alert("Do you want previous list of movies?");
+    loadMovies("/movies/browse/prev");
 });
+
+
+function loadMovies(url, data) {
+    $("#state-msg").show();
+    $("#state-msg").html("Loading ...");
+    $.ajax({
+        type: "POST",
+        url: url,
+        data: JSON.stringify(data),
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function(movies) {
+            if (movies.length > 0) {
+                updateMoviesList(movies);
+                $("#state-msg").hide();
+            } else {
+                $("#state-msg").show();
+                $("#state-msg").html("No more movies.");               
+            }
+        },
+        failure: function(errMsg) {
+            alert(errMsg);
+        }
+    });   
+}
+
+
+function updateMoviesList(movies) {
+    var $moviesList = $("#movies-list");
+    $moviesList.empty();
+    for (var i = 0; i < movies.length; i++) {
+        var $movieItem = $("<li class='movie-item'></li>");
+        $movieItem.append("<input class='movie-item-checkbox' " + 
+            "type='checkbox' name='movie' value='" + 
+            movies[i].tmdb_id + "'>");
+        $movieItem.append("<span class='movie-item-title'>" +
+            movies[i].title + "</span>");
+        $moviesList.append($movieItem);
+    }   
+}
