@@ -7,7 +7,7 @@ import json
 import unittest
 
 
-class TMDB_API_Test(TestCase):
+class TMDB_movie_popular_Test(TestCase):
 
     
     def test_get_the_most_popular_movies(self):
