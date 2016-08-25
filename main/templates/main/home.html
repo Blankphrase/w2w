@@ -8,21 +8,18 @@
 
 <body>
     <h4>Movies</h4>
+
     <ul id="movies-list">
-        {% for movie in movies %}
-            <li class="movie-item">
-                <input class="movie-item-checkbox" type="checkbox" 
-                       name="movie" value="{{movie.tmdb_id}}">
-                <span class="movie-item-title">{{movie.title}}</span>
-            </li>
-        {% endfor %}
     </ul>
+
     <p id="state-msg"></p>
+
     <button id="movies-list-prev" type="button">Prev</button>
     <button id="movies-list-next" type="button">Next</button>
-    <h4>Your preferences</h4>
-    <ul id="pref-list">
 
+    <h4>Your preferences</h4>
+    
+    <ul id="pref-list">
     </ul>
 
     <button id="ask-for-reco" type="button">Give Me Reco</button>

@@ -14,6 +14,7 @@ class AnonymousUserRecoTest(unittest.TestCase):
 
     def setUp(self):
         self.browser = webdriver.Firefox()
+        self.browser.implicitly_wait(3)
 
     def tearDown(self):
         self.browser.quit()
@@ -27,6 +28,7 @@ class AnonymousUserRecoTest(unittest.TestCase):
         # informing that she can choose (with checkbox) her favourite movies 
         # from given list.
         movies = self.browser.find_elements_by_css_selector(".movie-item")
+
         self.assertEqual(len(movies), 20)
 
         # Test whether movies' titles are not empty.
@@ -95,9 +97,36 @@ class AnonymousUserRecoTest(unittest.TestCase):
         self.assertTrue(movies[2].find_element_by_tag_name("input").is_selected());
 
         # Kate decides to uncheck one movie.
+        movie_unchecked = movies[0].find_element_by_tag_name("span").text;
+        movies[0].find_element_by_tag_name("input").click();
 
         # The movie disappears from her preferences list, but there are still
         # five other movies.
+        kate_pref = self.browser.find_element_by_id("pref-list")
+        kate_movies = kate_pref.find_elements_by_tag_name("li")
+        self.assertTrue(all(movie_unchecked not in movie.text for movie in kate_movies))
+        self.assertEqual(len(kate_movies), 5)
+
+        # Kate wants to adjust her preferences. To her luck there are ten radio 
+        # buttons by every movie she chosen. 
+        self.fail("Test for presence of radio buttons");
+
+        # Currently her preferences are set to maximum (10).
+        self.fail("Test for maximum preferences");
+
+        # Kate adjusts her favour of first movie to 5
+        self.fail("Test for preferences value")
+
+        # Kate notices also remove button near the movie title.
+        self.fail("Test for presence of remove button");
+
+        # Kate removes the last movie from her movies list
+        self.fail("Test for removal of lasat movie");
+
+        # There are four movies left
+        kate_pref = self.browser.find_element_by_id("pref-list")
+        kate_movies = kate_pref.find_elements_by_tag_name("li")
+        self.assertEqual(len(kate_movies), 4)
 
         # Kate presses the button "Ask for recommendation" and waits for response. 
         # System presents list of recommended movies. 
@@ -106,7 +135,7 @@ class AnonymousUserRecoTest(unittest.TestCase):
         self.fail("Finish the test")
 
 
-class AnonymousUserSearchMoviesTest(class):
+class AnonymousUserSearchMoviesTest(unittest.TestCase):
 
     pass
 

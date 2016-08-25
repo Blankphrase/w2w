@@ -1,4 +1,5 @@
 from django.test import TestCase
+from django.test.client import Client
 from django.utils.html import escape
 from django.http.request import HttpRequest
 from django.contrib.auth.models import User
@@ -7,6 +8,7 @@ from django.urls import reverse
 
 from tmdb.util import tmdb_request
 from main.views import home_page
+import main.browse as browse
 
 import json
 import unittest
@@ -67,6 +69,7 @@ class BrowseMoviesTest(TestCase):
             {"page": 3}).content.decode())
         self.assertTrue(all(movie["title"] in movies_titles for movie in movies))
 
+    @unittest.skip
     def test_load_autoamtically_next_movies_using_ajax(self):
         movies_tmdb = tmdb_request("GET", "movie/popular",
             {"page": 2}).get("results")
@@ -77,3 +80,17 @@ class BrowseMoviesTest(TestCase):
         movies = json.loads(response.content.decode()) # load page 2
         self.assertTrue(all(movie["title"] in movies_titles for movie in movies))
 
+
+    # def test_keep_user_movie_choices_within_server_session(self):
+    #     movies = browse.get_movies({"mode": "popular", "page": 1})
+
+    #     self.client.get("/")
+    #     response = self.client.post("/movies/browse/check",
+    #         { "tmdb_id": movies[0]["tmdb_id"] }) 
+    #     self.assertEqual(response.status_code, 200)    
+    #     self.client.post(reverse("browse_check"), 
+    #         {"tmdb_id": movies[1]["tmdb_id"]})
+
+    #     session = self.client.session
+    #     self.assertIn(movies[0]["tmdb_id"], session["browse_selected"])
+    #     self.assertIn(movies[1]["tmdb_id"], session["browse_selected"])
