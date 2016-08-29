@@ -8,6 +8,7 @@ from django.urls import reverse
 
 from tmdb.util import tmdb_request
 from main.views import home_page
+from tmdb.models import Movie
 import main.browse as browse
 
 import json
@@ -17,22 +18,13 @@ from lxml import etree
 
 class HomePageTest(TestCase):
 
-    @unittest.skip
+    # @unittest.skip
     def test_show_homepage_template(self):
         response = self.client.get("/")
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'main/home.html')
 
-    @unittest.skip
-    def test_display_list_containing_20_movies(self):
-        response = self.client.get("/")
-        self.assertContains(response, '<ul id="movies-list">')
-        self.assertEqual(
-            response.content.decode().count('<li class="movie-item">'), 
-            20
-        )
-
-    @unittest.skip
+    # @unittest.skip
     def test_show_nonempty_movies_titles(self):
         response = self.client.get("/")
         html = etree.HTML(response.content.decode())
@@ -41,7 +33,7 @@ class HomePageTest(TestCase):
             self.assertNotEqual(span.text, None)
             self.assertNotEqual(span.text, "")
 
-    @unittest.skip
+    # @unittest.skip
     def test_use_correct_movie_id_for_checkbox(self):
         response = self.client.get("/")
         response = self.client.get("/")
@@ -49,7 +41,7 @@ class HomePageTest(TestCase):
         values = html.xpath("//input[@class='movie-item-checkbox']/@value")
         self.assertFalse(any(value == "" for value in values))
 
-    @unittest.skip
+    # @unittest.skip
     def test_display_the_most_popular_movies_on_homepage(self):
         movies = tmdb_request("GET", "movie/popular").get("results")
         self.assertIsNotNone(movies)
@@ -60,16 +52,25 @@ class HomePageTest(TestCase):
 
 class BrowseMoviesTest(TestCase):
 
-    @unittest.skip
+
+    def test_reverse_movies_browse_with_page(self):
+        movies_url = reverse("movies_browse_page", kwargs={"page": 3})
+        self.assertEqual(movies_url, "/movies/browse/page/3")
+
+    # @unittest.skip
     def test_load_movies_using_ajax_request(self):
         movies_tmdb = tmdb_request("GET", "movie/popular", 
             {"page": 3}).get("results")
         movies_titles = [ movie["title"] for movie in movies_tmdb ]
-        movies = json.loads(self.client.post(reverse("browse_movies"), 
-            {"page": 3}).content.decode())
+
+        self.assertEqual(Movie.objects.all().count(), 0)
+        movies = json.loads(self.client.post(
+            reverse("movies_browse_page", kwargs={"page": 3})
+        ).content.decode())
+
         self.assertTrue(all(movie["title"] in movies_titles for movie in movies))
 
-    @unittest.skip
+    # @unittest.skip
     def test_load_autoamtically_next_movies_using_ajax(self):
         movies_tmdb = tmdb_request("GET", "movie/popular",
             {"page": 2}).get("results")

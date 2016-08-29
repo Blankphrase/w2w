@@ -1,31 +1,55 @@
+{% extends 'main/base.html' %}
 {% load static %}
 
-<!doctype html>
-<html>
+{% block styles %}
+{{ block.super }}
+<style>
+.page-header {
+    text-align: center;
+}
+</style>
+{% endblock styles %}
 
-<head>
-</head>
+{% block body %}
+{{ block.super }}
+    <div class="container">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h3 class="panel-title">Find Your Favourite Movies
+                    <span id="state-msg"></span>
+                </h3>
+            </div>
+            <div class="panel-body">
+                <ul id="movies-list" class="list-group row"></ul>
+                <button id="movies-list-prev" class="btn btn-primary" 
+                    type="button">Prev</button>
+                <button id="movies-list-next" class="btn btn-primary" 
+                    type="button">Next</button>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h3 class="panel-title">Your Preferences</h3>
+            </div>
+            <div class="panel-body">
+                <ul id="pref-list" class="list-group row"></ul>
+                <button id="clear-my-prefs" class="btn btn-danger" 
+                    type="button">Clear My Preferences</button>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <button id="ask-for-reco" class="btn btn-primary" 
+            type="button">Give Me Reco</button>
+    </div>
+{% endblock %}
 
-<body>
-    <h4>Movies</h4>
+{% block body_scripts %}
+    <script src="{% static 'main/js/reco.ui.js' %}"></script>
+{% endblock %}
 
-    <ul id="movies-list">
-    </ul>
 
-    <p id="state-msg"></p>
 
-    <button id="movies-list-prev" type="button">Prev</button>
-    <button id="movies-list-next" type="button">Next</button>
 
-    <h4>Your preferences</h4>
-    
-    <ul id="pref-list">
-    </ul>
-
-    <button id="ask-for-reco" type="button">Give Me Reco</button>
-
-    <script src="{% static 'main/jquery-3.1.0.min.js' %}"></script>
-    <script src="{% static 'main/reco.ui.js' %}"></script>
-</body>
-
-</html>
