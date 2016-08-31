@@ -1,11 +1,13 @@
 from . import base
 
 from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
 
 import unittest
 import time
 
-class AnonymousUserRecoTest(base.FunctionalTest):
+
+class PopularMovieSelectionTest(base.FunctionalTest):
     '''
     Minimum viable: User selects his/her favourite movies from the given list.
     He/She uses checkboxes located by the movies' title. Selected movies
@@ -14,14 +16,7 @@ class AnonymousUserRecoTest(base.FunctionalTest):
     makes recommendation.
     '''
 
-    def setUp(self):
-        self.browser = webdriver.Firefox()
-        self.browser.implicitly_wait(3)
-
-    def tearDown(self):
-        self.browser.quit()
-
-    def test_make_standalone_reco(self):
+    def test_movie_selection(self):
         # Kate has heard about a cool new web application which recommends
         # movies worth to watch. She goes check out how it works. 
         self.browser.get(self.server_url)
@@ -141,12 +136,66 @@ class AnonymousUserRecoTest(base.FunctionalTest):
         kate_movies = kate_pref.find_elements_by_tag_name("li")
         self.assertEqual(len(kate_movies), 4)
 
-        time.sleep(10)
 
+class SearchMovieSelectionTest(base.FunctionalTest):
 
-class AnonymousUserSearchMoviesTest(unittest.TestCase):
+    def test_search_movies(self):
+        # Kate visits her favourite movies site.
+        self.browser.get(self.server_url)
+        self.wait_for_movies_list_update()
 
-    pass
+        movies = self.browser.find_elements_by_css_selector(".movie-item")
+        movies_titles = [ movie.find_element_by_class_name("movie-item-title").text\
+            for movie in movies ]
 
-if __name__ == "__main__":
-    unittest.main(warnings = "ignore")
+        # She spots new input element with placeholder 'Search for movies ...'
+        search_input = self.browser.find_element_by_id("movie-search-input");
+        self.assertEqual(
+            search_input.get_attribute("placeholder"),
+            "Search for movies ..."
+        )
+
+        # She enters 'Terminator' and presses enter
+        search_input.send_keys("Terminator")
+        search_input.send_keys(Keys.ENTER)
+
+        self.wait_for_movies_list_update(retries = 5)
+        
+        # Previous list of movies disappears and movies related to
+        # her query appears.
+        movies = self.browser.find_elements_by_css_selector(".movie-item")
+        movies_new_titles = [ movie.find_element_by_class_name("movie-item-title").text\
+            for movie in movies ]
+
+        self.assertFalse(
+            [title for title in movies_new_titles if title in movies_titles]
+        )
+
+        # She checks first three movies as her favourite
+        movies = self.browser.find_elements_by_css_selector(".movie-item")
+
+        movies[0].find_element_by_tag_name("input").click()
+        movies[1].find_element_by_tag_name("input").click()
+        movies[2].find_element_by_tag_name("input").click()  
+
+        # She decideds to search for other movies and inputs into
+        # search box 'Tranlorders', and presses enter.
+        search_input.send_keys("Tranlorders")
+        search_input.send_keys(Keys.ENTER)
+
+        self.wait_for_movies_list_update(retries = 5)
+
+        # Unfortuantely, search engine was not able to find any
+        # movie related to her query and she notices message
+        # 'No movies found'.
+        self.fail("Finish the test")
+
+        # She clears the input box and the list of the most popular
+        # movies appears.
+
+        # She enters now correct word 'Transformers' and now the movies
+        # appears.
+
+        # She picks the first one
+
+        # Finally there are 4 movies in her preferences list

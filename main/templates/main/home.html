@@ -7,6 +7,10 @@
 .page-header {
     text-align: center;
 }
+.movie-search-group {
+    margin-bottom: 10px;
+}
+
 </style>
 {% endblock styles %}
 
@@ -20,6 +24,15 @@
                 </h3>
             </div>
             <div class="panel-body">
+
+                <div class="input-group movie-search-group">
+                    <input type="text" class="form-control" id="movie-search-input"
+                           placeholder="Search for movies ...">
+                    <span class="input-group-btn">
+                        <button class="btn btn-default" type="button">Search!</button>
+                    </span>
+                </div>
+
                 <ul id="movies-list" class="list-group row"></ul>
                 <button id="movies-list-prev" class="btn btn-primary" 
                     type="button">Prev</button>
