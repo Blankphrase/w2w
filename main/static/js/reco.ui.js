@@ -14,11 +14,11 @@ $(document).on("change", ".movie-item-checkbox", function() {
 
 var loadInProgress = false;
 $("#movies-list-next").click(function() {
-    if (!loadInProgress) loadMoviesFromServer("/movies/browse/next");
+    if (!loadInProgress) loadMoviesFromServer("/movies/next");
 });
 
 $("#movies-list-prev").click(function() {
-    if (!loadInProgress) loadMoviesFromServer("/movies/browse/prev");
+    if (!loadInProgress) loadMoviesFromServer("/movies/prev");
 });
 
 $("#clear-my-prefs").click(function() {
@@ -26,7 +26,7 @@ $("#clear-my-prefs").click(function() {
     var movieId;
 
     for (var i = 0; i < moviesList.length; i++) {
-        movieId = moviesList[i].tmdb_id;
+        movieId = moviesList[i].id;
         $(".movie-item").filter(function() {
             return $(this).data("movie-id") == movieId
         }).find("input").prop("checked", false);
@@ -106,13 +106,14 @@ function loadMoviesFromServer(url, data) {
         data: JSON.stringify(data),
         contentType: "application/json; charset=utf-8",
         dataType: "json",
-        success: function(movies) {
+        success: function(response) {
+            movies = response.movies;
             if (movies.length > 0) {
                 refreshMoviesList(movies);
                 $("#state-msg").hide();
             } else {
                 $("#state-msg").show();
-                $("#state-msg").html("No more movies.");               
+                $("#state-msg").html("(No more movies)");               
             }
             loadInProgress = false;
         },
@@ -128,11 +129,11 @@ function refreshMoviesList(movies) {
     $moviesList.empty();
     for (var i = 0; i < movies.length; i++) {
         var $movieItem = $("<li class='movie-item list-group-item col-xs-4'></li>").data("movie-id", 
-            movies[i].tmdb_id);
+            movies[i].id);
         $movieItem.append("<input class='movie-item-checkbox' " + 
             "type='checkbox' name='movie' value='" + 
-            movies[i].tmdb_id + "' " + 
-            (findInMoviesList(movies[i].tmdb_id) >= 0 ? "checked" : "") +
+            movies[i].id + "' " + 
+            (findInMoviesList(movies[i].id) >= 0 ? "checked" : "") +
             ">");
         $movieItem.append("<span class='movie-item-title'>" +
             movies[i].title + "</span>");
@@ -140,22 +141,22 @@ function refreshMoviesList(movies) {
     }   
 }
 
-function findInMoviesList(tmdb_id) {
+function findInMoviesList(id) {
     var moviesArray = getMoviesList();
-    tmdb_id = tmdb_id.toString();
+    id = id.toString();
     for (var i = 0; i < moviesArray.length; i++) {
-        if (moviesArray[i].tmdb_id == tmdb_id) {
+        if (moviesArray[i].id == id) {
             return i;
         }
     }
     return -1;
 }
 
-function updateMovieRating(tmdb_id, rating) {
+function updateMovieRating(id, rating) {
     var moviesArray = getMoviesList();
-    tmdb_id = tmdb_id.toString();
+    var id = id.toString();
     for (var i = 0; i < moviesArray.length; i++) {
-        if (moviesArray[i].tmdb_id == tmdb_id) {
+        if (moviesArray[i].id == id) {
                 moviesArray[i].rating = rating;
                 localStorage.setItem("moviesArray", JSON.stringify(moviesArray));
                 return true;                
@@ -164,26 +165,26 @@ function updateMovieRating(tmdb_id, rating) {
     return false;
 }
 
-function addMovieToList(tmdb_id, title, rating) {
+function addMovieToList(id, title, rating) {
     if (rating === undefined) rating = 10
 
     var moviesArray = getMoviesList();
-    tmdb_id = tmdb_id.toString();
+    id = id.toString();
     for (var i = 0; i < moviesArray.length; i++) {
-        if (moviesArray[i].tmdb_id == tmdb_id) {
+        if (moviesArray[i].id == id) {
                 return false;                
         }
     }
-    moviesArray.push({"tmdb_id": tmdb_id, "title": title, "rating": rating});
+    moviesArray.push({"id": id, "title": title, "rating": rating});
     localStorage.setItem("moviesArray", JSON.stringify(moviesArray));
     return true;
 }
 
-function removeMovieFromList(tmdb_id) {
+function removeMovieFromList(id) {
     var moviesArray = getMoviesList();
-    tmdb_id = tmdb_id.toString();
+    var id = id.toString();
     for(var i = 0; i < moviesArray.length; i++) {
-        if (moviesArray[i].tmdb_id == tmdb_id) {
+        if (moviesArray[i].id == id) {
             moviesArray.splice(i, 1);
             localStorage.setItem("moviesArray", JSON.stringify(moviesArray));
             return true;

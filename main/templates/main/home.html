@@ -63,11 +63,11 @@
 {% block body_scripts %}
     <script src="{% static 'js/reco.ui.js' %}"></script>
     <script>
-        loadMoviesFromServer("movies/browse/page/1");
+        loadMoviesFromServer("movies/popular");
 
         var moviesList = getMoviesList();
         for (var i = 0; i < moviesList.length; i++) {
-            addToPrefList(moviesList[i].tmdb_id, moviesList[i].title,
+            addToPrefList(moviesList[i].id, moviesList[i].title,
                 moviesList[i].rating);
         }
     </script>
