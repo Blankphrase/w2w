@@ -1,0 +1,78 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Mocha Tests</title>
+        <link rel="stylesheet" href="../../../w2w/static/tests/mocha.css">
+    </head>
+
+    <body>
+        <div id="fixtures">
+            <input type="text" id="movie-search-input" value="Terminator">
+            <button id="movie-search-button" type="button">Search!</button>
+        </div>
+
+        <div id="mocha"></div>
+
+        <script src="../../../w2w/static/tests/jquery-3.1.0.js"></script>
+        <script src="../../../w2w/static/tests/mocha.js"></script>
+        <script src="../../../w2w/static/tests/chai.js"></script>
+        <script src="../../../w2w/static/tests/sinon.js"></script>
+        <script>mocha.setup("bdd");</script>
+
+        <!-- load code you want to test heere -->
+
+        <script src="../js/reco.ui.js"></script>
+
+        <!-- load your test files here -->
+        <script>
+            var assert = chai.assert;
+            var expect = chai.expect;
+
+            describe("Search Movies", function() {
+                it("search button should trigger ajax post request", sinon.test(
+                    function() {
+                        var ajaxStub = this.stub($, "ajax");
+                        $('#movie-search-button').trigger('click');
+                        sinon.assert.calledOnce(ajaxStub);
+                    })
+                );
+
+                it("search button does ajax post to search movie url", sinon.test(
+                    function() {
+                        var ajaxStub = this.stub($, "ajax");
+                        $('#movie-search-button').trigger('click');
+                        assert.equal(
+                            ajaxStub.firstCall.args[0].url, 
+                            "/movies/browse/search"
+                        );
+                    })
+                );
+
+                it("search button does ajax post with query", sinon.test(
+                    function() {
+                        var ajaxStub = this.stub($, "ajax");
+                        $("#movie-search-button").trigger("click");
+                        expect(ajaxStub.firstCall.args[0].data).to.contain("Terminator");
+                    })
+                );
+
+                it("successful ajax request refresh movies list", sinon.test(
+                    function () {
+                        var refreshStub = this.stub(window, "refreshMoviesList");
+                        this.stub($, "ajax").yieldsTo("success");
+
+                        $("#movie-search-button").trigger("click");
+
+                        sinon.assert.calledOnce(refreshStub);
+                    })
+                );
+            });
+
+        </script>
+
+        <script>
+            mocha.run();
+        </script>
+    </body>
+
+</html>

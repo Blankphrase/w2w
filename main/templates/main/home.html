@@ -29,7 +29,8 @@
                     <input type="text" class="form-control" id="movie-search-input"
                            placeholder="Search for movies ...">
                     <span class="input-group-btn">
-                        <button class="btn btn-default" type="button">Search!</button>
+                        <button class="btn btn-default" id="movie-search-button"
+                                type="button">Search!</button>
                     </span>
                 </div>
 
@@ -60,7 +61,16 @@
 {% endblock %}
 
 {% block body_scripts %}
-    <script src="{% static 'main/js/reco.ui.js' %}"></script>
+    <script src="{% static 'js/reco.ui.js' %}"></script>
+    <script>
+        loadMoviesFromServer("movies/browse/page/1");
+
+        var moviesList = getMoviesList();
+        for (var i = 0; i < moviesList.length; i++) {
+            addToPrefList(moviesList[i].tmdb_id, moviesList[i].title,
+                moviesList[i].rating);
+        }
+    </script>
 {% endblock %}
 
 

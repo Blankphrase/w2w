@@ -1,18 +1,4 @@
 /*******************************************************************************
-    RUN ON NEW DOCUMENT
-*******************************************************************************/
-
-loadMoviesFromServer("movies/browse/page/1");
-
-var moviesList = getMoviesList();
-for (var i = 0; i < moviesList.length; i++) {
-    addToPrefList(moviesList[i].tmdb_id, moviesList[i].title,
-        moviesList[i].rating);
-}
-
-/******************************************************************************/
-
-/*******************************************************************************
     EVENTS HANDLERS
 *******************************************************************************/
 
@@ -63,6 +49,20 @@ $(document).on("click", ".pref-item-remove", function() {
     }).find("input").prop("checked", false);
     removeFromPrefList(movieId);
     removeMovieFromList(movieId);   
+});
+
+$("#movie-search-button").click(function() {
+    var query = $("#movie-search-input").val();
+    $.ajax({
+        type: "POST",
+        url: "/movies/browse/search",
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        data: JSON.stringify({query: query}),
+        success: function(movies) {
+            refreshMoviesList(movies);    
+        }
+    });
 });
 
 /******************************************************************************/
