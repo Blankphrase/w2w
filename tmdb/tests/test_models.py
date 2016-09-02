@@ -10,12 +10,12 @@ import datetime
 class TMDBModelsTest(TestCase):
 
     def test_create_movie_and_save_it(self):
-        movie = Movie(title = "Hej Ho", tmdb_id = 1)
+        movie = Movie(title = "Hej Ho", id = 1)
         movie.save()
         self.assertEqual(Movie.objects.count(), 1)
 
     def test_add_movie_to_movie_popular_query(self):
-        movie1 = Movie.objects.create(title = "Hej Ho", tmdb_id = 1)
+        movie1 = Movie.objects.create(title = "Hej Ho", id = 1)
         mpq = MoviePopularQuery.objects.create(
             timestamp = datetime.datetime.utcnow(), page = 1)
         mpq.movies.add(movie1)

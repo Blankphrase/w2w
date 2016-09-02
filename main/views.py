@@ -3,7 +3,6 @@ from django.http.request import HttpRequest
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 
-from tmdb.views import movie_popular
 import main.browse as browse
 
 import json

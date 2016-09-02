@@ -1,12 +1,10 @@
 from django.db import models
+from django.utils import timezone
 
 
 class Movie(models.Model):
+    id = models.IntegerField(primary_key = True)
     title = models.TextField()
-    tmdb_id = models.IntegerField()
-
-    class Meta:
-        unique_together = ("tmdb_id",)
 
     def __str__(self):
         return self.title
@@ -14,7 +12,7 @@ class Movie(models.Model):
 
 class MoviePopularQuery(models.Model):
     page = models.IntegerField()
-    timestamp = models.DateTimeField()
+    timestamp = models.DateTimeField(default = timezone.now())
     total_pages = models.IntegerField(blank = True, null = True)
     total_results = models.IntegerField(blank = True, null = True)
     movies = models.ManyToManyField(Movie)
@@ -24,3 +22,4 @@ class MoviePopularQuery(models.Model):
 
     def __str__(self):
         return "page: {0}/{1}".format(self.page, self.timestamp)
+

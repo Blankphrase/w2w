@@ -8,7 +8,6 @@
 
 from django.http.request import HttpRequest
 
-from tmdb.views import movie_popular
 
 import json
 
@@ -18,11 +17,12 @@ def get_movies(settings):
 
     if settings["mode"] == "popular":
         if settings["page"] > 0:
-            request = HttpRequest()
-            request.method = "POST"
-            request.POST["page"] = settings["page"]
-            response = json.loads(movie_popular(request).content.decode())
-            movies = response["results"]
+            pass
+            # request = HttpRequest()
+            # request.method = "POST"
+            # request.POST["page"] = settings["page"]
+            # response = json.loads(movie_popular(request).content.decode())
+            # movies = response["results"]
     elif settings["mode"] == "search":
         pass
 
