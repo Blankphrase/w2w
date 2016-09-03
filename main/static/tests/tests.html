@@ -43,7 +43,7 @@
                         $('#movie-search-button').trigger('click');
                         assert.equal(
                             ajaxStub.firstCall.args[0].url, 
-                            "/movies/browse/search"
+                            "/movies/search"
                         );
                     })
                 );

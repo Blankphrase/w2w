@@ -55,7 +55,7 @@ $("#movie-search-button").click(function() {
     var query = $("#movie-search-input").val();
     $.ajax({
         type: "POST",
-        url: "/movies/browse/search",
+        url: "/movies/search",
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         data: JSON.stringify({query: query}),

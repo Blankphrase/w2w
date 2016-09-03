@@ -12,7 +12,7 @@ class Movie(models.Model):
 
 class MoviePopularQuery(models.Model):
     page = models.IntegerField()
-    timestamp = models.DateTimeField(default = timezone.now())
+    timestamp = models.DateTimeField(default = timezone.now)
     total_pages = models.IntegerField(blank = True, null = True)
     total_results = models.IntegerField(blank = True, null = True)
     movies = models.ManyToManyField(Movie)

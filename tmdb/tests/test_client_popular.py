@@ -9,7 +9,7 @@ import unittest
 from unittest.mock import patch
 
 
-class ClientTest(TestCase):
+class ClientPopularTest(TestCase):
 
     def setUp(self):
         self.tmdb_client = Client()
@@ -18,7 +18,7 @@ class ClientTest(TestCase):
     @patch("tmdb.util.tmdb_request")
     def test_call_tmdb_request_with_the_proper_arguments(self, tmdb_request_mock):
         self.tmdb_client.get_popular_movies(page = 101)
-        tmdb_request_mock.called_once_with("GET", "movie/popular", {"page": 101})
+        tmdb_request_mock.assert_called_once_with("GET", "movie/popular", {"page": 101})
     
 
     @patch("requests.request")

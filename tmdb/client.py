@@ -36,7 +36,8 @@ class Client:
         return mpq
 
     def search_movies(self, query, page = 1):
-        pass
+        response = tmdb_request(method = "POST", path = "search/movie", 
+                params = {"page": page, "query": query})
 
     def _save_movie_in_database(self, movie):
         movie = Movie(id = movie["id"], title = movie["title"])
