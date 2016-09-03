@@ -1,0 +1,4 @@
+Django==1.10
+lxml==3.6.4
+requests==2.11.1
+selenium==2.53.6

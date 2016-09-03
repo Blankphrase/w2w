@@ -188,11 +188,13 @@ class SearchMovieSelectionTest(base.FunctionalTest):
         # Unfortuantely, search engine was not able to find any
         # movie related to her query and she notices message
         # 'No movies found'.
-        self.fail("Finish the test")
+        movies = self.browser.find_elements_by_css_selector(".movie-item")
+        self.assertEqual(len(movies), 0)
 
         # She clears the input box and the list of the most popular
         # movies appears.
-
+        self.fail("Finish the test")
+        
         # She enters now correct word 'Transformers' and now the movies
         # appears.
 

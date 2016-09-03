@@ -63,7 +63,7 @@
 {% block body_scripts %}
     <script src="{% static 'js/reco.ui.js' %}"></script>
     <script>
-        loadMoviesFromServer("movies/popular");
+        loadMoviesFromServer("/movies/popular");
 
         var moviesList = getMoviesList();
         for (var i = 0; i < moviesList.length; i++) {

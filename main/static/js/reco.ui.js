@@ -53,17 +53,16 @@ $(document).on("click", ".pref-item-remove", function() {
 
 $("#movie-search-button").click(function() {
     var query = $("#movie-search-input").val();
-    $.ajax({
-        type: "POST",
-        url: "/movies/search",
-        contentType: "application/json; charset=utf-8",
-        dataType: "json",
-        data: JSON.stringify({query: query}),
-        success: function(movies) {
-            refreshMoviesList(movies);    
-        }
-    });
+    loadMoviesFromServer("/movies/search", {query: query});
 });
+
+
+$("#movie-search-input").keyup(function (e) {
+    if (e.keyCode == 13) {
+        loadMoviesFromServer("/movies/search", {query: $(this).val()});
+    }
+});
+
 
 /******************************************************************************/
 
@@ -97,31 +96,41 @@ function removeFromPrefList(movieId) {
 }
 
 function loadMoviesFromServer(url, data) {
+    if (data === undefined) data = {};
+
     loadInProgress = true;
     $("#state-msg").show();
     $("#state-msg").html("(Loading ...)");
-    $.ajax({
-        type: "POST",
-        url: url,
-        data: JSON.stringify(data),
-        contentType: "application/json; charset=utf-8",
-        dataType: "json",
-        success: function(response) {
-            movies = response.movies;
-            if (movies.length > 0) {
-                refreshMoviesList(movies);
-                $("#state-msg").hide();
-            } else {
-                $("#state-msg").show();
-                $("#state-msg").html("(No more movies)");               
-            }
-            loadInProgress = false;
-        },
-        failure: function(errMsg) {
+
+    $.post(url, data)
+    .done(function(response) {
+        movies = response.movies;
+        refreshMoviesList(movies);
+        if (movies.length > 0) {
+            $("#state-msg").hide();
+        } else {
+            $("#state-msg").show();
+            $("#state-msg").html("(Empty list)");               
+        }
+        loadInProgress = false;
+
+        if (response.page == 1) {
+            $("#movies-list-prev").prop("disabled", true);
+        } else {
+            $("#movies-list-prev").prop("disabled", false);
+        }
+
+        if (response.page == response.total_pages) {
+            $("#movies-list-next").prop("disabled", true);   
+        } else {
+            $("#movies-list-next").prop("disabled", false);
+        }
+
+    })
+    .fail(function(errMsg) {
             alert(errMsg);
             loadInProgress = false;
-        }
-    });   
+    }); 
 }
 
 function refreshMoviesList(movies) {

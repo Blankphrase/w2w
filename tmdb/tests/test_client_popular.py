@@ -1,4 +1,5 @@
 from django.test import TestCase
+from django.forms import model_to_dict
 
 from tmdb.client import Client
 from tmdb.models import Movie, MoviePopularQuery
@@ -15,10 +16,17 @@ class ClientPopularTest(TestCase):
         self.tmdb_client = Client()
 
 
-    @patch("tmdb.util.tmdb_request")
+    @patch("tmdb.client.tmdb_request")
     def test_call_tmdb_request_with_the_proper_arguments(self, tmdb_request_mock):
+        tmdb_request_mock.return_value = {
+            "results": [ ],
+            "total_results": 0, 
+            "page": 2,
+            "total_pages": 1
+        }
         self.tmdb_client.get_popular_movies(page = 101)
-        tmdb_request_mock.assert_called_once_with("GET", "movie/popular", {"page": 101})
+        tmdb_request_mock.assert_called_once_with(method="GET", 
+            path="movie/popular", params={"page": 101})
     
 
     @patch("requests.request")
@@ -31,7 +39,7 @@ class ClientPopularTest(TestCase):
             "total_pages": 1
         }
         pq = self.tmdb_client.get_popular_movies(page = 1)     
-        movies = [ {"title": movie.title, "id": movie.id } for movie in pq.movies.all() ]
+        movies = [ {"title": movie["title"], "id": movie["id"] } for movie in pq["movies"] ]
         self.assertEqual(movies, movies_ref)
 
 
@@ -147,7 +155,7 @@ class ClientPopularTest(TestCase):
             "total_pages": 1
         }           
         mpq = self.tmdb_client.get_popular_movies(page = 1)
-        self.assertEqual(mpq.total_results, 2)
+        self.assertEqual(mpq["total_results"], 2)
 
 
     @patch("requests.request")
@@ -167,7 +175,7 @@ class ClientPopularTest(TestCase):
             "total_pages": 1
         }           
         mpq = self.tmdb_client.get_popular_movies(page = 1, update_data = True)
-        self.assertEqual(mpq.total_results, 3)
+        self.assertEqual(mpq["total_results"], 3)
 
 
     @patch("requests.request")
@@ -179,5 +187,5 @@ class ClientPopularTest(TestCase):
             "total_pages": 1
         }
         mpq = self.tmdb_client.get_popular_movies(page = 1)
-        self.assertEqual(mpq.movies.count(), 0)
+        self.assertEqual(len(mpq["movies"]), 0)
         self.assertEqual(Movie.objects.count(), 0)

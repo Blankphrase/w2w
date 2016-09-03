@@ -5,22 +5,31 @@ from django.views.decorators.csrf import csrf_exempt
 from tmdb.client import Client
 from tmdb.settings import TMDB_MAX_PAGE, TMDB_MIN_PAGE
 
+import re
+
 
 @csrf_exempt
 def movies_page(request, page):
     page = int(page)
     
     if page < TMDB_MIN_PAGE:
-        request.session["browse_page"] = TMDB_MIN_PAGE 
+        request.session["browse_page"] = TMDB_MIN_PAGE-1
         return JsonResponse({"movies": [], "page": TMDB_MIN_PAGE-1, 
-            "total_pages": 0, "total_results": 0})
+            "total_pages": 1, "total_results": 0})
     elif page > TMDB_MAX_PAGE:
-        request.session["browse_page"] = TMDB_MAX_PAGE
+        request.session["browse_page"] = TMDB_MAX_PAGE+1
         return JsonResponse({"movies": [], "page": TMDB_MAX_PAGE+1,
-            "total_pages": 0, "total_results": 0})
+            "total_pages": 1, "total_results": 0})
+    
+    request.session["browse_page"] = page
+
+    if request.session["browse_mode"] == "popular":
+        data = Client().get_popular_movies(page)
     else:
-        request.session["browse_page"] = page
-        return _get_popular_movies(page)
+        query = request.session["browse_query"]
+        data = Client().search_movies(query, page)
+
+    return JsonResponse(data)
 
 @csrf_exempt
 def movies_popular(request):
@@ -30,14 +39,17 @@ def movies_popular(request):
 
 @csrf_exempt
 def movies_search(request):
-    page = rquest.POST.get("page", 1)
+    page = request.POST.get("page", 1)
     query = request.POST.get("query", None)
+    if query:
+        query = "+".join(re.findall(r"(\w+)", query))   
 
     request.session["browse_mode"] = "search"
     request.session["browse_page"] = page
     request.session["browse_query"] = query
 
-    return JsonResponse({})
+    data = Client().search_movies(query, page)
+    return JsonResponse(data)
 
 @csrf_exempt
 def movies_next(request):
@@ -52,15 +64,9 @@ def movies_info(request):
     return JsonResponse({
         "mode": request.session["browse_mode"],
         "page": request.session["browse_page"],
+        "query": request.session.get("browse_query", None)
     })
 
 def _get_popular_movies(page):
-    query_result = Client().get_popular_movies(page)
-    data = {
-        "movies": [ model_to_dict(movie,  fields = [ "title", "id" ]) 
-            for movie in query_result.movies.all() ],
-        "page": page,
-        "total_pages": query_result.total_pages,
-        "total_results": query_result.total_results
-    }
+    data = Client().get_popular_movies(page)
     return JsonResponse(data)
