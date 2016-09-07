@@ -64,11 +64,58 @@ $("#movie-search-input").keyup(function (e) {
 });
 
 
+$("#make-reco-btn").click(function() {
+    var recoType = localStorage.getItem("reco-type");
+
+    // General recommendation procedure does not required to receive
+    // preferences, because it used all user's preferences already
+    // stored in internal databases.
+    var prefList = null;
+    if (recoType == RECO.STANDALONE) {
+        prefList = JSON.parse(localStorage.getItem("reco-pref"));
+    }
+
+    if (recoType == RECO.STANDALONE && prefList.length == 0) {
+        alert(RECO.NOMOVIES_MSG);
+    } else {
+        $.post(
+            RECO.URL,
+            {reco: JSON.stringify({
+                type: recoType,
+                preferences: prefList
+            })},
+            handleRecoResponse
+        );
+    }
+});
+
+/******************************************************************************/
+
+/*******************************************************************************
+    GLOBAL VARIABLES
+
+*******************************************************************************/
+
+var RECO = {
+    EMPTY_MSG: "Unable to make recommendation on the base of your preferneces",
+    NOMOVIES_MSG: "Please specifiy your preferences",
+    STANDALONE: "standalone",
+    GENERAL: "general",
+    URL: "/reco"
+};
+
 /******************************************************************************/
 
 /*******************************************************************************
     FUNCTIONS
 *******************************************************************************/
+
+function handleRecoResponse(response) {
+    var movies = response.movies;
+    if (movies.length === 0) {
+        $("#reco-state").html(RECO.EMPTY_MSG);
+    }
+}
 
 function addToPrefList(movieId, movieTitle, movieRating) {
     if (movieRating === undefined) movieRating = 10
