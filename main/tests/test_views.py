@@ -86,7 +86,7 @@ class RecoTest(unittest.TestCase):
 
     @patch("main.views.JsonSource")
     @patch("main.views.UserSource")
-    def test_initialise_user_source_with_user_when_general(
+    def test_initialises_user_source_with_user_when_general(
         self, mock_user_source, mock_json_source
     ):
         request = self.createGeneralRequest(user = User())
@@ -97,7 +97,7 @@ class RecoTest(unittest.TestCase):
 
     @patch("main.views.JsonSource")
     @patch("main.views.UserSource")
-    def test_initialise_json_source_with_reco_data_when_standalone(
+    def test_initialises_json_source_with_reco_data_when_standalone(
         self, mock_user_source, mock_json_source
     ):
         request = self.createStandaloneRequest()
@@ -109,7 +109,7 @@ class RecoTest(unittest.TestCase):
 
     @patch("main.views.UserSource")
     @patch("main.views.RecoEngine")
-    def test_initialise_recoengine_with_source(
+    def test_initialises_recoengine_with_source(
         self, mock_reco, mock_user_source
     ):
         mock = Mock()

@@ -3,7 +3,7 @@ from django.http import JsonResponse
 from django.core import serializers
 
 from reco.source import UserSource, JsonSource
-from reco.engine import RecoEngine
+from reco.engine import RecoManager
 
 
 def home_page(request):
@@ -22,7 +22,7 @@ def new_reco(request):
     elif reco_type == "standalone":
         source = JsonSource(preferences = request.POST["reco-pref"])
 
-    rengine = RecoEngine(source = source)
+    rengine = RecoManager(source = source)
 
     # make_reco() will probably raise some errors in the future
     try:

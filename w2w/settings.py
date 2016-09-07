@@ -39,7 +39,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     "main",
     "tmdb",
-    "movies"
+    "movies",
+    "reco",
+    "accounts"
 ]
 
 MIDDLEWARE = [
