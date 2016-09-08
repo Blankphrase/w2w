@@ -40,14 +40,15 @@ class User(AbstractBaseUser):
     )
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
+    is_real = models.BooleanField(default=True)
 
     objects = CustomUserManager()
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
 
-    def add_pref(self, id, rating = 10):
-        self.pref.add_pref(id, rating)
+    def add_pref(self, id, rating = 10, timestamp = None):
+        self.pref.add_pref(id, rating, timestamp)
 
     def get_pref(self, id):
         return self.pref.data.get(movie__id=id)
