@@ -8,6 +8,16 @@ class Item2Item():
     def make_reco(self, base):
         pass
 
+# base - list of movies with user's ratings
+# 1. Find all users who watched the same movies as user
+# 2. Find new movies who were not watch previously by user
+# 3. Calculte score somehow
+# 4. Return the list of movies order by score (limit to 100 or not) and
+#    do not show movies already watched by user.
+# 5. Display movies in home_page
+# 6. Introduce to Movie the informationtion how the recrord was created.
+
+
 
 class RecoManager:
 
