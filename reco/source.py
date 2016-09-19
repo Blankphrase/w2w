@@ -13,7 +13,16 @@ class Source(ABC):
 
 
 class UserSource(Source):
-    pass
+    
+    def __init__(self, user):
+        self.user = user
+
+    def get_data(self):
+        return list(self.user.pref.data.extra(select={"movie__id": "id"}).
+            values("id", "rating").all())
+
+    def is_empty(self):
+        return self.user.pref.data.count() == 0
 
 
 class JsonSource(Source):

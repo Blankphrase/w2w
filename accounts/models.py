@@ -47,8 +47,17 @@ class User(AbstractBaseUser):
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
 
-    def add_pref(self, id, rating = 10, timestamp = None):
-        self.pref.add_pref(id, rating, timestamp)
+    mean_rating = models.FloatField(default=0)
+
+    def add_pref(self, id, rating = 10, timestamp = None, 
+        save = True, update_mean = True
+    ):
+        new_pref = self.pref.add_pref(id, rating, timestamp)
+        if update_mean:
+            self.update_mean_rating(False)
+        if save:
+            self.save()
+        return new_pref
 
     def get_pref(self, id):
         return self.pref.data.get(movie__id=id)
@@ -56,10 +65,19 @@ class User(AbstractBaseUser):
     def del_pref(self, id):
         self.pref.data.get(movie__id=id).delete()
 
+    def update_mean_rating(self, save = True):
+        ratings = self.pref.data.values("rating").all()
+        self.mean_rating = sum(item["rating"] for item in ratings)/len(ratings)      
+        if save:
+            self.save()
+
 
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, **kwargs):
-    PrefList.objects.create(user=instance)
+    try:
+        PrefList.objects.get(user=instance)
+    except PrefList.DoesNotExist:
+        PrefList.objects.create(user=instance)
 
 
 class PrefList(models.Model):
@@ -74,7 +92,7 @@ class PrefList(models.Model):
     movies = models.ManyToManyField(Movie, through = "MoviePref",
         related_name = "preflist")
 
-    def add_pref(self, id, rating = 10, timestamp = None):
+    def add_pref(self, id, rating = 10, timestamp = None, save = True):
         movie = Movie.objects.get(id = id)
         timestamp = timestamp if timestamp else timezone.now()
 
@@ -89,11 +107,13 @@ class PrefList(models.Model):
                 rating = rating,
                 timestamp = timestamp
             )
-        pref_movie.save()
+        if save:
+            pref_movie.save()
+        return pref_movie
 
         
 class MoviePref(models.Model):
     preflist = models.ForeignKey(PrefList, related_name = "data")
-    movie = models.ForeignKey(Movie, related_name = "rating")
+    movie = models.ForeignKey(Movie, related_name = "ratings")
     rating = models.IntegerField()
     timestamp = models.DateTimeField(default = timezone.now)

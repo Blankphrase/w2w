@@ -36,12 +36,31 @@ class Reco(models.Model):
 
         return reco_
 
+
 class RecoBase(models.Model):
     reco = models.ForeignKey(Reco)
     movie = models.ForeignKey(Movie)
     rating = models.IntegerField()
 
+
 class RecoMovie(models.Model):
     reco = models.ForeignKey(Reco)
     movie = models.ForeignKey(Movie)
     score = models.FloatField(blank=True,null=True)
+
+
+class MovieSim(models.Model):
+    base_movie = models.ForeignKey(Movie, db_index = True, related_name='+')
+    sim_movie = models.ForeignKey(Movie, related_name='+')
+    
+    value = models.FloatField(blank = False)
+    timestamp = models.DateTimeField(default = timezone.now)
+
+    @staticmethod
+    def create_new(base_movie, sim_movie, simfunc):
+        sim = MovieSim.objects.create(
+            base_movie = base_movie,
+            sim_movie = sim_movie,
+            value = simfunc(base_movie, sim_movie)
+        )
+        return sim

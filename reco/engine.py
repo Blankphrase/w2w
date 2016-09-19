@@ -1,22 +1,28 @@
 from .source import UserSource, JsonSource
 from .exceptions import RecoSourceError
-from .models import Reco
+from .models import Reco, MovieSim
+
+import math
 
 
 class Item2Item():
+
+    # def __init__(self, threshold):
+    #     pass
     
     def make_reco(self, base):
+
+        for movie in base
+
+            MovieSim.objects.get(movie_base = movie["id"]).order_by("value").limit(10)
+
         pass
+        # 1. Find movies similar to movies in base
+        # 2. Sort them with respect to similarity measures
+        # 3. Reommend the n most similar movies
 
-# base - list of movies with user's ratings
-# 1. Find all users who watched the same movies as user
-# 2. Find new movies who were not watch previously by user
-# 3. Calculte score somehow
-# 4. Return the list of movies order by score (limit to 100 or not) and
-#    do not show movies already watched by user.
-# 5. Display movies in home_page
-# 6. Introduce to Movie the informationtion how the recrord was created.
-
+    def pred_rating(self, movie):
+        pass
 
 
 class RecoManager:
@@ -46,5 +52,3 @@ class RecoManager:
     @property
     def base(self):
         return self.source.get_data()
-
-
