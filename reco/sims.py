@@ -1,5 +1,7 @@
 import math
 
+from reco.exceptions import SimCalculationError
+
 
 def cos_sim(movie_a, movie_b):
     rating_a = list(movie_a.preflist.values("user__email", 
@@ -36,8 +38,10 @@ def _cos_sim(rating_a, rating_b):
         len_a += rating_a[user]*rating_a[user]
         len_b += rating_b[user]*rating_b[user]
 
-    return a_dot_b/(math.sqrt(len_a*len_b))
-
+    try:
+        return a_dot_b/(math.sqrt(len_a*len_b))
+    except ZeroDivisionError:
+        raise SimCalculationError()
 
 # movie_a = Movie.objects.all()[1000]
 # movie_b = Movie.objects.all()[2345]

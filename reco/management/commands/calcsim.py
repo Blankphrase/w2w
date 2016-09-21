@@ -30,11 +30,27 @@ class Command(BaseCommand):
 
         self.update_users_mean_ratings(*args, **options)
 
-        movie_a = Movie.objects.all()[1000]
-        movie_b = Movie.objects.all()[4000]
+        movies = Movie.objects.all()
 
-        sim = simfunc(movie_a, movie_b)
-        print(sim)
+        print("Updating similarity matrix ...")
+
+        for i in range(len(movies)):
+            movie_a = movies[i]
+
+            print(" -- processing %d (%s)" % (i, movie_a.title))
+            
+            movie_sims = list()
+            for j in range(i+1, len(movies)):
+                movie_b = movies[j]
+                movie_sim = MovieSim.create_new(movie_a, movie_b, 
+                    simfunc = simfunc, save = False)
+                if movie_sim is not None:
+                    movie_sims.append(movie_sim)
+                    movie_sim_reverse = MovieSim.create_new(movie_b, movie_a, 
+                        simvalue = movie_sim.value, save = False)
+                    movie_sims.append(movie_sim_reverse)
+
+            MovieSim.objects.bulk_create(movie_sims)
 
 
     def update_users_mean_ratings(self, *args, **options):

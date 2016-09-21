@@ -3,6 +3,7 @@ from tmdb.models import Movie
 from django.db import models
 from django.utils import timezone
 from django.conf import settings
+from reco.exceptions import SimCalculationError
 
 
 class Reco(models.Model):
@@ -57,10 +58,17 @@ class MovieSim(models.Model):
     timestamp = models.DateTimeField(default = timezone.now)
 
     @staticmethod
-    def create_new(base_movie, sim_movie, simfunc):
-        sim = MovieSim.objects.create(
-            base_movie = base_movie,
-            sim_movie = sim_movie,
-            value = simfunc(base_movie, sim_movie)
-        )
-        return sim
+    def create_new(base_movie, sim_movie, simfunc = None, 
+        simvalue = None, save = True
+    ):
+        try:
+            sim = MovieSim(
+                base_movie = base_movie,
+                sim_movie = sim_movie,
+                value = simvalue if simvalue is not None else simfunc(base_movie, sim_movie)
+            )
+            if save:
+                sim.save()
+            return sim
+        except SimCalculationError:
+            return None

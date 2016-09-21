@@ -1,5 +1,5 @@
 from tmdb.models import Movie
-from reco.models import Reco, MovieSim
+from reco.models import Reco
 
 from django.test import TestCase
 from django.contrib.auth import get_user_model
@@ -74,16 +74,3 @@ class RecoModelTest(TestCase):
             user = user
         )    
         self.assertEqual(user.reco_set.count(), 1)
-
-
-class MovieSimTest(TestCase):
-
-    def test_create_new_calls_similarity_function(self):
-        sim_mock = Mock()
-        sim_mock.return_value = 0.75
-
-        movie_a = Movie.objects.create()
-        movie_b = Movie.objects.create()
-
-        MovieSim.create_new(movie_a, movie_b, sim_mock)
-        self.assertEqual(MovieSim.objects.first().value, 0.75)

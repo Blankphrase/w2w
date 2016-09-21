@@ -1,4 +1,4 @@
-from reco.engine import RecoManager, Item2Item
+from reco.engine import RecoManager, Item2Item, SlopeOne
 from reco.exceptions import RecoSourceError
 from reco.source import JsonSource, UserSource
 from reco.models import Reco
@@ -111,3 +111,43 @@ class RecoManagerTest(unittest.TestCase):
 
         reco = RecoManager(self.source).make_reco()
         self.assertEqual(reco, self.reco)
+
+
+
+class OneSlopeTest(TestCase):
+
+    def setUp(self):
+
+        Movie.objects.create(id = 1, title = "Movie 1")
+        Movie.objects.create(id = 2, title = "Movie 2")
+        Movie.objects.create(id = 3, title = "Movie 3")
+        Movie.objects.create(id = 4, title = "Movie 4")
+
+        user = User.objects.create(email = "user1@jago.com")
+        user.add_pref(id = 1, rating = 3)
+        user.add_pref(id = 2, rating = 2)
+        user.add_pref(id = 3, rating = 5)
+        user.add_pref(id = 4, rating = 4)
+
+        user = User.objects.create(email = "user2@jago.com")
+        user.add_pref(id = 1, rating = 4)
+        user.add_pref(id = 3, rating = 3)
+        user.add_pref(id = 4, rating = 4)
+
+        self.alice = User.objects.create(email = "alice@jago.com")
+        self.alice.add_pref(id = 1, rating = 2)
+        self.alice.add_pref(id = 2, rating = 5)
+        
+        
+    def tearDown(self):
+        Movie.objects.all().delete()
+        User.objects.all().delete()
+        MoviePref.objects.all().delete()
+
+
+    def test_make_reco_calculates_properly_ratings(self):
+        source = UserSource(self.alice)
+        slope_one = SlopeOne()
+        reco = slope_one.make_reco(source)
+        self.assertTrue(3 in reco)
+        self.assertAlmostEqual(reco[3], 4.33, 2)
