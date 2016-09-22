@@ -46,7 +46,7 @@ class FunctionalTest(StaticLiveServerTestCase):
         self.fail("could not wait longer for state-msg to disappear")
 
 
-    def wait_for(self, function_with_assertion, timeout=30):
+    def wait_for(self, function_with_assertion, timeout = 10):
         start_time = time.time()
         while time.time() - start_time < timeout:
             try:
@@ -58,7 +58,7 @@ class FunctionalTest(StaticLiveServerTestCase):
 
 
     def wait_for_element_with_id(self, element_id):
-        WebDriverWait(self.browser, timeout=30).until(
+        WebDriverWait(self.browser, timeout = 10).until(
             lambda b: b.find_element_by_id(element_id),
             'Could not find element with id {}. Page text was:\n{}'.format(
                 element_id, self.browser.find_element_by_tag_name('body').text

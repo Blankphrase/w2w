@@ -16,63 +16,66 @@
 
 {% block body %}
 {{ block.super }}
-    <div class="container">
-        <div class="panel panel-primary">
-            <div class="panel-heading">
-                <h3 class="panel-title">Find Your Favourite Movies
-                    <span id="state-msg"></span>
-                </h3>
-            </div>
-            <div class="panel-body">
-
-                <div class="input-group movie-search-group">
-                    <input type="text" class="form-control" id="movie-search-input"
-                           placeholder="Search for movies ...">
-                    <span class="input-group-btn">
-                        <button class="btn btn-default" id="movie-search-button"
-                                type="button">Search!</button>
-                    </span>
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="thumbnail">
+                <div class="caption">
+                    <h3>Stand-Alone Recommendation</h3>
+                    <p>
+                        <ul>
+                            <li>fast, one-time recommendation for anonymous as well as for authenitcated users</li>
+                        </ul>
+                    </p>
+                    <p><a href="{% url 'reco' %}" class="btn btn-primary" 
+                          id="standalone-reco-btn" role="button">Start</a></p>
                 </div>
-
-                <ul id="movies-list" class="list-group row"></ul>
-                <button id="movies-list-prev" class="btn btn-primary" 
-                    type="button">Prev</button>
-                <button id="movies-list-next" class="btn btn-primary" 
-                    type="button">Next</button>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="thumbnail">
+                <div class="caption">
+                    <h3>General Recommendation</h3>
+                    <p>
+                        <ul>
+                            <li>complex, general recommendation on the base of your all preferences</li>
+                        </ul>
+                    </p>
+                    <p><a href="#" class="btn btn-primary" 
+                          id="general-reco-btn" role="button">Start</a></p>
+                </div>
             </div>
         </div>
     </div>
-    <div class="container">
-        <div class="panel panel-primary">
-            <div class="panel-heading">
-                <h3 class="panel-title">Your Preferences</h3>
-            </div>
-            <div class="panel-body">
-                <ul id="pref-list" class="list-group row"></ul>
-                <button id="clear-my-prefs" class="btn btn-danger" 
-                    type="button">Clear My Preferences</button>
-            </div>
-        </div>
-    </div>
-    <div class="container">
-        <button id="ask-for-reco" class="btn btn-primary" 
-            type="button">Give Me Reco</button>
-    </div>
+</div>
+<div class = "container">
+    <h3>The newest movies (Fast Pick-Up)</h3>
+</div>
 {% endblock %}
+
 
 {% block body_scripts %}
-    <script src="{% static 'js/reco.ui.js' %}"></script>
-    <script>
-        loadMoviesFromServer("/movies/popular");
+<script>
+    function equalHeight(group) {    
+        var tallest = 0;    
+        group.each(function() {       
+            var thisHeight = $(this).height();       
+            if(thisHeight > tallest) {          
+                tallest = thisHeight;       
+            }    
+        });    
+        group.each(function() { $(this).height(tallest); });
+    } 
 
-        var moviesList = getMoviesList();
-        for (var i = 0; i < moviesList.length; i++) {
-            addToPrefList(moviesList[i].id, moviesList[i].title,
-                moviesList[i].rating);
-        }
-    </script>
+    $(document).ready(function() {   
+        equalHeight($(".thumbnail")); 
+    });
+
+    $("#standalone-reco-btn").click(function() {
+        localStorage.setItem("reco-type", "standalone");
+    });
+    $("#general-reco-btn").click(function() {
+        localStorage.setItem("reco-type", "general");
+    });
+</script>
 {% endblock %}
-
-
-
-

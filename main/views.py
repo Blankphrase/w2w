@@ -1,34 +1,60 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.core import serializers
+from django.views.decorators.csrf import csrf_exempt
 
 from reco.source import UserSource, JsonSource
-from reco.engine import RecoManager
+from reco.engine import RecoManager, SlopeOne
+from reco.settings import (
+    RECO_MAX_MOVIES, RECO_MIN_FREQ, RECO_MIN_RATING
+)
+from tmdb.models import Movie
+
+
+import json
 
 
 def home_page(request):
+    return render(request, "main/home.html")
+
+
+def reco_page(request):
     # Start with popular browsing mode
     request.session["browse_mode"] = "popular"
     request.session["browse_page"] = 1
 
-    return render(request, "main/home.html")
+    return render(request, "main/reco.html")  
 
 
-def new_reco(request):
-    reco_type = request.POST["reco-type"]
-
-    if reco_type == "general":
+@csrf_exempt
+def make_reco(request):
+    reco_request = json.loads(request.body.decode())
+    reco_type = reco_request["type"]
+    if request.user.is_authenticated and reco_type == "general":
         source = UserSource(user = request.user)
-    elif reco_type == "standalone":
-        source = JsonSource(preferences = request.POST["reco-pref"])
+    else:
+        source = JsonSource(data = reco_request["prefs"], user = request.user)
 
-    rengine = RecoManager(source = source)
+    rengine = RecoManager(source = source, engine = SlopeOne())
+    reco = rengine.make_reco()
+    #engine.save_last_reco()
 
-    # make_reco() will probably raise some errors in the future
-    try:
-        movies = rengine.make_reco()
-    except Exception as e:
-        raise e
-        return JsonResponse({"status": "error", "info": ""})
+    if len(reco) > 0:
+        reco_final = [ movie for movie in reco if movie["rating"] > RECO_MIN_RATING and
+             movie["freq"] > RECO_MIN_FREQ ]
+        reco_final = sorted(reco_final, key=lambda x: x["rating"], 
+            reverse = True)
+        reco_final = reco_final[0:min(len(reco_final), RECO_MAX_MOVIES)]
 
-    return JsonResponse({"status": "ok", "movies": movies}, safe=False) 
+        reco_ids = [ movie["id"] for movie in reco_final ]
+        movies = list(Movie.objects.values("id", "title")\
+            .filter(id__in = reco_ids))
+        movies = { movie["id"]: movie["title"] for movie in movies }
+
+        for movie in reco_final:
+            movie["title"] = movies[movie["id"]]   
+            del movie["freq"]
+    else:
+        reco_final = []
+
+    return JsonResponse({"status": "OK", "movies": reco_final}, safe=False)

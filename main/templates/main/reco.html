@@ -1,0 +1,95 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block styles %}
+{{ block.super }}
+<style>
+.page-header {
+    text-align: center;
+}
+.movie-search-group {
+    margin-bottom: 10px;
+}
+
+</style>
+{% endblock styles %}
+
+{% block body %}
+{{ block.super }}
+    <div class="container">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h3 class="panel-title">Find Your Favourite Movies
+                    <span id="state-msg"></span>
+                </h3>
+            </div>
+            <div class="panel-body">
+
+                <div class="input-group movie-search-group">
+                    <input type="text" class="form-control" id="movie-search-input"
+                           placeholder="Search for movies ...">
+                    <span class="input-group-btn">
+                        <button class="btn btn-default" id="movie-search-button"
+                                type="button">Search!</button>
+                    </span>
+                </div>
+
+                <ul id="movies-list" class="list-group row"></ul>
+                <button id="movies-list-prev" class="btn btn-primary" 
+                    type="button">Prev</button>
+                <button id="movies-list-next" class="btn btn-primary" 
+                    type="button">Next</button>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h3 class="panel-title">Your Preferences</h3>
+            </div>
+            <div class="panel-body">
+                <ul id="pref-list" class="list-group row"></ul>
+                <button id="clear-my-prefs" class="btn btn-danger" 
+                    type="button">Clear My Preferences</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <button id="make-reco-btn" class="btn btn-primary" 
+            type="button">Make Recommendation</button>
+
+        <div id="reco-status" class="alert alert-info" role="alert"></div>
+    </div>
+
+    <div class="container" id="reco-container">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h3 class="panel-title">Recommendation</h3>
+            </div>
+            <div class="panel-body">
+                <ul id="reco-list" class="list-group row"></ul>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block body_scripts %}
+    <script src="{% static 'js/reco.ui.js' %}"></script>
+    <script>
+        loadMoviesFromServer("/movies/popular");
+
+        var moviesList = getMoviesList();
+        for (var i = 0; i < moviesList.length; i++) {
+            addToPrefList(moviesList[i].id, moviesList[i].title,
+                moviesList[i].rating);
+        }
+
+        $("#reco-container").hide();
+        $("#reco-status").hide();
+    </script>
+{% endblock %}
+
+
+
+

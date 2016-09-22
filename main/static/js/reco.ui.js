@@ -65,6 +65,7 @@ $("#movie-search-input").keyup(function (e) {
 
 
 $("#make-reco-btn").click(function() {
+
     var recoType = localStorage.getItem("reco-type");
 
     // General recommendation procedure does not required to receive
@@ -78,12 +79,14 @@ $("#make-reco-btn").click(function() {
     if (recoType == RECO.STANDALONE && prefList.length == 0) {
         alert(RECO.NOMOVIES_MSG);
     } else {
+        $("#reco-status").show();
+        $("#reco-status").html("Recommendation in progres ...");
         $.post(
             RECO.URL,
-            {reco: JSON.stringify({
+            JSON.stringify({
                 type: recoType,
-                preferences: prefList
-            })},
+                prefs: prefList
+            }),
             handleRecoResponse
         );
     }
@@ -101,7 +104,7 @@ var RECO = {
     NOMOVIES_MSG: "Please specifiy your preferences",
     STANDALONE: "standalone",
     GENERAL: "general",
-    URL: "/reco"
+    URL: "/make_reco"
 };
 
 /******************************************************************************/
@@ -111,9 +114,23 @@ var RECO = {
 *******************************************************************************/
 
 function handleRecoResponse(response) {
-    var movies = response.movies;
-    if (movies.length === 0) {
-        $("#reco-state").html(RECO.EMPTY_MSG);
+    if (response.status == "OK") {
+        var movies = response.movies;
+        if (movies.length === 0) {
+            $("#reco-status").show();
+            $("#reco-status").html(RECO.EMPTY_MSG);
+        } else {
+            var $recoList = $("#reco-list");
+            $recoList.children("li").remove();
+            for (var i = 0; i < movies.length; i++) {
+                $recoList.append($("<li class='list-group-item'>" + movies[i].title + "</li>")); 
+            }
+            $("#reco-container").show();
+            $("#reco-status").show();
+            $("#reco-status").html("Recommendation complete.");
+        }
+    } else {
+        alert("ERROR: DO STH WITH IT");
     }
 }
 
@@ -214,7 +231,7 @@ function updateMovieRating(id, rating) {
     for (var i = 0; i < moviesArray.length; i++) {
         if (moviesArray[i].id == id) {
                 moviesArray[i].rating = rating;
-                localStorage.setItem("moviesArray", JSON.stringify(moviesArray));
+                localStorage.setItem("reco-pref", JSON.stringify(moviesArray));
                 return true;                
         }
     }    
@@ -232,7 +249,7 @@ function addMovieToList(id, title, rating) {
         }
     }
     moviesArray.push({"id": id, "title": title, "rating": rating});
-    localStorage.setItem("moviesArray", JSON.stringify(moviesArray));
+    localStorage.setItem("reco-pref", JSON.stringify(moviesArray));
     return true;
 }
 
@@ -242,7 +259,7 @@ function removeMovieFromList(id) {
     for(var i = 0; i < moviesArray.length; i++) {
         if (moviesArray[i].id == id) {
             moviesArray.splice(i, 1);
-            localStorage.setItem("moviesArray", JSON.stringify(moviesArray));
+            localStorage.setItem("reco-pref", JSON.stringify(moviesArray));
             return true;
         }
     }
@@ -250,10 +267,10 @@ function removeMovieFromList(id) {
 }
 
 function getMoviesList() {
-    var moviesArray = localStorage.getItem("moviesArray");
+    var moviesArray = localStorage.getItem("reco-pref");
     if (!moviesArray) {
         moviesArray = [];
-        localStorage.setItem("moviesArray", JSON.stringify(moviesArray));
+        localStorage.setItem("reco-pref", JSON.stringify(moviesArray));
     } else {
         moviesArray = JSON.parse(moviesArray);
     }

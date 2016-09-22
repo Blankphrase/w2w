@@ -39,6 +39,9 @@ class JsonSource(Source):
     def __init__(self, data, user = None):
         super(JsonSource, self).__init__(user)
         self.data = data
+        for movie in self.data:
+            movie["id"] = int(movie["id"])
+            movie["rating"] = float(movie["rating"])
         
     def get_data(self):
         return self.data

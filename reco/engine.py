@@ -24,8 +24,12 @@ class SlopeOne():
         #1   ITERATE OVER ALL MOVIES IN THE USER'S PREFERENCES LIST (MOVIE_B)
         for movie in reco_base:
             #1.1 FOR EACH MOVIE B IDENTIFY ALL USERS WHO RATED THIS MOVIE
-            movie_prefs = MoviePref.objects.values("preflist").exclude(
-                preflist=source.get_user().pref).filter(movie__id=movie["id"])
+            if source.get_user().is_authenticated:
+                movie_prefs = MoviePref.objects.values("preflist").exclude(
+                    preflist=source.get_user().pref).filter(movie__id=movie["id"])
+            else:
+                movie_prefs = MoviePref.objects.values("preflist").filter(
+                    movie__id=movie["id"])
 
             if len(movie_prefs) == 0:
                 continue
@@ -59,7 +63,7 @@ class SlopeOne():
                     ))
 
         #2   AGGREGATE DEVIATIONS AND ESTIMATE RATINGS
-        ratings_hat = dict()
+        reco = list()
         for movie in devs_agr:
             temp = reduce(
                 lambda x,y: (x[0]+y[0]*y[1],x[1]+y[1]), 
@@ -67,25 +71,25 @@ class SlopeOne():
                 (0, 0)
             )
             if temp[1] != 0:
-                ratings_hat[movie] = temp[0]/temp[1]
+                reco.append({"id": movie, "rating": temp[0]/temp[1], 
+                    "freq": temp[1]})
 
-        return ratings_hat
+        return reco
 
 
 class RecoManager:
 
     def __init__(self, source, engine = None):
         self.source = source
+        self.last_reco = None
 
         if engine is None:
-            self.engine = globals()["Item2Item"]()
+            self.engine = globals()["SlopeOne"]()
         else:
             self.engine = engine
 
-    def get_reco(self, user = None):
-        if self.source.is_empty():
-            raise RecoSourceError
 
+    def get_reco(self, user = None):
         reco = Reco.create_new(
             base = self.source.get_data(), 
             reco = self.make_reco(), 
@@ -93,8 +97,22 @@ class RecoManager:
         )
         return reco
 
+
     def make_reco(self):
-        return self.engine.make_reco(self.source.get_data())
+        if self.source.is_empty():
+            raise RecoSourceError
+        self.last_reco = self.engine.make_reco(self.source)
+        return self.last_reco
+
+
+    def save_last_reco(self):
+        reco = Reco.create_new(
+            base = self.source.get_data(), 
+            reco = self.last_reco, 
+            user = self.source.get_user()
+        )
+        return reco   
+
 
     @property
     def base(self):

@@ -50,7 +50,13 @@ class HomePageTest(TestCase):
             self.assertIn(escape(movie["title"]), response.content.decode())
 
 
-# UserSource, JsonSource, FileSource
+
+class RecoPageTest(TestCase):
+
+    def test_use_reco_template(self):
+        response = self.client.get("/reco")
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "main/reco.html")
 
 
 class RecoTest(unittest.TestCase):
