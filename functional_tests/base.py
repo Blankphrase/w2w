@@ -66,13 +66,21 @@ class FunctionalTest(StaticLiveServerTestCase):
         )
 
 
+    def wait_for_element_with_class(self, class_name, timeout = 10):
+        WebDriverWait(self.browser, timeout = timeout).utnil(
+            lambda b: b.find_element_by_css_selector(class_name),
+            "Could not find element with class {}. Page text was:\n{}".format(
+                class_name, self.browser.find_element_by_tag_name("body")).text
+            )
+
+
     def wait_to_be_logged_in(self, email):
-        self.wait_for_element_with_id('id_logout')
+        self.wait_for_element_with_id('logout-btn')
         navbar = self.browser.find_element_by_css_selector('.navbar')
         self.assertIn(email, navbar.text)
 
 
     def wait_to_be_logged_out(self, email):
-        self.wait_for_element_with_id('id_login')
+        self.wait_for_element_with_id('login-btn')
         navbar = self.browser.find_element_by_css_selector('.navbar')
         self.assertNotIn(email, navbar.text)

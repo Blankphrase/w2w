@@ -9,4 +9,5 @@ urlpatterns = [
     url(r"^reco", reco_page, name = "reco"),
     url(r"^make_reco", make_reco, name = "make_reco"),
     url(r"^movies/", include("movies.urls")),
+    url(r"^accounts/", include("accounts.urls")),
 ]
