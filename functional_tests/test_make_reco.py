@@ -1,17 +1,6 @@
 from . import base
 
-from selenium import webdriver
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.common.exceptions import WebDriverException
-from selenium.webdriver.common.keys import Keys
-
-from django.contrib.staticfiles.testing import StaticLiveServerTestCase
-from django.contrib.auth import BACKEND_SESSION_KEY, SESSION_KEY, get_user_model
-from django.contrib.sessions.backends.db import SessionStore
-from django.conf import settings
-
-import unittest
-import time
+from django.contrib.auth import get_user_model
 
 
 User = get_user_model()
@@ -23,21 +12,6 @@ class StandaloneRecoTest(base.FunctionalTest):
     movies. User has to be autenciated and needs to have some
     favourite movies chosen in the past.
     '''
-
-    def create_pre_authenticated_session(self, email):
-        user = User.objects.create(email=email)
-        session = SessionStore()
-        session[SESSION_KEY] = user.pk #1
-        session[BACKEND_SESSION_KEY] = settings.AUTHENTICATION_BACKENDS[0]
-        session.save()
-        ## to set a cookie we need to first visit the domain.
-        ## 404 pages load the quickest!
-        self.browser.get(self.server_url + "/404_no_such_url/")
-        self.browser.add_cookie(dict(
-            name=settings.SESSION_COOKIE_NAME,
-            value=session.session_key, #2
-            path='/',
-        ))
 
     def select_favourite_movies(self, movies_pos):
         self.wait_for_movies_list_update()

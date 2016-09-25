@@ -39,6 +39,16 @@ class SignUpTest(TestCase):
         self.assertEqual(response.status_code, 302)
 
 
+    def test_valid_signup_automatically_logs_in_user(self):
+        response = self.client.post("/accounts/signup", data={
+            "email": "test@jago.com",
+            "password": "test_test",
+            "password2": "test_test"
+        })       
+        user = User.objects.first()
+        self.assertTrue(user.is_authenticated())
+
+
     def test_for_valid_singup_saves_user_in_database(self):
         response = self.client.post("/accounts/signup", data={
             "email": "test@jago.com",

@@ -8,16 +8,19 @@ UNIQUE_EMAIL_ERROR = "User with this Email address already exists"
 EMPTY_PASSWORD_ERROR = "Password is required"
 EMPTY_PASSWORD2_ERROR = "Password confirmation is required"
 DIFFERENT_PASSWORDS_ERROR = "Your passwords do not match"
+INVALID_LOGIN_ERROR = "Your email address or password is invalid"
 
 
 class SignUpForm(forms.ModelForm):
     
-    password2 = forms.CharField(required = True)
+    password2 = forms.CharField(required = True, widget = forms.PasswordInput())
 
     class Meta:
         model = User
         fields = [ "email", "password" ]
-
+        widgets = {
+            "password": forms.PasswordInput(),
+        }
         error_messages = {
             "email": { 
                 "required": EMPTY_EMAIL_ERROR, 
