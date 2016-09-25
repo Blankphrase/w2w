@@ -105,10 +105,10 @@ class RecoManager:
         return self.last_reco
 
 
-    def save_last_reco(self):
+    def save_last_reco(self, reco = None):
         reco = Reco.create_new(
             base = self.source.get_data(), 
-            reco = self.last_reco, 
+            reco = reco if reco is not None else self.last_reco, 
             user = self.source.get_user()
         )
         return reco   

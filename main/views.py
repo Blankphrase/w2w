@@ -9,6 +9,7 @@ from reco.settings import (
     RECO_MAX_MOVIES, RECO_MIN_FREQ, RECO_MIN_RATING
 )
 from tmdb.models import Movie
+from accounts.models import PrefList
 
 
 import json
@@ -35,9 +36,15 @@ def make_reco(request):
     else:
         source = JsonSource(data = reco_request["prefs"], user = request.user)
 
+    # Save pseudo preflist for anonymouse users. They can improve
+    # recommendations for other users.
+    if not request.user.is_authenticated:
+        preflist = PrefList.objects.create()
+        for movie in source.get_data():
+            preflist.add_pref(movie["id"], movie["rating"])
+
     rengine = RecoManager(source = source, engine = SlopeOne())
     reco = rengine.make_reco()
-    #engine.save_last_reco()
 
     if len(reco) > 0:
         reco_final = [ movie for movie in reco if movie["rating"] > RECO_MIN_RATING and
@@ -52,9 +59,12 @@ def make_reco(request):
         movies = { movie["id"]: movie["title"] for movie in movies }
 
         for movie in reco_final:
-            movie["title"] = movies[movie["id"]]   
+            movie["title"] = movies.get(movie["id"])
             del movie["freq"]
     else:
         reco_final = []
+
+    # substitute orginal reco with preparated by this view
+    rengine.save_last_reco(reco = reco_final) 
 
     return JsonResponse({"status": "OK", "movies": reco_final}, safe=False)

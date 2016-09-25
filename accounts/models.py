@@ -81,11 +81,12 @@ def create_user_profile(sender, instance, **kwargs):
 
 
 class PrefList(models.Model):
-    user = models.OneToOneField(
+    user = models.ForeignKey(
         User,
         on_delete = models.CASCADE,
-        primary_key = True,
-        related_name = "pref"
+        related_name = "pref",
+        blank = True,
+        null = True
     )
 
     # models.ForeignKey(settings.AUTH_USER_MODEL, related_name = "pref")

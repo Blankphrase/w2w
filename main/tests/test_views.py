@@ -1,57 +1,46 @@
 from django.test import TestCase
-from django.test.client import Client
-from django.utils.html import escape
-from django.http.request import HttpRequest
-from django.contrib.auth.models import User
-from django.http.request import HttpRequest
-from django.urls import reverse
+from django.contrib.auth import get_user_model
 
-from tmdb.util import tmdb_request
-from main.views import home_page, new_reco
+from accounts.models import PrefList
+from reco.models import Reco
+from reco.engine import RecoManager
 from tmdb.models import Movie
 
-import json
-import unittest
 from unittest.mock import Mock, patch
-from lxml import etree
+import json
+
+
+User = get_user_model()
 
 
 class HomePageTest(TestCase):
 
-    # @unittest.skip
     def test_show_homepage_template(self):
         response = self.client.get("/")
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'main/home.html')
 
-    # @unittest.skip
-    def test_show_nonempty_movies_titles(self):
-        response = self.client.get("/")
-        html = etree.HTML(response.content.decode())
-        spans = html.xpath("//span[@class='movie-item-title']")
-        for span in spans:
-            self.assertNotEqual(span.text, None)
-            self.assertNotEqual(span.text, "")
-
-    # @unittest.skip
-    def test_use_correct_movie_id_for_checkbox(self):
-        response = self.client.get("/")
-        response = self.client.get("/")
-        html = etree.HTML(response.content.decode())
-        values = html.xpath("//input[@class='movie-item-checkbox']/@value")
-        self.assertFalse(any(value == "" for value in values))
-
-    @unittest.skip
-    def test_display_the_most_popular_movies_on_homepage(self):
-        movies = tmdb_request("GET", "movie/popular").get("results")
-        self.assertIsNotNone(movies)
-        response = self.client.get("/")
-        for movie in movies:
-            self.assertIn(escape(movie["title"]), response.content.decode())
-
-
 
 class RecoPageTest(TestCase):
+
+    def setUp(self):
+        self.reco_output = [
+            { "id": 1, "freq": 100, "rating": 10}, 
+            { "id": 2, "freq": 200, "rating": 9 },
+            { "id": 5, "freq": 100, "rating": 1 }
+        ]
+        self.prefs = [
+            { "id": 3, "rating": 10 },
+            { "id": 4, "rating": 1 }
+        ]
+
+        for i in range(1, 6):
+            Movie.objects.create(id = i, title = "movie_%d" % i)
+
+
+    def tearDown(self):
+        Movie.objects.all().delete()
+
 
     def test_use_reco_template(self):
         response = self.client.get("/reco")
@@ -59,101 +48,78 @@ class RecoPageTest(TestCase):
         self.assertTemplateUsed(response, "main/reco.html")
 
 
-class RecoTest(unittest.TestCase):
+    @patch("main.views.RecoManager")
+    def test_make_reco_returns_json_with_movies(self, rmanager_mock):
+        rmanager_mock.return_value.make_reco.return_value = self.reco_output
 
-    def setUp(self):
-
-        self.preferences = [
-            { "title": "Killer", "id": 10, "rating": 8 },
-            { "title": "Spiderman", "id": 19, "rating": 6 },
-            { "title": "Terminator 2", "id": 5, "rating": 10 }
-        ]
-
-        self.reco = [
-            { "title": "Killer 2", "id": 11},
-            { "title": "Batman Beginning", "id": 100 },
-            { "title": "Terminator", "id": 50 }
-        ]
-
-
-    def createGeneralRequest(self, user):
-        request = HttpRequest()
-        request.POST["reco-type"] = "general"
-        request.user = user
-        return request
-
-    def createStandaloneRequest(self, user = None):
-        request = HttpRequest()
-        request.POST["reco-type"] = "standalone"
-        request.POST["reco-pref"] = json.dumps(self.preferences)
-        request.user = user
-        return request
-
-
-    @patch("main.views.JsonSource")
-    @patch("main.views.UserSource")
-    def test_initialises_user_source_with_user_when_general(
-        self, mock_user_source, mock_json_source
-    ):
-        request = self.createGeneralRequest(user = User())
-        new_reco(request)
-        mock_user_source.assert_called_once_with(user = request.user)
-        self.assertFalse(mock_json_source.called)
-
-
-    @patch("main.views.JsonSource")
-    @patch("main.views.UserSource")
-    def test_initialises_json_source_with_reco_data_when_standalone(
-        self, mock_user_source, mock_json_source
-    ):
-        request = self.createStandaloneRequest()
-        new_reco(request)
-        self.assertFalse(mock_user_source.called)
-        mock_json_source.assert_called_once_with(
-            preferences = request.POST["reco-pref"]
+        response = self.client.post("/make_reco", 
+            json.dumps({
+                "type": "standalone",
+                "prefs": self.prefs
+            }),
+            content_type="application/json"
         )
+        reco_movies = json.loads(response.content.decode())["movies"]
+        reco_movies_id = [ movie["id"] for movie in reco_movies ]
 
-    @patch("main.views.UserSource")
-    @patch("main.views.RecoEngine")
-    def test_initialises_recoengine_with_source(
-        self, mock_reco, mock_user_source
-    ):
-        mock = Mock()
-        mock_user_source.return_value = mock
-        mock_reco.return_value.make_reco.return_value = {}
-
-        request = self.createGeneralRequest(user = User())
-        new_reco(request)
-
-        mock_reco.assert_called_once_with(source = mock)
+        self.assertTrue(1 in reco_movies_id)
+        self.assertTrue(2 in reco_movies_id)
+        self.assertFalse(3 in reco_movies_id)
 
 
-    @patch("main.views.UserSource")
-    @patch("main.views.RecoEngine")
-    def test_calls_make_reco(
-        self, mock_reco, mock_user_source
-    ):
-        mock_make_reco = Mock()
-        mock_reco.return_value.make_reco = mock_make_reco
-        mock_reco.return_value.make_reco.return_value = {}
+    @patch("main.views.RecoManager")
+    def test_make_reco_creates_preflist_for_anonymous_user(self, rmanager_mock):
+        rmanager_mock.return_value.make_reco.return_value = self.reco_output
 
-        request = self.createGeneralRequest(user = User())
-        new_reco(request)
-
-        self.assertTrue(mock_make_reco.called, "call make_reco")
-
-
-    @patch("main.views.UserSource")
-    @patch("main.views.RecoEngine")
-    @patch("main.views.JsonResponse")
-    def test_returns_reco_through_json_response(
-        self, mock_json, mock_engine, mock_user_source
-    ):
-        mock_engine.return_value.make_reco.return_value = self.reco
-
-        request = self.createGeneralRequest(user = User())
-        new_reco(request)
-
-        mock_json.assert_called_once_with(
-            {"status": "ok", "movies": self.reco}, safe = False
+        response = self.client.post("/make_reco", 
+            json.dumps({
+                "type": "standalone",
+                "prefs": self.prefs
+            }),
+            content_type="application/json"
         )
+        self.assertEqual(PrefList.objects.count(), 1)
+        self.assertIsNone(PrefList.objects.first().user)
+
+
+    @patch("main.views.SlopeOne")
+    def test_make_reco_creates_reco_obj_for_auth_users(self, engine_mock):
+        engine_mock.return_value.make_reco.return_value = self.reco_output
+
+        user = User(email = "test@jago.com")
+        user.set_password("test")
+        user.save()
+
+        is_logged = self.client.login(email = "test@jago.com", password = "test")
+        self.assertTrue(is_logged)
+
+        response = self.client.post("/make_reco", 
+            json.dumps({
+                "type": "standalone",
+                "prefs": self.prefs
+            }),
+            content_type="application/json"
+        )
+        
+        self.assertEqual(Reco.objects.count(), 1)
+        self.assertEqual(Reco.objects.first().user, user)
+
+
+
+    @patch("main.views.SlopeOne")
+    def test_make_reco_creates_reco_obj_with_selected_movies(self, engine_mock):
+        engine_mock.return_value.make_reco.return_value = self.reco_output
+
+        response = self.client.post("/make_reco", 
+            json.dumps({
+                "type": "standalone",
+                "prefs": self.prefs
+            }),
+            content_type="application/json"
+        )
+        
+        # There are three movies that should be return by engine, but
+        # view modify the list by removing the movies with ratings
+        # below given threshold. In this test view should show 2 movies.
+        self.assertEqual(Reco.objects.first().movies.count(), 2)
+
