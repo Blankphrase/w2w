@@ -4,11 +4,62 @@ from django.contrib.auth import get_user_model
 
 from accounts.forms import (
     EMPTY_EMAIL_ERROR, EMPTY_PASSWORD_ERROR, EMPTY_PASSWORD2_ERROR,
-    UNIQUE_EMAIL_ERROR, DIFFERENT_PASSWORDS_ERROR,
-    SignUpForm
+    UNIQUE_EMAIL_ERROR, DIFFERENT_PASSWORDS_ERROR, INVALID_LOGIN_ERROR,
+    SignUpForm, LoginForm
 )
 
 User = get_user_model()
+
+
+class LogInTest(TestCase):
+
+    def test_login_render_proper_template(self):
+        response = self.client.get("/accounts/login")
+        self.assertTemplateUsed(response, "accounts/login.html")
+
+
+    def test_login_passes_form_to_template(self):
+        response = self.client.get("/accounts/login")
+        self.assertIsInstance(response.context["form"], LoginForm)
+
+
+    def test_invalid_login_renders_login_template(self):
+        response = self.client.post("/accounts/login", data={"email": ""})
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "accounts/login.html")       
+
+
+    def test_valid_login_redirects_to_home_page(self):
+        user = User.objects.create(email = "test@jago.com", password = "test")
+        user.set_password("test")
+        user.save()
+        response = self.client.post("/accounts/login", data={
+            "email": "test@jago.com",
+            "password": "test"
+        })
+        self.assertEqual(response.status_code, 302)   
+
+
+    def test_invalid_error_is_shown_on_signup_page(self):
+        response = self.client.post('/accounts/login', data={
+            "email": "test@jago.com",
+            "password": "test"
+        })
+        self.assertContains(response, escape(INVALID_LOGIN_ERROR))
+
+
+    def test_empty_email_error_is_shown_on_login_page(self):
+        response = self.client.post("/accounts/login", data={"email": ""})
+        self.assertContains(response, escape(EMPTY_EMAIL_ERROR))
+
+
+    def test_empty_password_error_is_shown_on_login_page(self):
+        response = self.client.post('/accounts/login', data={
+            "email": "test@jago.com",
+            "password": ""
+        })
+        self.assertContains(response, escape(EMPTY_PASSWORD_ERROR))
+
 
 
 class SignUpTest(TestCase):
@@ -70,7 +121,7 @@ class SignUpTest(TestCase):
         self.assertContains(response, escape(UNIQUE_EMAIL_ERROR))
 
 
-    def test_password_error_is_shown_on_signup_page(self):
+    def test_empty_password_error_is_shown_on_signup_page(self):
         response = self.client.post('/accounts/signup', data={
             "email": "test@jago.com",
             "password": ""

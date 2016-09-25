@@ -79,10 +79,9 @@ class SignUpLogInLogOutTest(base.FunctionalTest):
 
     def test_login_and_logout(self):
         # Crane has already created account on W2W
-        User.objects.create(
-            email = TEST_EMAIL, 
-            password = PASSWORD_TEST
-        )
+        user = User(email = TEST_EMAIL)
+        user.set_password(PASSWORD_TEST)
+        user.save()
 
         # He visitis his favourite webpage and looks for some movie to watch
         self.browser.get(self.server_url)
@@ -100,6 +99,7 @@ class SignUpLogInLogOutTest(base.FunctionalTest):
         # Crane enters his email: crane@jago.com, but wrong passwords
         self.browser.find_element_by_id("id_email").send_keys(TEST_EMAIL)
         self.browser.find_element_by_id("id_password").send_keys(PASSWORD2_TEST)
+        self.browser.find_element_by_id("id_submit").click()
 
         # The page informs him that given email address or password are invalid
         self.wait_for_element_with_class(".has-error")
@@ -121,5 +121,6 @@ class SignUpLogInLogOutTest(base.FunctionalTest):
 
         # Howover he changes his mind and does not want to watch movie tonight.
         # He decided to log out.
+        self.browser.find_element_by_css_selector(".dropdown-toggle").click()
         self.browser.find_element_by_id("id_logout").click()
-        self.wait_to_be_logged_out(email = EMAIL_TEST)
+        self.wait_to_be_logged_out(email = TEST_EMAIL)

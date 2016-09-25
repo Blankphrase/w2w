@@ -8,7 +8,7 @@ UNIQUE_EMAIL_ERROR = "User with this Email address already exists"
 EMPTY_PASSWORD_ERROR = "Password is required"
 EMPTY_PASSWORD2_ERROR = "Password confirmation is required"
 DIFFERENT_PASSWORDS_ERROR = "Your passwords do not match"
-INVALID_LOGIN_ERROR = "Your email address or password is invalid"
+INVALID_LOGIN_ERROR = "Email address or password is invalid"
 
 
 class SignUpForm(forms.ModelForm):
@@ -41,3 +41,22 @@ class SignUpForm(forms.ModelForm):
             raise forms.ValidationError(DIFFERENT_PASSWORDS_ERROR)
 
         return self.cleaned_data
+
+
+    def save(self, commit=True):
+        user = super(SignUpForm, self).save(commit = False)
+        user.set_password(self.cleaned_data['password'])
+        if commit:
+            user.save()
+        return user
+
+
+class LoginForm(forms.Form):
+
+    email = forms.EmailField(required = True, error_messages = {
+        'required': EMPTY_EMAIL_ERROR}
+    )
+    password = forms.CharField(required = True, 
+        widget = forms.PasswordInput(),
+        error_messages = {'required': EMPTY_PASSWORD_ERROR}
+    )
