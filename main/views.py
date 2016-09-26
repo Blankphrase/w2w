@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.core import serializers
 from django.views.decorators.csrf import csrf_exempt
+from django.db.models import F
 
 from reco.source import UserSource, JsonSource
 from reco.engine import RecoManager, SlopeOne
@@ -24,7 +25,20 @@ def reco_page(request):
     request.session["browse_mode"] = "popular"
     request.session["browse_page"] = 1
 
-    return render(request, "main/reco.html")  
+    reco_type = request.GET.get("type", "standalone")
+
+    preflist = []
+    if request.user.is_authenticated and reco_type == "general":
+        preflist = list(request.user.pref.data.values(
+            "movie__id", "movie__title", "rating"
+        ).annotate(title=F("movie__title"), id=F("movie__id")).values(
+            "id", "title", "rating"
+        ).all())
+
+    return render(request, "main/reco.html", {
+        "preflist": json.dumps(preflist),
+        "reco_type": reco_type
+    })  
 
 
 @csrf_exempt
@@ -34,6 +48,7 @@ def make_reco(request):
     if request.user.is_authenticated and reco_type == "general":
         source = UserSource(user = request.user)
     else:
+        print(reco_request)
         source = JsonSource(data = reco_request["prefs"], user = request.user)
 
     # Save pseudo preflist for anonymouse users. They can improve

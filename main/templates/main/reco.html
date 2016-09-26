@@ -1,6 +1,8 @@
 {% extends 'main/base.html' %}
 {% load static %}
 
+{% block title %}What To Watch{% endblock title %}
+
 {% block styles %}
 {{ block.super }}
 <style>
@@ -79,11 +81,15 @@
     <script>
         loadMoviesFromServer("/movies/popular");
 
-        var moviesList = getMoviesList();
+        clearMoviesList();
+        {% if reco_type == "general" %}
+        var moviesList = JSON.parse("{{preflist}}".replace(/&quot;/g,"\""));
         for (var i = 0; i < moviesList.length; i++) {
-            addToPrefList(moviesList[i].id, moviesList[i].title,
-                moviesList[i].rating);
+            var movie = moviesList[i];
+            addMovieToList(movie.id, movie.title, movie.rating)
+            addToPrefList(movie.id, movie.title, movie.rating);
         }
+        {% endif %}
 
         $("#reco-container").hide();
         $("#reco-status").hide();

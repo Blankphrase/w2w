@@ -66,14 +66,14 @@ $("#movie-search-input").keyup(function (e) {
 
 $("#make-reco-btn").click(function() {
 
-    var recoType = localStorage.getItem("reco-type");
+    var recoType = sessionStorage.getItem("reco-type");
 
     // General recommendation procedure does not required to receive
     // preferences, because it used all user's preferences already
     // stored in internal databases.
     var prefList = null;
     if (recoType == RECO.STANDALONE) {
-        prefList = JSON.parse(localStorage.getItem("reco-pref"));
+        prefList = JSON.parse(sessionStorage.getItem("reco-pref"));
     }
 
     if (recoType == RECO.STANDALONE && prefList.length == 0) {
@@ -120,17 +120,22 @@ function handleRecoResponse(response) {
             $("#reco-status").show();
             $("#reco-status").html(RECO.EMPTY_MSG);
         } else {
-            var $recoList = $("#reco-list");
-            $recoList.children("li").remove();
-            for (var i = 0; i < movies.length; i++) {
-                $recoList.append($("<li class='list-group-item'>" + movies[i].title + "</li>")); 
-            }
+            updateRecoList(movies);
             $("#reco-container").show();
             $("#reco-status").show();
             $("#reco-status").html("Recommendation complete.");
         }
     } else {
         alert("ERROR: DO STH WITH IT");
+    }
+}
+
+function updateRecoList(movies) {
+    var $recoList = $("#reco-list");
+    $recoList.children("li").remove();
+    for (var i = 0; i < movies.length; i++) {
+        $recoList.append($("<li class='list-group-item'>" + 
+            movies[i].title + "</li>")); 
     }
 }
 
@@ -214,6 +219,11 @@ function refreshMoviesList(movies) {
     }   
 }
 
+function clearMoviesList() {
+    $("#movies-list").empty();
+    sessionStorage.setItem("reco-pref", JSON.stringify([]));
+}
+
 function findInMoviesList(id) {
     var moviesArray = getMoviesList();
     id = id.toString();
@@ -231,7 +241,7 @@ function updateMovieRating(id, rating) {
     for (var i = 0; i < moviesArray.length; i++) {
         if (moviesArray[i].id == id) {
                 moviesArray[i].rating = rating;
-                localStorage.setItem("reco-pref", JSON.stringify(moviesArray));
+                sessionStorage.setItem("reco-pref", JSON.stringify(moviesArray));
                 return true;                
         }
     }    
@@ -249,7 +259,7 @@ function addMovieToList(id, title, rating) {
         }
     }
     moviesArray.push({"id": id, "title": title, "rating": rating});
-    localStorage.setItem("reco-pref", JSON.stringify(moviesArray));
+    sessionStorage.setItem("reco-pref", JSON.stringify(moviesArray));
     return true;
 }
 
@@ -259,7 +269,7 @@ function removeMovieFromList(id) {
     for(var i = 0; i < moviesArray.length; i++) {
         if (moviesArray[i].id == id) {
             moviesArray.splice(i, 1);
-            localStorage.setItem("reco-pref", JSON.stringify(moviesArray));
+            sessionStorage.setItem("reco-pref", JSON.stringify(moviesArray));
             return true;
         }
     }
@@ -267,10 +277,10 @@ function removeMovieFromList(id) {
 }
 
 function getMoviesList() {
-    var moviesArray = localStorage.getItem("reco-pref");
+    var moviesArray = sessionStorage.getItem("reco-pref");
     if (!moviesArray) {
         moviesArray = [];
-        localStorage.setItem("reco-pref", JSON.stringify(moviesArray));
+        sessionStorage.setItem("reco-pref", JSON.stringify(moviesArray));
     } else {
         moviesArray = JSON.parse(moviesArray);
     }

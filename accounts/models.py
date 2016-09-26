@@ -81,7 +81,7 @@ def create_user_profile(sender, instance, **kwargs):
 
 
 class PrefList(models.Model):
-    user = models.ForeignKey(
+    user = models.OneToOneField(
         User,
         on_delete = models.CASCADE,
         related_name = "pref",

@@ -21,7 +21,7 @@ class HomePageTest(TestCase):
         self.assertTemplateUsed(response, 'main/home.html')
 
 
-class RecoPageTest(TestCase):
+class RecoTest(TestCase):
 
     def setUp(self):
         self.reco_output = [
@@ -42,10 +42,51 @@ class RecoPageTest(TestCase):
         Movie.objects.all().delete()
 
 
+    def create_and_login_user(self, email = "test@jago.com", password="test"):
+        user = User(email = email)
+        user.set_password(password)
+        user.save()
+
+        self.client.login(email = "test@jago.com", password = "test")
+
+        return user
+       
+
     def test_use_reco_template(self):
         response = self.client.get("/reco")
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "main/reco.html")
+
+
+    def test_for_passing_movies_to_template(self):
+        user = self.create_and_login_user()
+        user.add_pref(3, 10)
+        user.add_pref(4, 1)
+
+        response = self.client.get("/reco", {"type": "general"})
+        self.assertEqual(len(response.context["preflist"]), 2)
+
+
+    def test_for_capturing_reco_type_from_get_args__standalone(self):
+        user = self.create_and_login_user()
+        user.add_pref(3, 10)
+        user.add_pref(4, 1)
+
+        response = self.client.get("/reco", {"type": "standalone"})
+        self.assertEqual(len(response.context["preflist"]), 0)
+
+    def test_for_capturing_reco_type_from_get_args__general(self):
+        user = self.create_and_login_user()
+        user.add_pref(3, 10)
+        user.add_pref(4, 1)
+
+        response = self.client.get("/reco", {"type": "general"})
+        self.assertEqual(len(response.context["preflist"]), 2)
+
+
+    def test_for_passing_empty_movies_list_to_template_for_anonym_users(self):
+        response = self.client.get("/reco")
+        self.assertEqual(response.context["preflist"], [])
 
 
     @patch("main.views.RecoManager")
@@ -122,4 +163,3 @@ class RecoPageTest(TestCase):
         # view modify the list by removing the movies with ratings
         # below given threshold. In this test view should show 2 movies.
         self.assertEqual(Reco.objects.first().movies.count(), 2)
-

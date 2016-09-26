@@ -29,7 +29,7 @@
                             <li>fast, one-time recommendation for anonymous as well as for authenitcated users</li>
                         </ul>
                     </p>
-                    <p><a href="{% url 'reco' %}" class="btn btn-primary" 
+                    <p><a href="{% url 'reco' %}?type=standalone" class="btn btn-primary" 
                           id="standalone-reco-btn" role="button">Start</a></p>
                 </div>
             </div>
@@ -43,7 +43,7 @@
                             <li>complex, general recommendation on the base of your all preferences</li>
                         </ul>
                     </p>
-                    <p><a href="#" class="btn btn-primary" 
+                    <p><a href="{% url 'reco' %}?type=general" class="btn btn-primary" 
                           id="general-reco-btn" role="button">Start</a></p>
                 </div>
             </div>
