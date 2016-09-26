@@ -1,0 +1,135 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Mocha Tests</title>
+        <link rel="stylesheet" href="../../../w2w/static/tests/mocha.css">
+    </head>
+
+    <body>
+
+        <div id="fixtures"></div>
+        <div id="mocha"></div>
+
+        <script src="../../../w2w/static/tests/jquery-3.1.0.js"></script>
+        <script src="../../../w2w/static/tests/mocha.js"></script>
+        <script src="../../../w2w/static/tests/chai.js"></script>
+        <script src="../../../w2w/static/tests/sinon.js"></script>
+        <script>mocha.setup("bdd");</script>
+
+        <!-- load code you want to test heere -->
+        <script src="../js/prefs.manager.js"></script>
+
+        <!-- load your test files here -->
+        <script>
+
+        var assert = chai.assert;
+
+        // mock for some storage
+        var testStorage = {
+            storage: [],
+            setItem: function(key, data) {
+                var index = this.indexOf(key);
+                if (index < 0) {
+                    this.storage.push({key: key, data: data});
+                } else {
+                    this.storage[index].data = data;
+                }
+            },
+            getItem: function(key) {
+                var index = this.indexOf(key);
+                if (index >= 0) {
+                    return this.storage[index].data;
+                }
+                return null;
+            },
+            indexOf: function(key) {
+                for (var i = 0; i < this.storage.length; i++) {
+                    if (this.storage[i].key === key) {
+                        return i;
+                    }
+                }
+                return -1;
+            }
+        };
+
+        testStorage.setItem(
+            "reco-pref",
+            JSON.stringify([ 
+                {id: 1, title: "movie1", rating: 1},
+                {id: 2, title: "movie2", rating: 2},
+                {id: 3, title: "movie3", rating: 3}
+            ])
+        )
+
+        describe("SessionBasedPrefsManager", function() {
+
+            var prefsManager;
+
+            beforeEach(function() {
+                prefsManager = new SessionBasedPrefsManager(testStorage);
+                testStorage.setItem(
+                    "reco-pref",
+                    JSON.stringify([ 
+                        {id: 1, title: "movie1", rating: 1},
+                        {id: 2, title: "movie2", rating: 2},
+                        {id: 3, title: "movie3", rating: 3}
+                    ])
+                )
+            });
+
+            describe("synchronizing client-side with server-side", function() {
+
+                it("loadData do nothing", function() {
+                    prefsManager.loadData();
+                    assert.equal(1, 1);
+                });
+
+                it("update saves data in storage", function() {
+                    prefsManager.update(id = 4, title = "movie4", rating = 4);
+                    assert.equal(prefsManager.count(), 4);
+                    assert.isNotNull(prefsManager.get(id = 4));
+                });
+
+                it("remove removes from storage", function() {
+                    prefsManager.loadData();
+                    prefsManager.remove(id = 1);
+                    assert.equal(prefsManager.count(), 2);
+                    assert.isNull(prefsManager.get(id = 1));
+                });
+
+            });
+
+
+            describe("test pagination, count, indexOf", function() {
+
+                it("indexOf returns -1 for non existing movies", function() {
+                    assert.equal(prefsManager.indexOf(5), -1);
+                });
+
+                it("count returns correct number of movies", function() {
+                    assert.equal(prefsManager.count(), 3);
+                });
+
+                it("pagination returns array of movies", function() {
+                    var page0 = prefsManager.pagination(0, pageSize = 10);
+                    assert.equal(page0.length, 3);
+                });
+
+                it("pagination out-of-band returns empty array", function() {
+                    var page1 = prefsManager.pagination(1, pageSize = 10);
+                    assert.equal(page1.length, 0);
+                });
+
+            });
+
+
+        });
+        
+        </script>
+
+        <script>
+            mocha.run();
+        </script>
+    </body>
+
+</html>

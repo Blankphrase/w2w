@@ -1,0 +1,249 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Mocha Tests</title>
+        <link rel="stylesheet" href="../../../w2w/static/tests/mocha.css">
+    </head>
+
+    <body>
+
+        <div id="fixtures"></div>
+        <div id="mocha"></div>
+
+        <script src="../../../w2w/static/tests/jquery-3.1.0.js"></script>
+        <script src="../../../w2w/static/tests/mocha.js"></script>
+        <script src="../../../w2w/static/tests/chai.js"></script>
+        <script src="../../../w2w/static/tests/sinon.js"></script>
+        <script>mocha.setup("bdd");</script>
+
+        <!-- load code you want to test heere -->
+        <script src="../js/prefs.manager.js"></script>
+
+        <!-- load your test files here -->
+        <script>
+
+        var assert = chai.assert;
+
+        function jsonOk (body) {
+            return [
+                200, {
+                'Content-type': 'application/json'
+                }, JSON.stringify(body)
+            ];
+        }
+
+        describe("UserBasedPrefsManager", function() {
+
+            describe("sending ajax requests", function() {
+
+                var xhr, requests;
+                var prefsManager;
+
+                beforeEach(function() {
+                    xhr = sinon.useFakeXMLHttpRequest();
+                    requests = [];
+                    xhr.onCreate = function (request) {     
+                        requests.push(request); 
+                    };
+                    prefsManager = new UserBasedPrefsManager();
+                });
+
+                afterEach(function() {
+                    xhr.restore();
+                });
+
+                it("update sends post ajax request", function() {
+                    prefsManager.update(id = 550, title = "movie550", 
+                        rating = 10);
+                    assert.equal(requests.length, 1);
+                    assert.equal(requests[0].method, "POST");
+                });
+
+                it("update sends item id and rating", function() {
+                    prefsManager.update(id = 550, title = "movie550", 
+                        rating = 10);
+                    var data = JSON.parse(requests[0].requestBody);
+                    assert.equal(data["id"], 550);
+                    assert.equal(data["rating"], 10)
+                });
+
+                it("remove sends post ajax request", function() {
+                    prefsManager.remove(id = 550, rating = 10);
+                    assert.equal(requests.length, 1);
+                    assert.equal(requests[0].method, "POST");
+                });
+
+                it("remove sends item id", function() {
+                    prefsManager.remove(id = 550);
+                    var data = JSON.parse(requests[0].requestBody);
+                    assert.equal(data["id"], 550);
+                });
+
+                it("get does not send post ajax request", function() {
+                    prefsManager.get(id = 550, rating = 10);
+                    assert.equal(requests.length, 0);
+                });
+
+                it("load sends post ajax request", function() {
+                    prefsManager.loadData();
+                    assert.equal(requests.length, 1);
+                    assert.equal(requests[0].method, "POST");
+                });
+
+            });
+
+            describe("executing callback", function() {
+
+                var server = null;
+                var prefsManager;
+
+                beforeEach(function () {
+                    server = sinon.fakeServer.create();
+                    server.respondWith("POST", "/accounts/user/prefs/update", 
+                        jsonOk({
+                            status: "OK"
+                        })
+                    );
+                    server.respondWith("POST", "/accounts/user/prefs/load", 
+                        jsonOk({
+                            status: "OK", movies: []
+                        })
+                    );
+                    server.respondWith("POST", "/accounts/user/prefs/remove", 
+                        jsonOk({
+                            status: "OK"
+                        })
+                    );
+                    prefsManager = new UserBasedPrefsManager();
+                });
+
+                afterEach(function () {
+                    server.restore();
+                });
+
+                it("update callback is begin called", function() {
+                    var callback = sinon.spy();
+                    prefsManager.update(id = 10, title = "movie10", 
+                        rating = 10, callback);
+                    server.respond();
+                    assert.isTrue(callback.called);
+                });
+
+                it("remove callback is begin called", function() {
+                    var callback = sinon.spy();
+                    prefsManager.remove(id = 10, callback);
+                    server.respond();
+                    assert.isTrue(callback.called);
+                });
+
+                it("loadData callback is begin called", function() {
+                    var callback = sinon.spy();
+                    prefsManager.loadData(callback);
+                    server.respond();
+                    assert.isTrue(callback.called);
+                });
+            });
+
+            describe("synchronizing client-side with server-side", function() {
+
+                var server = null;
+                var prefsManager;
+
+                beforeEach(function () {
+                    server = sinon.fakeServer.create();
+                    server.respondWith("POST", "/accounts/user/prefs/update", 
+                        jsonOk({
+                            status: "OK"
+                        })
+                    );
+                    server.respondWith("POST", "/accounts/user/prefs/load", 
+                        jsonOk({
+                            status: "OK",
+                            movies: [ 
+                                {id: 1, title: "movie1", rating: 1},
+                                {id: 2, title: "movie2", rating: 2},
+                                {id: 3, title: "movie3", rating: 3}
+                            ]
+                        })
+                    );
+                    server.respondWith("POST", "/accounts/user/prefs/remove", 
+                        jsonOk({
+                            status: "OK"
+                        })
+                    );
+                    prefsManager = new UserBasedPrefsManager();
+                });
+
+                afterEach(function () {
+                    server.restore();
+                });
+
+                it("loadData saves data locally", function() {
+                    prefsManager.loadData();
+                    server.respond();
+                    assert.equal(prefsManager.data.length, 3);
+                });
+
+                it("update saves data locally", function() {
+                    prefsManager.loadData();
+                    server.respond();
+                    prefsManager.update(id = 4, title = "movie4", rating = 4);
+                    server.respond();
+                    assert.equal(prefsManager.data.length, 4);
+                    assert.isNotNull(prefsManager.get(id = 4));
+                });
+
+                it("remove removes data locally", function() {
+                    prefsManager.loadData();
+                    server.respond();
+                    prefsManager.remove(id = 1);
+                    server.respond();
+                    assert.equal(prefsManager.data.length, 2);
+                    assert.isNull(prefsManager.get(id = 1));
+                });
+
+            });
+
+            describe("test pagination, count, indexOf", function() {
+                var prefsManager;
+
+                beforeEach(function () {
+                    prefsManager = new UserBasedPrefsManager();
+                    prefsManager.data = [ 
+                        {id: 1, title: "movie1", rating: 1},
+                        {id: 2, title: "movie2", rating: 2},
+                        {id: 3, title: "movie3", rating: 3}
+                    ]
+                });
+
+                it("indexOf returns -1 for non existing movies", function() {
+                    assert.equal(prefsManager.indexOf(5), -1);
+                });
+
+                it("count returns correct number of movies", function() {
+                    assert.equal(prefsManager.count(), 3);
+                });
+
+                it("pagination returns array of movies", function() {
+                    var page0 = prefsManager.pagination(0, pageSize = 10);
+                    assert.equal(page0.length, 3);
+                });
+
+                it("pagination out-of-band returns empty array", function() {
+                    var page1 = prefsManager.pagination(1, pageSize = 10);
+                    assert.equal(page1.length, 0);
+                });
+
+            });
+
+        });
+        
+        </script>
+
+
+        <script>
+            mocha.run();
+        </script>
+    </body>
+
+</html>
