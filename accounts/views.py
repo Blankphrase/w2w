@@ -2,6 +2,9 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.contrib.auth import login, authenticate, get_user_model, logout
 from django.contrib.auth.decorators import login_required
+from django.db.models import F
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 
 from accounts.forms import SignUpForm, LoginForm, INVALID_LOGIN_ERROR
 
@@ -44,3 +47,37 @@ def login_user(request):
 def logout_user(request):
     logout(request)
     return redirect("/")
+
+
+@login_required
+@csrf_exempt
+def load_prefs(request):
+    prefs = list(request.user.pref.data.
+        values("movie__id", "movie__title", "rating").
+        annotate(id=F("movie__id"),title=F("movie__title")).
+        values("id", "title", "rating").all())
+    return JsonResponse({"status": "OK", "prefs": prefs}, safe=False)
+
+
+@login_required
+@csrf_exempt
+def update_prefs(request):
+    try:
+        movie_id = request.POST["id"]
+        movie_rating = request.POST["rating"]
+        request.user.add_pref(id = movie_id, rating = movie_rating)
+        return JsonResponse({"status": "OK"}, safe=False)
+    except KeyError:
+        return JsonResponse({"status": "ERROR"}, safe=False)
+
+
+@login_required
+@csrf_exempt
+def remove_prefs(request):
+    try:
+        movie_id = request.POST["id"]
+        removed = request.user.remove_pref(movie_id)
+        return JsonResponse({"status": "OK", "removed": removed}, safe=False)
+    except KeyError:
+        return JsonResponse({"status": "ERROR"}, safe=False)
+    

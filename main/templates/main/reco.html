@@ -77,19 +77,21 @@
 {% endblock %}
 
 {% block body_scripts %}
+    <script src="{% static 'js/prefs.source.js' %}"></script>
     <script src="{% static 'js/reco.ui.js' %}"></script>
     <script>
         loadMoviesFromServer("/movies/popular");
 
-        clearMoviesList();
-        {% if reco_type == "general" %}
-        var moviesList = JSON.parse("{{preflist}}".replace(/&quot;/g,"\""));
-        for (var i = 0; i < moviesList.length; i++) {
-            var movie = moviesList[i];
-            addMovieToList(movie.id, movie.title, movie.rating)
-            addToPrefList(movie.id, movie.title, movie.rating);
+        var recoType = "{{reco_type}}";
+        if (recoType == "general") {
+            prefsList.init(new UserBasedPrefsSource(), function() {
+                prefsList.refresh();
+            });
+        } else {
+            prefsList.init(new SessionBasedPrefsSource(sessionStorage), function() {
+                prefsList.refresh();
+            });   
         }
-        {% endif %}
 
         $("#reco-container").hide();
         $("#reco-status").hide();

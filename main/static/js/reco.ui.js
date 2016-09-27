@@ -4,11 +4,9 @@
 
 $(document).on("change", ".movie-item-checkbox", function() {
     if ($(this).is(':checked')) {
-        addToPrefList($(this).val(), $(this).next().html());
-        addMovieToList($(this).val(), $(this).next().html(), 10);
+        prefsList.add($(this).val(), $(this).next().html());
     } else {
-        removeFromPrefList($(this).val());
-        removeMovieFromList($(this).val());
+        prefsList.remove($(this).val());
     }
 });
 
@@ -21,24 +19,25 @@ $("#movies-list-prev").click(function() {
     if (!loadInProgress) loadMoviesFromServer("/movies/prev");
 });
 
-$("#clear-my-prefs").click(function() {
-    var moviesList = getMoviesList();
-    var movieId;
+// $("#clear-my-prefs").click(function() {
+//     var moviesList = getMoviesList();
+//     var movieId;
 
-    for (var i = 0; i < moviesList.length; i++) {
-        movieId = moviesList[i].id;
-        $(".movie-item").filter(function() {
-            return $(this).data("movie-id") == movieId
-        }).find("input").prop("checked", false);
-        removeFromPrefList(movieId);
-        removeMovieFromList(movieId);        
-    }
-});
+//     for (var i = 0; i < moviesList.length; i++) {
+//         movieId = moviesList[i].id;
+//         $(".movie-item").filter(function() {
+//             return $(this).data("movie-id") == movieId
+//         }).find("input").prop("checked", false);
+//         removeFromPrefList(movieId);
+//         removeMovieFromList(movieId);        
+//     }
+// });
 
 $(document).on("change", ".pref-item-rating", function() {
     var movieId = $(this).parent().parent().data("movie-id");
     var rating = $(this).val();
-    updateMovieRating(movieId, rating);
+    var title = $(this).parent().parent().find(".pref-item-title").html();
+    prefsList.update(movieId, title, rating);
 });
 
 $(document).on("click", ".pref-item-remove", function() {
@@ -47,8 +46,7 @@ $(document).on("click", ".pref-item-remove", function() {
     $(".movie-item").filter(function() {
         return $(this).data("movie-id") == movieId
     }).find("input").prop("checked", false);
-    removeFromPrefList(movieId);
-    removeMovieFromList(movieId);   
+    prefsList.remove(movieId);
 });
 
 $("#movie-search-button").click(function() {
@@ -63,17 +61,14 @@ $("#movie-search-input").keyup(function (e) {
     }
 });
 
-
 $("#make-reco-btn").click(function() {
-
-    var recoType = sessionStorage.getItem("reco-type");
 
     // General recommendation procedure does not required to receive
     // preferences, because it used all user's preferences already
     // stored in internal databases.
     var prefList = null;
     if (recoType == RECO.STANDALONE) {
-        prefList = JSON.parse(sessionStorage.getItem("reco-pref"));
+        prefList = prefsList.getArray();
     }
 
     if (recoType == RECO.STANDALONE && prefList.length == 0) {
@@ -95,8 +90,7 @@ $("#make-reco-btn").click(function() {
 /******************************************************************************/
 
 /*******************************************************************************
-    GLOBAL VARIABLES
-
+    settings
 *******************************************************************************/
 
 var RECO = {
@@ -110,7 +104,103 @@ var RECO = {
 /******************************************************************************/
 
 /*******************************************************************************
-    FUNCTIONS
+    prefsList Manager
+*******************************************************************************/
+
+var prefsList = {
+
+    source: undefined,
+    pageSize: 10,
+    page: 0,
+
+    init: function(source, callback) {
+        this.source = source;
+        this.source.loadData(callback);
+    },
+
+    getArray: function() {
+        return (this.source.getArray());
+    },
+
+    add: function(movieId, movieTitle, movieRating) {
+        if (movieRating === undefined) movieRating = 10
+        var this_ = this;
+        this.source.update(
+            movieId, movieTitle, movieRating,
+            function() {
+                this_.refresh();
+            }
+        );
+    },
+
+    update: function(movieId, movieTitle, movieRating) {
+        this.source.update(movieId, movieTitle, movieRating);
+    },
+
+    remove: function(movieId) {
+        var this_ = this;
+        this.source.remove(
+            movieId,
+            function() {
+                this_.refresh();
+            }
+        );
+    },
+
+    nextPage: function() {
+        this.page += 1;
+    },
+
+    prevPage: function() {
+        if (this.page > 0) {
+            this.page -= 1;
+        }
+    },
+
+    contains: function(movieId) {
+        return (this.source.indexOf(movieId) >= 0);
+    },
+
+    refresh: function() {
+        $("#pref-list").children("li").remove(); 
+        var items = this.source.pagination(this.page, this.pageSize);
+        for (var i = 0; i < items.length; i++) {
+            this.addItem(items[i].id, items[i].title, items[i].rating);
+        }
+    },
+
+    addItem: function(movieId, movieTitle, movieRating) {
+        var $prefList = $("#pref-list");
+        var $prefItem = $("<li class='list-group-item col-xs-4'></li>")
+            .data("movie-id", movieId);
+        $prefItem.append($("<span class='pref-item-title'></span>")
+            .html(movieTitle));
+        var $ratingForm = $("<form></form>");
+        for(var i = 1; i <= 10; i++) {
+            $ratingForm.append("<input type='radio' name='movie_" + 
+                movieId + "' " + "value='" + i + "' " + 
+                (i == movieRating ? "checked": "")  + " " + 
+                "class='pref-item-rating'>" + i + "");
+        }
+        $prefItem.append($ratingForm);
+        $prefItem.append($("<button class='pref-item-remove' " +
+            "type='button'>Remove</button>"));
+        $prefList.prepend($prefItem);        
+    },
+
+    removeItem: function(movieId) {
+        var $prefList = $("#pref-list");
+        $prefList.children("li").filter(function() {
+            return $(this).data("movie-id") == movieId; 
+        }).remove();       
+    }
+
+};
+
+/******************************************************************************/
+
+/*******************************************************************************
+    reco-list
 *******************************************************************************/
 
 function handleRecoResponse(response) {
@@ -139,30 +229,11 @@ function updateRecoList(movies) {
     }
 }
 
-function addToPrefList(movieId, movieTitle, movieRating) {
-    if (movieRating === undefined) movieRating = 10
+/******************************************************************************/
 
-    var $prefList = $("#pref-list");
-    var $prefItem = $("<li class='list-group-item col-xs-4'></li>").data("movie-id", movieId);
-    $prefItem.append($("<span class='pref-item-title'></span>")
-        .html(movieTitle));
-    var $ratingForm = $("<form></form>");
-    for(var i = 1; i <= 10; i++) {
-        $ratingForm.append("<input type='radio' name='movie_" + movieId + "' " +
-            "value='" + i + "' " + (i == movieRating ? "checked": "") + " " +
-            "class='pref-item-rating'>" + i + "");
-    }
-    $prefItem.append($ratingForm);
-    $prefItem.append($("<button class='pref-item-remove' type='button'>Remove</button>"));
-    $prefList.append($prefItem);
-}
-
-function removeFromPrefList(movieId) {
-    var $prefList = $("#pref-list");
-    $prefList.children("li").filter(function() {
-        return $(this).data("movie-id") == movieId; 
-    }).remove();
-}
+/*******************************************************************************
+    movies-list
+*******************************************************************************/
 
 function loadMoviesFromServer(url, data) {
     if (data === undefined) data = {};
@@ -206,85 +277,17 @@ function refreshMoviesList(movies) {
     var $moviesList = $("#movies-list");
     $moviesList.empty();
     for (var i = 0; i < movies.length; i++) {
-        var $movieItem = $("<li class='movie-item list-group-item col-xs-4'></li>").data("movie-id", 
-            movies[i].id);
+        var $movieItem = $("<li class='movie-item list-group-item col-xs-4'></li>")
+            .data("movie-id", movies[i].id);
         $movieItem.append("<input class='movie-item-checkbox' " + 
             "type='checkbox' name='movie' value='" + 
             movies[i].id + "' " + 
-            (findInMoviesList(movies[i].id) >= 0 ? "checked" : "") +
+            (prefsList.contains(movies[i].id) ? "checked" : "") +
             ">");
         $movieItem.append("<span class='movie-item-title'>" +
             movies[i].title + "</span>");
         $moviesList.append($movieItem);
     }   
-}
-
-function clearMoviesList() {
-    $("#movies-list").empty();
-    sessionStorage.setItem("reco-pref", JSON.stringify([]));
-}
-
-function findInMoviesList(id) {
-    var moviesArray = getMoviesList();
-    id = id.toString();
-    for (var i = 0; i < moviesArray.length; i++) {
-        if (moviesArray[i].id == id) {
-            return i;
-        }
-    }
-    return -1;
-}
-
-function updateMovieRating(id, rating) {
-    var moviesArray = getMoviesList();
-    var id = id.toString();
-    for (var i = 0; i < moviesArray.length; i++) {
-        if (moviesArray[i].id == id) {
-                moviesArray[i].rating = rating;
-                sessionStorage.setItem("reco-pref", JSON.stringify(moviesArray));
-                return true;                
-        }
-    }    
-    return false;
-}
-
-function addMovieToList(id, title, rating) {
-    if (rating === undefined) rating = 10
-
-    var moviesArray = getMoviesList();
-    id = id.toString();
-    for (var i = 0; i < moviesArray.length; i++) {
-        if (moviesArray[i].id == id) {
-                return false;                
-        }
-    }
-    moviesArray.push({"id": id, "title": title, "rating": rating});
-    sessionStorage.setItem("reco-pref", JSON.stringify(moviesArray));
-    return true;
-}
-
-function removeMovieFromList(id) {
-    var moviesArray = getMoviesList();
-    var id = id.toString();
-    for(var i = 0; i < moviesArray.length; i++) {
-        if (moviesArray[i].id == id) {
-            moviesArray.splice(i, 1);
-            sessionStorage.setItem("reco-pref", JSON.stringify(moviesArray));
-            return true;
-        }
-    }
-    return false;
-}
-
-function getMoviesList() {
-    var moviesArray = sessionStorage.getItem("reco-pref");
-    if (!moviesArray) {
-        moviesArray = [];
-        sessionStorage.setItem("reco-pref", JSON.stringify(moviesArray));
-    } else {
-        moviesArray = JSON.parse(moviesArray);
-    }
-    return moviesArray;
 }
 
 /******************************************************************************/

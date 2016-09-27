@@ -1,18 +1,18 @@
 /******************************************************************************
-    UserBasedPrefsManager
+    UserBasedPrefsSource
  ******************************************************************************/
 
-function UserBasedPrefsManager() { 
+function UserBasedPrefsSource() { 
     this.data = [];
 }
 
-UserBasedPrefsManager.prototype.update = function(
+UserBasedPrefsSource.prototype.update = function(
     id, title, rating, callback
 ) {
     var this_ = this; // required for post's callback which overrides this
     $.post(
         "/accounts/user/prefs/update",
-        JSON.stringify({id: id, rating: rating}),
+        {id: id, rating: rating},
         success = function(response) {
             if (response.status.toUpperCase() === "OK") {
                 var movie = this_.get(id);
@@ -24,13 +24,17 @@ UserBasedPrefsManager.prototype.update = function(
                 this_.data.push(movie);
             }
             if (callback !== undefined) {
-                callback(response);
+                callback(this_);
             }
         }
     );
 }
 
-UserBasedPrefsManager.prototype.get = function(id) {
+UserBasedPrefsSource.prototype.getArray = function() {
+    return (this.data.slice());
+} 
+
+UserBasedPrefsSource.prototype.get = function(id) {
     for (var i = 0; i < this.data.length; i++) {
         if (this.data[i].id == id) {
             return (this.data[i]);
@@ -39,11 +43,11 @@ UserBasedPrefsManager.prototype.get = function(id) {
     return null;
 }
 
-UserBasedPrefsManager.prototype.remove = function(id, callback) {
+UserBasedPrefsSource.prototype.remove = function(id, callback) {
     var this_ = this; // required for post's callback which overrides this
     $.post(
         "/accounts/user/prefs/remove",
-        JSON.stringify({id: id}),
+        {id: id},
         success = function(response) {
             if (response.status.toUpperCase() === "OK") {
                 var index = this_.indexOf(id);
@@ -52,20 +56,20 @@ UserBasedPrefsManager.prototype.remove = function(id, callback) {
                 }
             }
             if (callback !== undefined) {
-                callback(response);
+                callback(this_);
             }
         }
     );
 }
 
-UserBasedPrefsManager.prototype.loadData = function(callback) {
+UserBasedPrefsSource.prototype.loadData = function(callback) {
     var this_ = this; // required for post's callback which overrides this
     $.post(
         "/accounts/user/prefs/load",
         success = function(response) {
             if (response.status.toUpperCase() === "OK") {
                 this_.data = [];
-                var movies = response.movies;
+                var movies = response.prefs;
                 for (var i = 0; i < movies.length; i++) {
                     this_.data.push({
                         id: movies[i].id,
@@ -75,13 +79,13 @@ UserBasedPrefsManager.prototype.loadData = function(callback) {
                 }
             }
             if (callback !== undefined) {
-                callback(response);
+                callback(this_);
             }
         }
     );   
 }
 
-UserBasedPrefsManager.prototype.indexOf = function(id) {
+UserBasedPrefsSource.prototype.indexOf = function(id) {
     for (var i = 0; i < this.data.length; i++) {
         if (this.data[i].id == id) {
             return (i);
@@ -90,11 +94,11 @@ UserBasedPrefsManager.prototype.indexOf = function(id) {
     return -1;
 }
 
-UserBasedPrefsManager.prototype.count = function() {
+UserBasedPrefsSource.prototype.count = function() {
     return (this.data.length);
 }
 
-UserBasedPrefsManager.prototype.pagination = function(page, pageSize) {
+UserBasedPrefsSource.prototype.pagination = function(page, pageSize) {
     if (pageSize === undefined) pageSize = 10;
 
     var start = page*pageSize;
@@ -103,14 +107,14 @@ UserBasedPrefsManager.prototype.pagination = function(page, pageSize) {
 }
 
 /******************************************************************************
-    SessionBasedPrefsManager
+    SessionBasedPrefsSource
  ******************************************************************************/
 
-function SessionBasedPrefsManager(storage) {
+function SessionBasedPrefsSource(storage) {
     this.storage = storage;
 }
 
-SessionBasedPrefsManager.prototype.update = function(
+SessionBasedPrefsSource.prototype.update = function(
     id, title, rating, callback
 ) {
     var data = this.getStorageData();
@@ -127,9 +131,17 @@ SessionBasedPrefsManager.prototype.update = function(
         });
     }
     this.saveStorageData(data);
+    if (callback !== undefined) {
+        callback(this);
+    }
 }
 
-SessionBasedPrefsManager.prototype.get = function(id) {
+SessionBasedPrefsSource.prototype.getArray = function() {
+    var data = this.getStorageData();
+    return (data);
+} 
+
+SessionBasedPrefsSource.prototype.get = function(id) {
     var data = this.getStorageData();
     for (var i = 0; i < data.length; i++) {
         if (data[i].id == id) {
@@ -139,22 +151,28 @@ SessionBasedPrefsManager.prototype.get = function(id) {
     return null;
 }
 
-SessionBasedPrefsManager.prototype.remove = function(id, callback) {
+SessionBasedPrefsSource.prototype.remove = function(id, callback) {
     var index = this.indexOf(id);
     if (index >= 0) {
         var data = this.getStorageData();
         data.splice(index, 1);
         this.saveStorageData(data);
+        if (callback !== undefined) {
+            callback(this);
+        }
     }
 }
 
 
-SessionBasedPrefsManager.prototype.loadData = function(callback) {
+SessionBasedPrefsSource.prototype.loadData = function(callback) {
     // Do nothing. Required for ensuring similar interface for
     // all preferences managers.
+    if (callback !== undefined) {
+        callback(this);
+    }
 }
 
-SessionBasedPrefsManager.prototype.indexOf = function(id) {
+SessionBasedPrefsSource.prototype.indexOf = function(id) {
     var data = this.getStorageData();
     for (var i = 0; i < data.length; i++) {
         if (data[i].id == id) {
@@ -164,12 +182,12 @@ SessionBasedPrefsManager.prototype.indexOf = function(id) {
     return -1;
 }
 
-SessionBasedPrefsManager.prototype.count = function() {
+SessionBasedPrefsSource.prototype.count = function() {
     var data = this.getStorageData();
     return (data.length);
 }
 
-SessionBasedPrefsManager.prototype.pagination = function(page, pageSize) {
+SessionBasedPrefsSource.prototype.pagination = function(page, pageSize) {
     if (pageSize === undefined) pageSize = 10;
     
     var data = this.getStorageData();
@@ -180,7 +198,7 @@ SessionBasedPrefsManager.prototype.pagination = function(page, pageSize) {
 
 // Extra functions, specific for storage based preferences managers.
 
-SessionBasedPrefsManager.prototype.getStorageData = function() {
+SessionBasedPrefsSource.prototype.getStorageData = function() {
     var moviesArray = this.storage.getItem("reco-pref");
     if (!moviesArray) {
         moviesArray = [];
@@ -191,6 +209,6 @@ SessionBasedPrefsManager.prototype.getStorageData = function() {
     return moviesArray;
 }
 
-SessionBasedPrefsManager.prototype.saveStorageData = function(items) {
+SessionBasedPrefsSource.prototype.saveStorageData = function(items) {
     this.storage.setItem("reco-pref", JSON.stringify(items));
 }

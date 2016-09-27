@@ -7,11 +7,6 @@
 
     <body>
 
-<div id="fixtures">
-    <button id="make-reco-btn">Make Reco</button>
-    <div id="reco-state"></div>
-</div>
-
         <div id="mocha"></div>
 
         <script src="../../../w2w/static/tests/jquery-3.1.0.js"></script>
@@ -22,174 +17,45 @@
 
         <!-- load code you want to test heere -->
 
+        <script src="../js/prefs.source.js"></script>
         <script src="../js/reco.ui.js"></script>
 
         <!-- load your test files here -->
+        <script src="test.storage.js"></script>
         <script>
 
-        var localStorage2 = {
-            storage: [],
-            setItem: function(key, data) {
-                var index = this.indexOf(key);
-                if (index < 0) {
-                    this.storage.push({key: key, data: data});
-                } else {
-                    this.storage[index].data = data;
-                }
-            },
-            getItem: function(key) {
-                var index = this.indexOf(key);
-                if (index >= 0) {
-                    return this.storage[index].data;
-                }
-                return null;
-            },
-            indexOf: function(key) {
-                for (var i = 0; i < this.storage.length; i++) {
-                    if (this.storage[i].key === key) {
-                        return i;
-                    }
-                }
-                return -1;
-            }
-        };
+            testStorage.setItem(
+                "reco-pref",
+                JSON.stringify([ 
+                    {id: 1, title: "movie1", rating: 1},
+                    {id: 2, title: "movie2", rating: 2},
+                    {id: 3, title: "movie3", rating: 3}
+                ])
+            )
 
-        var assert = chai.assert;
+            var assert = chai.assert;
+            var source;
 
-        describe("Make Recommendation", function() {
+            describe("prefsList global object with session data", function() {
 
-        var xhr, requests;
-        var reco_spy;
-        var pref = [
-            { title: "Killer", id: 1237, rating: 10 },
-            { title: "Spaiderman", id: 10, rating: 1 },
-            { title: "Fight Club", id: 550, rating: 10 }
-        ];
-        var reco = [
-            { title: "Terminator", id: 1301, rating: 5 },
-            { title: "Ghost Raider", id: 12, rating: 6 },
-            { title: "Delta Force", id: 20, rating: 7 }
-        ];
+                beforeEach(function() {
+                    source = new SessionBasedPrefsSource(testStorage);
+                });
 
-        function setUserPreferences(data) {
-            localStorage.setItem("reco-pref", JSON.stringify(data));
-        }
+                it("init method updates data in source", function() {
+                    prefsList.init(source);
+                    assert.equal(source.count(), 3);
+                });
 
-        beforeEach(function() {
-            xhr = sinon.useFakeXMLHttpRequest();
-            requests = [];
-            xhr.onCreate = function (request) {     
-                requests.push(request); 
-            };
-            reco_spy = sinon.spy(window, "handleRecoResponse");
+                it("init method calls updateList method", function() {
+                    prefsList.updateList = sinon.spy();
+                    prefsList.init(source); 
+                    assert.isTrue(prefsList.updateList.called);
+                });
 
-            // Set by default, override in test methods
-            setUserPreferences(pref);
-            localStorage.setItem("reco-type", RECO.GENERAL);
-        });
-
-        afterEach(function() {
-            reco_spy.restore();
-            xhr.restore();
-        });
-
-
-        it("reco button sends post ajax request", function() {
-            $("#make-reco-btn").trigger("click");
-            assert.equal(requests.length, 1);
-            assert.equal(requests[0].method, "POST");
-        });
-
-        it("reco button sends type of reco procedure", function() {
-            $("#make-reco-btn").trigger("click");
-            var data = JSON.parse(requests[0].requestBody);
-            assert.isTrue(data.hasOwnProperty("type"));
-        });
-
-        // standalone reco vs general reco
-        // by genereal reco user update its global perferences
-        // by standalone reco user define his/her preferences which
-        // are separate from global preferences but there should
-        // be option to use global preferences 
-
-        it("reco button sends user's preferences when standalone reco", function() {
-            var dataJson = JSON.stringify({
-                type: RECO.STANDALONE,
-                preferences: pref
             });
-            localStorage.setItem("reco-type", RECO.STANDALONE);
-
-            $("#make-reco-btn").trigger("click");
-
-            assert.equal(requests[0].requestBody, dataJson);
-        });
-
-        it("successful reco ajax request refresh reco-movies list", function() {
-            $("#make-reco-btn").trigger("click");
-
-            requests[0].respond(200, { 'Content-Type': 'text/json' }, 
-                JSON.stringify({status: "ok", movies: reco}));
-
-            assert.isTrue(reco_spy.calledOnce);
-        });
-
-
-        it("failure reco ajax request does not refresh reco-movies-list", function() {
-            var dataJson = JSON.stringify(pref);
-
-            $("#make-reco-btn").trigger("click");
-
-            requests[0].respond(500, { 'Content-Type': 'text/json' }, 
-                JSON.stringify({ status: "ok", movies: reco})
-            );
-
-            assert.isFalse(reco_spy.called);
-        });
-
-
-        it("empty reco displayes message", function() {
-            var dataJson = JSON.stringify(pref);
-            $("#make-reco-btn").trigger("click");
-
-            requests[0].respond(200, { 'Content-Type': 'text/json' }, 
-                JSON.stringify({status: "ok", movies: []})
-            );
-
-            var msg = $("#reco-state").html();
-            assert.equal(msg, RECO.EMPTY_MSG);
-        });
-
-        it("reco alert when standalone reco mode and no movies", function() {
-            var alert_spy = sinon.stub(window, "alert");
-
-            setUserPreferences([]);
-            localStorage.setItem("reco-type", RECO.STANDALONE);
-            
-            $("#make-reco-btn").trigger("click");
-
-            sinon.assert.calledOnce(alert_spy);
-            
-            alert_spy.restore();
-        });
-
-        it("general reco does not send preferences", function() {
-            var dataJson = JSON.stringify({
-                type: RECO.GENERAL,
-                preferences: null
-            });
-
-            $("#make-reco-btn").trigger("click");
-
-            assert.equal(requests[0].requestBody, dataJson);
-        });
-
-
-        });
-
 
         </script>
-
-
 
         <script>
             mocha.run();

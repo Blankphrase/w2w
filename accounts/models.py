@@ -52,7 +52,7 @@ class User(AbstractBaseUser):
     def add_pref(self, id, rating = 10, timestamp = None, 
         save = True, update_mean = True
     ):
-        new_pref = self.pref.add_pref(id, rating, timestamp)
+        new_pref = self.pref.add(id, rating, timestamp)
         if update_mean:
             self.update_mean_rating(False)
         if save:
@@ -62,8 +62,8 @@ class User(AbstractBaseUser):
     def get_pref(self, id):
         return self.pref.data.get(movie__id=id)
 
-    def del_pref(self, id):
-        self.pref.data.get(movie__id=id).delete()
+    def remove_pref(self, id):
+        return self.pref.remove(id)
 
     def update_mean_rating(self, save = True):
         ratings = self.pref.data.values("rating").all()
@@ -93,7 +93,7 @@ class PrefList(models.Model):
     movies = models.ManyToManyField(Movie, through = "MoviePref",
         related_name = "preflist")
 
-    def add_pref(self, id, rating = 10, timestamp = None, save = True):
+    def add(self, id, rating = 10, timestamp = None, save = True):
         movie = Movie.objects.get(id = id)
         timestamp = timestamp if timestamp else timezone.now()
 
@@ -111,6 +111,15 @@ class PrefList(models.Model):
         if save:
             pref_movie.save()
         return pref_movie
+
+
+    def remove(self, id):
+        try:
+            pref_movie = MoviePref.objects.get(preflist = self, movie__id = id)
+            pref_movie.delete()
+            return 1
+        except MoviePref.DoesNotExist:
+            return 0
 
         
 class MoviePref(models.Model):

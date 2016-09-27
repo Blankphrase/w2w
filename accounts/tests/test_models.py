@@ -95,10 +95,10 @@ class UserModelTest(TestCase):
             user.get_pref(10)       
 
 
-    def test_del_pref(self):
+    def test_remove_pref(self):
         user = User.objects.create()
         movie_id = self.pref[0]["id"]
         user.add_pref(id = movie_id, rating = 9)
         self.assertEqual(user.pref.data.count(), 1)
-        user.del_pref(id = movie_id)
+        user.remove_pref(id = movie_id)
         self.assertEqual(user.pref.data.count(), 0)

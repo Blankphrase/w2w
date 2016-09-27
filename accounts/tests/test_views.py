@@ -7,8 +7,154 @@ from accounts.forms import (
     UNIQUE_EMAIL_ERROR, DIFFERENT_PASSWORDS_ERROR, INVALID_LOGIN_ERROR,
     SignUpForm, LoginForm
 )
+from tmdb.models import Movie
+
+import json
+
 
 User = get_user_model()
+
+
+class UserPrefsTest(TestCase):
+
+    def setUp(self):
+        for i in range(0, 5):
+            Movie.objects.create(id = i, title = "movie_%d" % i)
+
+
+    def tearDown(self):
+        Movie.objects.all().delete()
+
+
+    def login_user(self, email = "test@jago.com", password = "test"):
+        user = User(email = email)
+        user.set_password(password)
+        user.save()
+        self.client.login(email = email, password = password)    
+        return user    
+
+
+    def test_load_prefs_error_for_anonymous_users(self):
+        response = self.client.get("/accounts/user/prefs/load")
+        self.assertEqual(response.status_code, 302)
+
+
+    def test_load_prefs_required_user(self):
+        self.login_user()
+        response = self.client.get("/accounts/user/prefs/load")
+        self.assertEqual(response.status_code, 200)
+
+
+    def test_load_prefs_returns_list_of_preferences(self):
+        user = self.login_user()
+        user.add_pref(id = 0, rating = 10)
+        user.add_pref(id = 1, rating = 5)
+
+        response = self.client.get("/accounts/user/prefs/load")
+        data = json.loads(response.content.decode())
+        
+        self.assertEqual(data["status"].upper(), "OK")
+        self.assertIn(data["prefs"][0]["id"], [0, 1])
+
+
+    def test_update_requires_authenticated_user(self):
+        response = self.client.get("/accounts/user/prefs/update")
+        self.assertEqual(response.status_code, 302)    
+        
+
+    def test_update_add_new_preferences(self):
+        user = self.login_user()
+        user.add_pref(id = 0, rating = 10)
+        user.add_pref(id = 1, rating = 5)
+
+        response = self.client.post(
+            "/accounts/user/prefs/update",
+            {"id": 2, "rating": 8}
+        )
+
+        self.assertEqual(user.pref.data.count(), 3)
+        movies = list(user.pref.data.values("movie__id").all())
+        movies = [ movie["movie__id"] for movie in movies ]
+        self.assertIn(2, movies)
+
+
+    def test_update_modifies_user_preferences(self):
+        user = self.login_user()
+        user.add_pref(id = 0, rating = 10)
+        user.add_pref(id = 1, rating = 5)
+
+        response = self.client.post(
+            "/accounts/user/prefs/update",
+            {"id": 1, "rating": 8}
+        )
+
+        self.assertEqual(user.pref.data.count(), 2)
+        movies = list(user.pref.data.values("movie__id", "rating").all())
+        movies = { movie["movie__id"]: movie["rating"] for movie in movies }
+        self.assertEqual(movies[1], 8)
+
+
+    def test_update_invalid_post_returns_error(self):
+        user = self.login_user()
+        user.add_pref(id = 0, rating = 10)
+        user.add_pref(id = 1, rating = 5)
+
+        response = self.client.post(
+            "/accounts/user/prefs/update",
+            {"id": 1}
+        )
+        data = json.loads(response.content.decode())
+        self.assertEqual(data["status"].upper(), "ERROR")
+
+
+    def test_remove_requires_authenticated_user(self):
+        response = self.client.get("/accounts/user/prefs/remove")
+        self.assertEqual(response.status_code, 302)        
+
+
+    def test_remove_removes_user_preferences(self):
+        user = self.login_user()
+        user.add_pref(id = 0, rating = 10)
+        user.add_pref(id = 1, rating = 5)
+
+        response = self.client.post(
+            "/accounts/user/prefs/remove",
+            {"id": 1}
+        )
+
+        self.assertEqual(user.pref.data.count(), 1)
+        movies = list(user.pref.data.values("movie__id").all())
+        movies = [ movie["movie__id"] for movie in movies ]
+        self.assertNotIn(1, movies)
+
+
+    def test_remove_invalid_post_returns_error(self):
+        user = self.login_user()
+        user.add_pref(id = 0, rating = 10)
+        user.add_pref(id = 1, rating = 5)
+
+        response = self.client.post(
+            "/accounts/user/prefs/remove",
+            {"id2": 1}
+        )
+        data = json.loads(response.content.decode())
+        self.assertEqual(data["status"].upper(), "ERROR")
+
+
+    def test_remove_returns_ok_status_for_not_existing_preferences(self):
+        user = self.login_user()
+        user.add_pref(id = 0, rating = 10)
+        user.add_pref(id = 1, rating = 5)
+
+        response = self.client.post(
+            "/accounts/user/prefs/remove",
+            {"id": 2}
+        )
+        data = json.loads(response.content.decode())
+
+        self.assertEqual(user.pref.data.count(), 2)
+        self.assertEqual(data["status"].upper(), "OK")
+
 
 
 class LogInTest(TestCase):
