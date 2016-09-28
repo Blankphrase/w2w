@@ -5,6 +5,103 @@
 
 {% block styles %}
 {{ block.super }}
+<!-- Important Owl stylesheet -->
+<link rel="stylesheet" href="{% static 'main/css/owl.carousel.css' %}">
+<link rel="stylesheet" href="{% static 'main/css/owl.theme.default.min.css' %}">
+<link href="{% static 'main/css/hamburgers.css' %}" rel="stylesheet">
+<style>
+    .container-carousel {
+        max-width: 960px;
+        margin: 0 auto;
+    }
+
+    .movies-list {
+        position: relative;
+        background-color: white;
+        padding-left: 25px;
+        padding-right: 25px;
+        padding-top: 25px;
+        padding-bottom: 25px;
+        margin: 10px;
+    }
+
+    .poster {
+        display: inline-block;
+        padding: 30px 0px;
+        margin-left: 5px;
+        margin-right: 5px;
+        padding: 0px;
+        -webkit-border-radius: 3px;
+        -moz-border-radius: 3px;
+        border-radius: 3px;
+        text-align: center;
+        background-color: blue;
+        height: 278px;
+        max-width: 185px;
+        max-height: 278px;
+    }
+
+    .owl-item {
+    }
+
+    .poster img {
+        height: 100%;
+        width: 100%;
+        box-shadow: 0px 2px 5px #444444;
+    }
+
+    .poster span {
+        display: inline-block;
+        max-width: 185px;
+        text-transform: uppercase;
+    }
+    .movies-list-ui {
+        //background-color: green;
+    }
+    .movies-list-search {
+        overflow: hidden;
+    }
+    .movies-list-search  input {
+        box-sizing : border-box;
+        width: 100%;
+        background-color: gray;
+        color: white;
+        border: 1px solid black; 
+        border-radius: 4px;
+        font-size: 1.1em;
+        line-height: 1.2em;
+    }
+    .owl-nav {
+        float: right;
+        margin-left: 20px;
+    }
+    .movies-list-menu-trigger {
+        float: left;
+    }
+    .owl-prev, .owl-next {
+        display: inline-block;
+        padding: 3px;
+        margin: 0px;
+        cursor: pointer;
+        border-radius: 5px;
+        background-color: gray;
+        font-weight: bold;
+        color: white;
+        box-shadow: 1px 1px 5px #444444;
+    }
+    .owl-prev:hover, .owl-next:hover {
+        color: black;
+    }
+    .owl-carousel {
+        clear: both;
+        margin-top: 10px;
+    }
+    .hamburger {
+        padding: 0px;
+        margin-right: 2px;
+    }
+</style>
+
 <style>
 .page-header {
     text-align: center;
@@ -44,6 +141,100 @@
             </div>
         </div>
     </div>
+
+
+
+
+
+
+<div class = "container-carousel">
+
+        <div class="movies-list">
+            <div class="movies-list-ui">
+                <div class="owl-nav">
+                    <div class="owl-prev">&lt</div>
+                    <div class="owl-next">&gt</div>
+                </div>
+                <div class="movies-list-menu-trigger">
+                    <button class="hamburger hamburger--vortex" type="button">
+                        <span class="hamburger-box">
+                            <span class="hamburger-inner"></span>
+                        </span>
+                    </button>
+                </div>
+                <div class="movies-list-search">
+                    <input type="text" placeholder="Search movies ...">
+                </div>
+            </div>
+            <div class="movies-list-menu">
+                <p>Menu with additional settings will be here</p>
+            </div>
+            <div class="owl-carousel ">
+                <div class="poster">
+                    <img src="{% static 'main/img/img1.jpg' %}">
+                    <span>Very long title, the longest title ever.</span>
+                </div>
+                <div class="poster">
+                    <img src="{% static 'main/img/img2.jpg' %}">
+                    <span>title</span>
+                </div>
+                <div class="poster">
+                    <img src="{% static 'main/img/img3.jpg' %}">
+                    <span>title</span>
+                </div>
+                <div class="poster">
+                    <img src="{% static 'main/img/img4.jpg' %}">
+                    <span>title</span>
+                </div>
+                <div class="poster">
+                    <img src="{% static 'main/img/img5.jpg' %}">
+                    <span>title</span>
+                </div>
+                <div class="poster">
+                    <img src="{% static 'main/img/img6.jpg' %}">
+                    <span>title</span>
+                </div>
+                <div class="poster">
+                    <img src="{% static 'main/img/img7.jpg' %}">
+                    <span>title</span>
+                </div>
+                <div class="poster">
+                    <img src="{% static 'main/img/img8.jpg' %}">
+                    <span>title</span>
+                </div>
+                <div class="poster">
+                    <img src="{% static 'main/img/img9.jpg' %}">
+                    <span>title</span>
+                </div>
+                <div class="poster">
+                    <img src="{% static 'main/img/img10.jpg' %}">
+                    <span>title</span>
+                </div>
+                <div class="poster">
+                    <img src="{% static 'main/img/img11.jpg' %}">
+                    <span>title</span>
+                </div>
+                <div class="poster">
+                    <img src="{% static 'main/img/img14.jpg' %}">
+                    <span>title</span>
+                </div>
+                <div class="poster">
+                    <img src="{% static 'main/img/img15.jpg' %}">
+                    <span>not very long title, but longer than most of titles</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+
+
+
+
+
     <div class="container">
         <div class="panel panel-primary">
             <div class="panel-heading">
@@ -85,6 +276,54 @@
 {% endblock %}
 
 {% block body_scripts %}
+    <script src="{% static 'main/js/owl.carousel.js' %}"></script>
+    <script src="{% static 'main/js/jquery.mousewheel.min.js' %}"></script>
+    <script>
+        $(document).ready(function() {
+            var owl = $('.owl-carousel');
+            owl.owlCarousel({
+                nav: false,
+                dots: false,
+                loop: true,
+                center: true,
+                autoWidth: true,
+                lazyLoad: true,
+                items: 4,
+                responsive: {
+                    0: {
+                        items: 1
+                    },
+                    600: {
+                        items: 3
+                    },
+                    1000: {
+                        items: 5
+                    }
+                }
+            });
+
+            $(".owl-prev").click(function(event) {
+                owl.trigger("prev.owl");
+            });
+            $(".owl-next").click(function(event) {
+                owl.trigger("next.owl");
+            });
+            owl.on('mousewheel', '.owl-stage', function (e) {
+                if (e.deltaY>0) {
+                    owl.trigger('next.owl');
+                } else {
+                    owl.trigger('prev.owl');
+                }
+                e.preventDefault();
+            });
+            $(".hamburger").click(function() {
+                    this.classList.toggle("is-active");
+                    $(".movies-list-menu").toggle();
+            });
+            $(".movies-list-menu").hide();
+        });
+    </script>
+
     <script src="{% static 'js/prefs.source.js' %}"></script>
     <script src="{% static 'js/reco.ui.js' %}"></script>
     <script>
@@ -124,7 +363,3 @@
         $("#reco-status").hide();
     </script>
 {% endblock %}
-
-
-
-
