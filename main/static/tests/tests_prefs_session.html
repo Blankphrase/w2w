@@ -17,7 +17,7 @@
         <script>mocha.setup("bdd");</script>
 
         <!-- load code you want to test heere -->
-        <script src="../js/prefs.manager.js"></script>
+        <script src="../js/prefs.source.js"></script>
 
         <!-- load your test files here -->
         <script src="test.storage.js"></script>
@@ -57,30 +57,37 @@
                     assert.equal(1, 1);
                 });
 
+                it("cannot add the same movie twice", function() {
+                    prefsManager.loadData();
+                    prefsManager.update(id = 4, title = "movie4", rating = 4);
+                    prefsManager.update(id = 4, title = "movie4", rating = 4);    
+                    assert.equal(prefsManager.size(), 4);              
+                });
+
                 it("update saves data in storage", function() {
                     prefsManager.update(id = 4, title = "movie4", rating = 4);
-                    assert.equal(prefsManager.count(), 4);
+                    assert.equal(prefsManager.size(), 4);
                     assert.isNotNull(prefsManager.get(id = 4));
                 });
 
                 it("remove removes from storage", function() {
                     prefsManager.loadData();
                     prefsManager.remove(id = 1);
-                    assert.equal(prefsManager.count(), 2);
+                    assert.equal(prefsManager.size(), 2);
                     assert.isNull(prefsManager.get(id = 1));
                 });
 
             });
 
 
-            describe("test pagination, count, indexOf", function() {
+            describe("test pagination, size, indexOf", function() {
 
                 it("indexOf returns -1 for non existing movies", function() {
                     assert.equal(prefsManager.indexOf(5), -1);
                 });
 
-                it("count returns correct number of movies", function() {
-                    assert.equal(prefsManager.count(), 3);
+                it("size returns correct number of movies", function() {
+                    assert.equal(prefsManager.size(), 3);
                 });
 
                 it("pagination returns array of movies", function() {

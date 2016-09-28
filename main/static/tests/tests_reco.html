@@ -47,12 +47,6 @@
                     assert.equal(source.count(), 3);
                 });
 
-                it("init method calls updateList method", function() {
-                    prefsList.updateList = sinon.spy();
-                    prefsList.init(source); 
-                    assert.isTrue(prefsList.updateList.called);
-                });
-
             });
 
         </script>

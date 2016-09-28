@@ -51,8 +51,16 @@
             </div>
             <div class="panel-body">
                 <ul id="pref-list" class="list-group row"></ul>
+
+                <button id="prefs-list-prev" class="btn btn-primary" 
+                    type="button">Prev</button>
+                <button id="prefs-list-next" class="btn btn-primary" 
+                    type="button">Next</button>
+
+                {% if reco_type == 'standalone' %}
                 <button id="clear-my-prefs" class="btn btn-danger" 
                     type="button">Clear My Preferences</button>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -80,16 +88,35 @@
     <script src="{% static 'js/prefs.source.js' %}"></script>
     <script src="{% static 'js/reco.ui.js' %}"></script>
     <script>
-        loadMoviesFromServer("/movies/popular");
+        // Required for callback after two asynchronous requests
+        var requestStatus = { movies: false, prefs: false, done: false };
+
+        loadMoviesFromServer("/movies/popular", {}, function() {
+            requestStatus.movies = true;
+            if (requestStatus.prefs && !requestStatus.done) {
+                alignMoviesListWithUserPrefs();
+                requestStatus.done = true;
+            }
+        });
 
         var recoType = "{{reco_type}}";
         if (recoType == "general") {
             prefsList.init(new UserBasedPrefsSource(), function() {
                 prefsList.refresh();
+                requestStatus.prefs = true;
+                if (requestStatus.movies && !requestStatus.done) {
+                    alignMoviesListWithUserPrefs();
+                    requestStatus.done = true;
+                }
             });
         } else {
             prefsList.init(new SessionBasedPrefsSource(sessionStorage), function() {
                 prefsList.refresh();
+                requestStatus.prefs = true;
+                if (requestStatus.movies && !requestStatus.done) {
+                    alignMoviesListWithUserPrefs();
+                    requestStatus.done = true;
+                }
             });   
         }
 

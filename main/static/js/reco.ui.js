@@ -4,9 +4,21 @@
 
 $(document).on("change", ".movie-item-checkbox", function() {
     if ($(this).is(':checked')) {
-        prefsList.add($(this).val(), $(this).next().html());
+        prefsList.add(
+            movieId = $(this).val(), 
+            movieTtile = $(this).next().html(),
+            movieRating = 10, // set be default highest possible rating
+            callback = function() {
+                prefsList.refresh();
+            }
+        );
     } else {
-        prefsList.remove($(this).val());
+        prefsList.remove(
+            movieId = $(this).val(),
+            callback = function() {
+                prefsList.refresh();
+            }
+        );
     }
 });
 
@@ -19,25 +31,32 @@ $("#movies-list-prev").click(function() {
     if (!loadInProgress) loadMoviesFromServer("/movies/prev");
 });
 
-// $("#clear-my-prefs").click(function() {
-//     var moviesList = getMoviesList();
-//     var movieId;
+$("#prefs-list-next").click(function() {
+    prefsList.nextPage();
+    var items = prefsList.refresh();
+    if (items == 0) {
+        prefsList.prevPage();
+    }
+});
 
-//     for (var i = 0; i < moviesList.length; i++) {
-//         movieId = moviesList[i].id;
-//         $(".movie-item").filter(function() {
-//             return $(this).data("movie-id") == movieId
-//         }).find("input").prop("checked", false);
-//         removeFromPrefList(movieId);
-//         removeMovieFromList(movieId);        
-//     }
-// });
+$("#prefs-list-prev").click(function() {
+    prefsList.prevPage();
+    var items = prefsList.refresh();
+});
+
+$("#clear-my-prefs").click(function() {
+    if (confirm("Are your sure you want to clear all your preferences?")) {
+        prefsList.clear();
+    }
+});
 
 $(document).on("change", ".pref-item-rating", function() {
     var movieId = $(this).parent().parent().data("movie-id");
     var rating = $(this).val();
     var title = $(this).parent().parent().find(".pref-item-title").html();
-    prefsList.update(movieId, title, rating);
+    prefsList.update(movieId, title, rating, function() {
+        prefsList.refresh();
+    });
 });
 
 $(document).on("click", ".pref-item-remove", function() {
@@ -46,7 +65,9 @@ $(document).on("click", ".pref-item-remove", function() {
     $(".movie-item").filter(function() {
         return $(this).data("movie-id") == movieId
     }).find("input").prop("checked", false);
-    prefsList.remove(movieId);
+    prefsList.remove(movieId, function() {
+        prefsList.refresh();
+    });
 });
 
 $("#movie-search-button").click(function() {
@@ -62,7 +83,6 @@ $("#movie-search-input").keyup(function (e) {
 });
 
 $("#make-reco-btn").click(function() {
-
     // General recommendation procedure does not required to receive
     // preferences, because it used all user's preferences already
     // stored in internal databases.
@@ -122,29 +142,31 @@ var prefsList = {
         return (this.source.getArray());
     },
 
-    add: function(movieId, movieTitle, movieRating) {
+    add: function(movieId, movieTitle, movieRating, callback) {
         if (movieRating === undefined) movieRating = 10
+        this.source.update(movieId, movieTitle, movieRating, callback);
+    },
+
+    clear: function() {
+        var movies = this.source.getArray();
         var this_ = this;
-        this.source.update(
-            movieId, movieTitle, movieRating,
-            function() {
-                this_.refresh();
-            }
-        );
+        for(var i = 0; i < movies.length; i++) {
+            this.remove(
+                movies[i].id,
+                function() {
+                    this_.removeItem(movies[i].id);
+                }
+            )
+        }
+        $("#movies-list > li > input").prop("checked", false); 
     },
 
     update: function(movieId, movieTitle, movieRating) {
         this.source.update(movieId, movieTitle, movieRating);
     },
 
-    remove: function(movieId) {
-        var this_ = this;
-        this.source.remove(
-            movieId,
-            function() {
-                this_.refresh();
-            }
-        );
+    remove: function(movieId, callback) {
+        this.source.remove(movieId,callback);
     },
 
     nextPage: function() {
@@ -162,11 +184,14 @@ var prefsList = {
     },
 
     refresh: function() {
-        $("#pref-list").children("li").remove(); 
         var items = this.source.pagination(this.page, this.pageSize);
-        for (var i = 0; i < items.length; i++) {
-            this.addItem(items[i].id, items[i].title, items[i].rating);
+        if (items.length > 0) {
+            $("#pref-list").children("li").remove(); 
+            for (var i = 0; i < items.length; i++) {
+                this.addItem(items[i].id, items[i].title, items[i].rating);
+            }
         }
+        return (items.length);
     },
 
     addItem: function(movieId, movieTitle, movieRating) {
@@ -235,7 +260,7 @@ function updateRecoList(movies) {
     movies-list
 *******************************************************************************/
 
-function loadMoviesFromServer(url, data) {
+function loadMoviesFromServer(url, data, callback) {
     if (data === undefined) data = {};
 
     loadInProgress = true;
@@ -245,7 +270,7 @@ function loadMoviesFromServer(url, data) {
     $.post(url, data)
     .done(function(response) {
         movies = response.movies;
-        refreshMoviesList(movies);
+        createMoviesList(movies);
         if (movies.length > 0) {
             $("#state-msg").hide();
         } else {
@@ -266,6 +291,10 @@ function loadMoviesFromServer(url, data) {
             $("#movies-list-next").prop("disabled", false);
         }
 
+        if (callback !== undefined) {
+            callback();
+        }
+
     })
     .fail(function(errMsg) {
             alert(errMsg);
@@ -273,21 +302,30 @@ function loadMoviesFromServer(url, data) {
     }); 
 }
 
-function refreshMoviesList(movies) {
+function createMoviesList(movies) {
     var $moviesList = $("#movies-list");
     $moviesList.empty();
     for (var i = 0; i < movies.length; i++) {
         var $movieItem = $("<li class='movie-item list-group-item col-xs-4'></li>")
             .data("movie-id", movies[i].id);
         $movieItem.append("<input class='movie-item-checkbox' " + 
-            "type='checkbox' name='movie' value='" + 
-            movies[i].id + "' " + 
-            (prefsList.contains(movies[i].id) ? "checked" : "") +
-            ">");
+            "type='checkbox' name='movie' value='" + movies[i].id + "'>");
         $movieItem.append("<span class='movie-item-title'>" +
             movies[i].title + "</span>");
         $moviesList.append($movieItem);
     }   
+}
+
+function alignMoviesListWithUserPrefs() {
+    var $movies = $("#movies-list > li input");
+    for(var i = 0; i < $movies.length; i++) {
+        var movieId = $($movies[i]).val();
+        if (prefsList.contains(movieId)) {
+            $($movies[i]).prop("checked", true);
+        } else {
+            $($movies[i]).prop("checked", false);
+        }
+    }
 }
 
 /******************************************************************************/

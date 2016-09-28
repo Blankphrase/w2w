@@ -17,7 +17,7 @@
         <script>mocha.setup("bdd");</script>
 
         <!-- load code you want to test heere -->
-        <script src="../js/prefs.manager.js"></script>
+        <script src="../js/prefs.source.js"></script>
 
         <!-- load your test files here -->
         <script>
@@ -62,9 +62,8 @@
                 it("update sends item id and rating", function() {
                     prefsManager.update(id = 550, title = "movie550", 
                         rating = 10);
-                    var data = JSON.parse(requests[0].requestBody);
-                    assert.equal(data["id"], 550);
-                    assert.equal(data["rating"], 10)
+                    var data = requests[0].requestBody;
+                    assert.equal(data, "id=550&rating=10")
                 });
 
                 it("remove sends post ajax request", function() {
@@ -75,8 +74,8 @@
 
                 it("remove sends item id", function() {
                     prefsManager.remove(id = 550);
-                    var data = JSON.parse(requests[0].requestBody);
-                    assert.equal(data["id"], 550);
+                    var data = requests[0].requestBody;
+                    assert.equal(data, "id=550")
                 });
 
                 it("get does not send post ajax request", function() {
@@ -106,7 +105,7 @@
                     );
                     server.respondWith("POST", "/accounts/user/prefs/load", 
                         jsonOk({
-                            status: "OK", movies: []
+                            status: "OK", prefs: []
                         })
                     );
                     server.respondWith("POST", "/accounts/user/prefs/remove", 
@@ -159,7 +158,7 @@
                     server.respondWith("POST", "/accounts/user/prefs/load", 
                         jsonOk({
                             status: "OK",
-                            movies: [ 
+                            prefs: [ 
                                 {id: 1, title: "movie1", rating: 1},
                                 {id: 2, title: "movie2", rating: 2},
                                 {id: 3, title: "movie3", rating: 3}
@@ -176,6 +175,16 @@
 
                 afterEach(function () {
                     server.restore();
+                });
+
+                it("cannot add the same movie twice", function() {
+                    prefsManager.loadData();
+                    server.respond();
+                    prefsManager.update(id = 4, title = "movie4", rating = 4);
+                    server.respond();
+                    prefsManager.update(id = 4, title = "movie4", rating = 4);
+                    server.respond();     
+                    assert.equal(prefsManager.data.length, 4);              
                 });
 
                 it("loadData saves data locally", function() {
@@ -204,7 +213,7 @@
 
             });
 
-            describe("test pagination, count, indexOf", function() {
+            describe("test pagination, size, indexOf", function() {
                 var prefsManager;
 
                 beforeEach(function () {
@@ -220,8 +229,8 @@
                     assert.equal(prefsManager.indexOf(5), -1);
                 });
 
-                it("count returns correct number of movies", function() {
-                    assert.equal(prefsManager.count(), 3);
+                it("size returns correct number of movies", function() {
+                    assert.equal(prefsManager.size(), 3);
                 });
 
                 it("pagination returns array of movies", function() {

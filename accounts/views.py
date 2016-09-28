@@ -52,7 +52,7 @@ def logout_user(request):
 @login_required
 @csrf_exempt
 def load_prefs(request):
-    prefs = list(request.user.pref.data.
+    prefs = list(request.user.pref.data.order_by("timestamp").
         values("movie__id", "movie__title", "rating").
         annotate(id=F("movie__id"),title=F("movie__title")).
         values("id", "title", "rating").all())

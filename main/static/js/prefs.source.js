@@ -20,8 +20,13 @@ UserBasedPrefsSource.prototype.update = function(
                     movie = {
                         id: id, title: title, rating: rating
                     };
+                    this_.data.push(movie);
+                } else {
+                    movie.rating = rating;
+                    movie.title = title;
                 }
-                this_.data.push(movie);
+            } else {
+                alert("WTF");
             }
             if (callback !== undefined) {
                 callback(this_);
@@ -94,7 +99,7 @@ UserBasedPrefsSource.prototype.indexOf = function(id) {
     return -1;
 }
 
-UserBasedPrefsSource.prototype.count = function() {
+UserBasedPrefsSource.prototype.size = function() {
     return (this.data.length);
 }
 
@@ -182,7 +187,7 @@ SessionBasedPrefsSource.prototype.indexOf = function(id) {
     return -1;
 }
 
-SessionBasedPrefsSource.prototype.count = function() {
+SessionBasedPrefsSource.prototype.size = function() {
     var data = this.getStorageData();
     return (data.length);
 }
