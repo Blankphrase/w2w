@@ -284,8 +284,8 @@
             owl.owlCarousel({
                 nav: false,
                 dots: false,
-                loop: true,
-                center: true,
+                loop: false,
+                center: false,
                 autoWidth: true,
                 lazyLoad: true,
                 items: 4,
@@ -316,6 +316,18 @@
                 }
                 e.preventDefault();
             });
+
+            owl.on("onInitialized", function(event) {
+                moviesList.popular(page = 1, callback = function() {
+
+                });
+            });
+
+            owl.on('changed.owl.carousel', function(event) {
+                if (event.item.index + 4 >= event.item.count) {
+                } 
+            });
+
             $(".hamburger").click(function() {
                     this.classList.toggle("is-active");
                     $(".movies-list-menu").toggle();
@@ -325,12 +337,13 @@
     </script>
 
     <script src="{% static 'js/prefs.source.js' %}"></script>
+    <script src="{% static 'js/lists.js' %}"></script>
     <script src="{% static 'js/reco.ui.js' %}"></script>
     <script>
         // Required for callback after two asynchronous requests
         var requestStatus = { movies: false, prefs: false, done: false };
 
-        loadMoviesFromServer("/movies/popular", {}, function() {
+        moviesList.popular(page = 1, callback = function() {
             requestStatus.movies = true;
             if (requestStatus.prefs && !requestStatus.done) {
                 alignMoviesListWithUserPrefs();

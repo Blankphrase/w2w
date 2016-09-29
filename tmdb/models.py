@@ -5,6 +5,8 @@ from django.utils import timezone
 class Movie(models.Model):
     id = models.IntegerField(primary_key = True)
     title = models.TextField()
+    poster_path = models.TextField(blank = True, null = True)
+    overview = models.TextField(blank = True, null = True)
 
     def __str__(self):
         return self.title

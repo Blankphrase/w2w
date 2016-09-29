@@ -43,7 +43,7 @@ def movies_search(request):
     query = request.POST.get("query", None)
     if query:
         query = "+".join(re.findall(r"(\w+)", query))   
-
+        
     request.session["browse_mode"] = "search"
     request.session["browse_page"] = page
     request.session["browse_query"] = query

@@ -16,7 +16,7 @@ class Client:
         try:
             mpq = MoviePopularQuery.objects.get(page=page)
             data = {
-                "movies": [ model_to_dict(movie,  fields = [ "title", "id" ]) 
+                "movies": [ model_to_dict(movie,  fields = [ "title", "id", "poster_path" ]) 
                     for movie in mpq.movies.all() ],
                 "page": page,
                 "total_pages": mpq.total_pages,
