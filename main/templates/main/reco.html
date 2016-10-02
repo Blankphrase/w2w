@@ -16,18 +16,14 @@
     }
 
     .movies-list {
-        position: relative;
         background-color: white;
-        padding-left: 25px;
-        padding-right: 25px;
-        padding-top: 25px;
-        padding-bottom: 25px;
+        padding: 25px;
         margin: 10px;
     }
 
-    .poster {
+    .movie {
+        position: relative;
         display: inline-block;
-        padding: 30px 0px;
         margin-left: 5px;
         margin-right: 5px;
         padding: 0px;
@@ -38,23 +34,49 @@
         background-color: blue;
         height: 278px;
         max-width: 185px;
-        max-height: 278px;
+        max-height: 278px; 
     }
 
-    .owl-item {
-    }
-
-    .poster img {
+    .movie img {
         height: 100%;
         width: 100%;
         box-shadow: 0px 2px 5px #444444;
     }
 
-    .poster span {
+    .movie span.movie-title {
         display: inline-block;
         max-width: 185px;
         text-transform: uppercase;
     }
+
+    .movie-rating {
+        position: absolute;
+        bottom: 0;
+        margin-left: auto;
+        margin-right: auto;
+        left: 0;
+        right: 0;
+        cursor: pointer;
+    }
+
+    .movie-rating-star.selected,
+    .movie-rating-star.hovered,
+    .movie-rating-star {
+        display: inline-block;
+        color: #FFBB00;
+        font-size: 3em; 
+        text-shadow: 2px 2px #000000;
+    }
+
+    .movie-rating-star.selected:before,
+    .movie-rating-star.hovered:before {
+        content: '\2605';    
+    }
+
+    .movie-rating-star:before {
+        content: '\2606';    
+    }
+
     .movies-list-ui {
         //background-color: green;
     }
@@ -115,7 +137,7 @@
 
 {% block body %}
 {{ block.super }}
-    <div class="container">
+<!--     <div class="container">
         <div class="panel panel-primary">
             <div class="panel-heading">
                 <h3 class="panel-title">Find Your Favourite Movies
@@ -140,100 +162,22 @@
                     type="button">Next</button>
             </div>
         </div>
-    </div>
+    </div> -->
 
-
-
-
-
-
-<div class = "container-carousel">
-
+    <div class = "container-carousel">
         <div class="movies-list">
             <div class="movies-list-ui">
                 <div class="owl-nav">
                     <div class="owl-prev">&lt</div>
                     <div class="owl-next">&gt</div>
                 </div>
-                <div class="movies-list-menu-trigger">
-                    <button class="hamburger hamburger--vortex" type="button">
-                        <span class="hamburger-box">
-                            <span class="hamburger-inner"></span>
-                        </span>
-                    </button>
-                </div>
                 <div class="movies-list-search">
                     <input type="text" placeholder="Search movies ...">
                 </div>
             </div>
-            <div class="movies-list-menu">
-                <p>Menu with additional settings will be here</p>
-            </div>
-            <div class="owl-carousel ">
-                <div class="poster">
-                    <img src="{% static 'main/img/img1.jpg' %}">
-                    <span>Very long title, the longest title ever.</span>
-                </div>
-                <div class="poster">
-                    <img src="{% static 'main/img/img2.jpg' %}">
-                    <span>title</span>
-                </div>
-                <div class="poster">
-                    <img src="{% static 'main/img/img3.jpg' %}">
-                    <span>title</span>
-                </div>
-                <div class="poster">
-                    <img src="{% static 'main/img/img4.jpg' %}">
-                    <span>title</span>
-                </div>
-                <div class="poster">
-                    <img src="{% static 'main/img/img5.jpg' %}">
-                    <span>title</span>
-                </div>
-                <div class="poster">
-                    <img src="{% static 'main/img/img6.jpg' %}">
-                    <span>title</span>
-                </div>
-                <div class="poster">
-                    <img src="{% static 'main/img/img7.jpg' %}">
-                    <span>title</span>
-                </div>
-                <div class="poster">
-                    <img src="{% static 'main/img/img8.jpg' %}">
-                    <span>title</span>
-                </div>
-                <div class="poster">
-                    <img src="{% static 'main/img/img9.jpg' %}">
-                    <span>title</span>
-                </div>
-                <div class="poster">
-                    <img src="{% static 'main/img/img10.jpg' %}">
-                    <span>title</span>
-                </div>
-                <div class="poster">
-                    <img src="{% static 'main/img/img11.jpg' %}">
-                    <span>title</span>
-                </div>
-                <div class="poster">
-                    <img src="{% static 'main/img/img14.jpg' %}">
-                    <span>title</span>
-                </div>
-                <div class="poster">
-                    <img src="{% static 'main/img/img15.jpg' %}">
-                    <span>not very long title, but longer than most of titles</span>
-                </div>
-            </div>
+            <div class="owl-carousel"></div>
         </div>
     </div>
-
-
-
-
-
-
-
-
-
 
     <div class="container">
         <div class="panel panel-primary">
@@ -278,68 +222,50 @@
 {% block body_scripts %}
     <script src="{% static 'main/js/owl.carousel.js' %}"></script>
     <script src="{% static 'main/js/jquery.mousewheel.min.js' %}"></script>
-    <script>
-        $(document).ready(function() {
-            var owl = $('.owl-carousel');
-            owl.owlCarousel({
-                nav: false,
-                dots: false,
-                loop: false,
-                center: false,
-                autoWidth: true,
-                lazyLoad: true,
-                items: 4,
-                responsive: {
-                    0: {
-                        items: 1
-                    },
-                    600: {
-                        items: 3
-                    },
-                    1000: {
-                        items: 5
-                    }
-                }
-            });
-
-            $(".owl-prev").click(function(event) {
-                owl.trigger("prev.owl");
-            });
-            $(".owl-next").click(function(event) {
-                owl.trigger("next.owl");
-            });
-            owl.on('mousewheel', '.owl-stage', function (e) {
-                if (e.deltaY>0) {
-                    owl.trigger('next.owl');
-                } else {
-                    owl.trigger('prev.owl');
-                }
-                e.preventDefault();
-            });
-
-            owl.on("onInitialized", function(event) {
-                moviesList.popular(page = 1, callback = function() {
-
-                });
-            });
-
-            owl.on('changed.owl.carousel', function(event) {
-                if (event.item.index + 4 >= event.item.count) {
-                } 
-            });
-
-            $(".hamburger").click(function() {
-                    this.classList.toggle("is-active");
-                    $(".movies-list-menu").toggle();
-            });
-            $(".movies-list-menu").hide();
-        });
-    </script>
-
     <script src="{% static 'js/prefs.source.js' %}"></script>
-    <script src="{% static 'js/lists.js' %}"></script>
-    <script src="{% static 'js/reco.ui.js' %}"></script>
+    <script src="{% static 'js/generic.lists.js' %}"></script>
+    <script src="{% static 'js/movies.list.js' %}"></script>
+    <script src="{% static 'js/prefs.list.js' %}"></script>
     <script>
+        var owl = $('.owl-carousel');
+        owl.owlCarousel({
+            nav: false, dots: false, loop: false,
+            center: false, autoWidth: true, 
+            lazyLoad: true, items: 5,
+            responsive: {
+                0: { items: 1 },
+                600: { items: 3 },
+                1000: { items: 5 }
+            }
+        });
+        $(".owl-prev").click(function(event) {
+            owl.trigger("prev.owl");
+        });
+        $(".owl-next").click(function(event) {
+            owl.trigger("next.owl");
+        });
+        owl.on('mousewheel', '.owl-stage', function (e) {
+            if (e.deltaY>0) {
+                owl.trigger('next.owl');
+            } else {
+                owl.trigger('prev.owl');
+            }
+            e.preventDefault();
+        });
+
+        owl.on('changed.owl.carousel', function(event) {
+            if (event.item.index + 10 > event.item.count) {
+                moviesList.next();
+            } 
+        });
+
+        $(".hamburger").click(function() {
+                this.classList.toggle("is-active");
+                $(".movies-list-menu").toggle();
+        });
+        $(".movies-list-menu").hide();
+
+
         // Required for callback after two asynchronous requests
         var requestStatus = { movies: false, prefs: false, done: false };
 
@@ -351,25 +277,20 @@
             }
         });
 
+        // prefsList.on("onInitialized", function() {
+        //     refreshPrefsList(prefsList.getCurrentPage());
+        //     requestStatus.prefs = true;
+        //     if (requestStatus.movies && !requestStatus.done) {
+        //         alignMoviesListWithUserPrefs();
+        //         requestStatus.done = true;
+        //     }
+        // });
+
         var recoType = "{{reco_type}}";
         if (recoType == "general") {
-            prefsList.init(new UserBasedPrefsSource(), function() {
-                prefsList.refresh();
-                requestStatus.prefs = true;
-                if (requestStatus.movies && !requestStatus.done) {
-                    alignMoviesListWithUserPrefs();
-                    requestStatus.done = true;
-                }
-            });
+            prefsList.init(new UserBasedPrefsSource(), 4);
         } else {
-            prefsList.init(new SessionBasedPrefsSource(sessionStorage), function() {
-                prefsList.refresh();
-                requestStatus.prefs = true;
-                if (requestStatus.movies && !requestStatus.done) {
-                    alignMoviesListWithUserPrefs();
-                    requestStatus.done = true;
-                }
-            });   
+            prefsList.init(new SessionBasedPrefsSource(sessionStorage), 4);  
         }
 
         $("#reco-container").hide();

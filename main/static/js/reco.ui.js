@@ -1,118 +1,26 @@
-/*******************************************************************************
-    EVENTS HANDLERS
-*******************************************************************************/
+/******************************************************************************/
+// Movies List
+/******************************************************************************/
 
 $(document).on("change", ".movie-item-checkbox", function() {
     if ($(this).is(':checked')) {
-        prefsList.add(
+        prefsList.update(
             movieId = $(this).val(), 
             movieTtile = $(this).next().html(),
-            movieRating = 10, // set be default highest possible rating
-            callback = function() {
-                prefsList.refresh();
-            }
+            movieRating = 10 // set be default highest possible rating       
         );
     } else {
-        prefsList.remove(
-            movieId = $(this).val(),
-            callback = function() {
-                prefsList.refresh();
-            }
-        );
+        prefsList.remove(movieId = $(this).val());
     }
 });
 
-var loadInProgress = false;
 $("#movies-list-next").click(function() {
-    // if (!loadInProgress) loadMoviesFromServer("/movies/next");
     moviesList.next();
 });
 
 $("#movies-list-prev").click(function() {
-    // if (!loadInProgress) loadMoviesFromServer("/movies/prev");
     moviesList.prev();
 });
-
-$("#prefs-list-next").click(function() {
-    prefsList.nextPage();
-    var items = prefsList.refresh();
-    if (items == 0) {
-        prefsList.prevPage();
-    }
-});
-
-$("#prefs-list-prev").click(function() {
-    prefsList.prevPage();
-    var items = prefsList.refresh();
-});
-
-$("#clear-my-prefs").click(function() {
-    if (confirm("Are your sure you want to clear all your preferences?")) {
-        prefsList.clear();
-    }
-});
-
-$(document).on("change", ".pref-item-rating", function() {
-    var movieId = $(this).parent().parent().data("movie-id");
-    var rating = $(this).val();
-    var title = $(this).parent().parent().find(".pref-item-title").html();
-    prefsList.update(movieId, title, rating, function() {
-        prefsList.refresh();
-    });
-});
-
-$(document).on("click", ".pref-item-remove", function() {
-    var movieId = $(this).parent().data("movie-id");
-
-    $(".movie-item").filter(function() {
-        return $(this).data("movie-id") == movieId
-    }).find("input").prop("checked", false);
-    prefsList.remove(movieId, function() {
-        prefsList.refresh();
-    });
-});
-
-$("#movie-search-button").click(function() {
-    var query = $("#movie-search-input").val();
-    moviesList.search(query);
-});
-
-
-$("#movie-search-input").keyup(function (e) {
-    if (e.keyCode == 13) {
-        // loadMoviesFromServer("/movies/search", {query: $(this).val()});
-        moviesList.search($(this).val());
-    }
-});
-
-$("#make-reco-btn").click(function() {
-    // General recommendation procedure does not required to receive
-    // preferences, because it used all user's preferences already
-    // stored in internal databases.
-    var prefList = null;
-    if (recoType == RECO.STANDALONE) {
-        prefList = prefsList.getArray();
-    }
-
-    if (recoType == RECO.STANDALONE && prefList.length == 0) {
-        alert(RECO.NOMOVIES_MSG);
-    } else {
-        $("#reco-status").show();
-        $("#reco-status").html("Recommendation in progres ...");
-        $.post(
-            RECO.URL,
-            JSON.stringify({
-                type: recoType,
-                prefs: prefList
-            }),
-            handleRecoResponse
-        );
-    }
-});
-
-/******************************************************************************/
-// Movies List
-/******************************************************************************/
 
 moviesList.on("onLoad", function() {
     $("#state-msg").show();
@@ -121,8 +29,8 @@ moviesList.on("onLoad", function() {
 
 moviesList.on("onLoaded", function(response) {
     movies = response.movies;
-    createMoviesList(movies);
     if (movies.length > 0) {
+        createMoviesList(movies);
         $("#state-msg").hide();
     } else {
         $("#state-msg").show();
@@ -167,31 +75,166 @@ function alignMoviesListWithUserPrefs() {
 }
 
 /******************************************************************************/
+// Prefs List
+/******************************************************************************/
 
-/*******************************************************************************
-    settings
-*******************************************************************************/
+$("#prefs-list-next").click(function() {
+    prefsList.nextPage();
+});
 
-var RECO = {
-    EMPTY_MSG: "Unable to make recommendation on the base of your preferneces",
-    NOMOVIES_MSG: "Please specifiy your preferences",
-    STANDALONE: "standalone",
-    GENERAL: "general",
-    URL: "/make_reco"
-};
+$("#prefs-list-prev").click(function() {
+    prefsList.prevPage();
+});
+
+$("#clear-my-prefs").click(function() {
+    if (confirm("Are your sure you want to clear all your preferences?")) {
+        clearPrefsList();
+    }
+});
+
+$(document).on("change", ".pref-item-rating", function() {
+    var movieId = $(this).parent().parent().data("movie-id");
+    var rating = $(this).val();
+    var title = $(this).parent().parent().find(".pref-item-title").html();
+    prefsList.update(movieId, title, rating);
+});
+
+
+$(document).on("click", ".pref-item-remove", function() {
+    var movieId = $(this).parent().data("movie-id");
+
+    $(".movie-item").filter(function() {
+        return $(this).data("movie-id") == movieId
+    }).find("input").prop("checked", false);
+    prefsList.remove(movieId);
+});
+
+prefsList.on("onUpdate", function() {
+    refreshPrefsList(prefsList.getCurrentPage());
+});
+
+prefsList.on("onRemove", function(movieId) {
+    var items = prefsList.getCurrentPage();
+    // if removal of item leads to empty page than skip to previous page
+    if (items.length == 0) {
+        prefsList.prevPage(noCallback = true);
+        items = prefsList.getCurrentPage();
+    } 
+    refreshPrefsList(items);
+});
+
+prefsList.on("onNextPage", function(page) {
+    var items = prefsList.getCurrentPage();
+    if (items.length > 0 ) {
+        refreshPrefsList(items);
+    } else {
+        prefsList.prevPage(noCallback = true);
+    }
+});
+
+prefsList.on("onPrevPage", function(page) {
+    var items = prefsList.getCurrentPage();
+    refreshPrefsList(items);
+});
+
+function addMovieToPrefsList(movieId, movieTitle, movieRating) {
+    var $prefList = $("#pref-list");
+    var $prefItem = $("<li class='list-group-item col-xs-4'></li>")
+       .data("movie-id", movieId);
+    $prefItem.append($("<span class='pref-item-title'></span>")
+        .html(movieTitle));
+    var $ratingForm = $("<form></form>");
+    for(var i = 1; i <= 10; i++) {
+        $ratingForm.append("<input type='radio' name='movie_" + 
+            movieId + "' " + "value='" + i + "' " + 
+            (i == movieRating ? "checked": "")  + " " + 
+            "class='pref-item-rating'>" + i + "");
+    }
+    $prefItem.append($ratingForm);
+    $prefItem.append($("<button class='pref-item-remove' " +
+        "type='button'>Remove</button>"));
+    $prefList.append($prefItem);        
+}
+
+function removeMovieFromPrefsList(movieId) {
+    var $prefList = $("#pref-list");
+    $prefList.children("li").filter(function() {
+        return $(this).data("movie-id") == movieId; 
+    }).remove();       
+}
+
+function refreshPrefsList(items) {
+    $("#pref-list").children("li").remove(); 
+    if (items.length > 0) {
+        for (var i = 0; i < items.length; i++) {
+            addMovieToPrefsList(items[i].id, items[i].title, items[i].rating);
+        }
+    }
+    return (items.length);
+}
+
+function clearPrefsList() {
+    var movies = prefsList.getData(all = true);
+    for(var i = 0; i < movies.length; i++) {
+        prefsList.remove(movies[i].id, noCallback = true);
+    }
+    prefsList.setPage(0);
+    $("#pref-list").children("li").remove(); 
+    $("#movies-list > li > input").prop("checked", false); 
+}
 
 /******************************************************************************/
 
+
 /*******************************************************************************
-    reco-list
+    Reco - list
 *******************************************************************************/
+
+$("#movie-search-button").click(function() {
+    var query = $("#movie-search-input").val();
+    moviesList.search(query);
+});
+
+
+$("#movie-search-input").keyup(function (e) {
+    if (e.keyCode == 13) {
+        // loadMoviesFromServer("/movies/search", {query: $(this).val()});
+        moviesList.search($(this).val());
+    }
+});
+
+$("#make-reco-btn").click(function() {
+    // General recommendation procedure does not required to receive
+    // preferences, because it used all user's preferences already
+    // stored in internal databases.
+    var prefList = null;
+    if (recoType == "standalone") {
+        prefList = prefsList.getArray();
+    }
+
+    if (recoType == "standalone" && prefList.length == 0) {
+        alert("Please specifiy your preferences");
+    } else {
+        $("#reco-status").show();
+        $("#reco-status").html("Recommendation in progres ...");
+        $.post(
+            "/make_reco",
+            JSON.stringify({
+                type: recoType,
+                prefs: prefList
+            }),
+            handleRecoResponse
+        );
+    }
+});
 
 function handleRecoResponse(response) {
     if (response.status == "OK") {
         var movies = response.movies;
         if (movies.length === 0) {
             $("#reco-status").show();
-            $("#reco-status").html(RECO.EMPTY_MSG);
+            $("#reco-status").html("Unable to make recommendation on the " +
+                "base of your preferneces");
         } else {
             updateRecoList(movies);
             $("#reco-container").show();

@@ -35,7 +35,7 @@ UserBasedPrefsSource.prototype.update = function(
     );
 }
 
-UserBasedPrefsSource.prototype.getArray = function() {
+UserBasedPrefsSource.prototype.getData = function() {
     return (this.data.slice());
 } 
 
@@ -105,9 +105,11 @@ UserBasedPrefsSource.prototype.size = function() {
 
 UserBasedPrefsSource.prototype.pagination = function(page, pageSize) {
     if (pageSize === undefined) pageSize = 10;
-
+    if (page < 0) {
+        return (undefined);
+    }
     var start = page*pageSize;
-    var end = (page+1)*pageSize;
+    var end = (page-1)*pageSize;
     return (this.data.slice(start, end));
 }
 
@@ -131,7 +133,8 @@ SessionBasedPrefsSource.prototype.update = function(
         data[index].title = title;
         data[index].rating = rating;
     } else {
-        data.push({
+        // Keep the newest preferences at the beginning
+        data.unshift({
             id: id, title: title, rating: rating
         });
     }
@@ -141,7 +144,7 @@ SessionBasedPrefsSource.prototype.update = function(
     }
 }
 
-SessionBasedPrefsSource.prototype.getArray = function() {
+SessionBasedPrefsSource.prototype.getData = function() {
     var data = this.getStorageData();
     return (data);
 } 
@@ -194,7 +197,10 @@ SessionBasedPrefsSource.prototype.size = function() {
 
 SessionBasedPrefsSource.prototype.pagination = function(page, pageSize) {
     if (pageSize === undefined) pageSize = 10;
-    
+    if (page < 0) {
+        return (undefined);
+    }
+
     var data = this.getStorageData();
     var start = page*pageSize;
     var end = (page+1)*pageSize;

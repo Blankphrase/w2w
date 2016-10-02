@@ -315,7 +315,8 @@
 
 				cache.items.merge = merge > 1 || cache.items.merge;
 
-				widths[iterator] = !grid ? this._items[iterator].width() : width * merge;
+				// Some bug resulting in different width in different browsers
+				widths[iterator] = 195; //!grid ? this._items[iterator].width() : width * merge;
 			}
 
 			this._widths = widths;
@@ -374,7 +375,6 @@
 					'padding-left': padding || '',
 					'padding-right': padding || ''
 				};
-
 			this.$stage.css(css);
 		}
 	}, {
@@ -1030,16 +1030,20 @@
 		if (settings.loop) {
 			maximum = this._clones.length / 2 + this._items.length - 1;
 		} else if (settings.autoWidth || settings.merge) {
-			iterator = this._items.length;
-			reciprocalItemsWidth = this._items[--iterator].width();
-			elementWidth = this.$element.width();
-			while (iterator--) {
-				reciprocalItemsWidth += this._items[iterator].width() + this.settings.margin;
-				if (reciprocalItemsWidth > elementWidth) {
-					break;
+			if (this._items.length == 0) {
+				maximum = 0;
+			} else {
+				iterator = this._items.length;
+				reciprocalItemsWidth = this._items[--iterator].width();
+				elementWidth = this.$element.width();
+				while (iterator--) {
+					reciprocalItemsWidth += this._items[iterator].width() + this.settings.margin;
+					if (reciprocalItemsWidth > elementWidth) {
+						break;
+					}
 				}
+				maximum = iterator + 1;
 			}
-			maximum = iterator + 1;
 		} else if (settings.center) {
 			maximum = this._items.length - 1;
 		} else {

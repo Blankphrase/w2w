@@ -49,7 +49,6 @@ class Client:
                 except Movie.DoesNotExist:
                     movie = self._save_movie_in_database(movie)
                 mpq.movies.add(movie)
-
         return data
 
     def search_movies(self, query, page = 1):
@@ -67,7 +66,12 @@ class Client:
         return data
 
     def _save_movie_in_database(self, movie):
-        movie = Movie(id = movie["id"], title = movie["title"])
+        movie = Movie(
+            id = movie["id"], 
+            title = movie["title"],
+            poster_path = movie.get("poster_path"),
+            overview = movie.get("overview")
+        )
         movie.full_clean()
         movie.save()
         return movie
