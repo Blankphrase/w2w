@@ -1,14 +1,20 @@
-from tmdb.models import Movie, MoviePopularQuery
+from tmdb.models import (
+    Movie, MoviePopularQuery,
+    MIN_UPDATE_LEVEL, MAX_UPDATE_LEVEL
+)
 from tmdb.util import tmdb_request
+from tmdb.exceptions import MovieDoesNotExist
 
 from django.forms import model_to_dict
 
 import requests
 
 
-class Client:
+class Client():
     
-    def get_popular_movies(self, page = 1, update_data = False):
+    def get_popular_movies(
+        self, page = 1, update_data = False, min_update_level = 0
+    ):
         '''
         Returns popular movies for chosen page in dictionary form. First search 
         internal database. When id doesn't exist, tries to load it from tmdb. 
@@ -41,7 +47,7 @@ class Client:
             mpq = MoviePopularQuery.objects.create(
                 page = page,
                 total_pages = data["total_pages"],
-                total_results = data["total_results"],
+                total_results = data["total_results"]
             )
             for movie in data["movies"]:
                 try:
@@ -50,6 +56,7 @@ class Client:
                     movie = self._save_movie_in_database(movie)
                 mpq.movies.add(movie)
         return data
+
 
     def search_movies(self, query, page = 1):
         try:
@@ -65,15 +72,45 @@ class Client:
                 movie = self._save_movie_in_database(movie)
         return data
 
-    def _save_movie_in_database(self, movie):
-        movie = Movie(
+
+    def get_movie(self, id, min_update_level = MIN_UPDATE_LEVEL):
+        try:
+            movie = Movie.objects.get(id = id)
+            if movie.update_level < min_update_level:
+                data = self._download_movie_data(id)
+                data["update_level"] = MAX_UPDATE_LEVEL
+                fields_to_update = [
+                    field.name for field in Movie._meta.get_fields()\
+                        if field.name != "id"
+                ]
+                Movie.objects.filter(id = id).update(**{
+                    key: value for key, value in data.items()\
+                        if key in fields_to_update
+                    })       
+        except Movie.DoesNotExist:
+            data = self._download_movie_data(id)
+            movie = self._save_movie_in_database(
+                data, 
+                update_level = MAX_UPDATE_LEVEL
+            )
+        return movie
+
+
+    def _download_movie_data(self, id):
+        data = tmdb_request(method = "GET", path = "movie/%s" % (id))
+        if data.get("status_code", None) == 34:
+            raise MovieDoesNotExist()
+        return data
+
+
+    def _save_movie_in_database(self, movie, update_level = None):
+        movie = Movie.objects.create(
             id = movie["id"], 
             title = movie["title"],
             poster_path = movie.get("poster_path"),
-            overview = movie.get("overview")
+            overview = movie.get("overview"),
+            update_level = update_level
         )
-        movie.full_clean()
-        movie.save()
         return movie
 
 

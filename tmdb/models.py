@@ -1,9 +1,13 @@
 from django.db import models
 from django.utils import timezone
 
+MIN_UPDATE_LEVEL = 0
+MAX_UPDATE_LEVEL = 2
+
 
 class Movie(models.Model):
     id = models.IntegerField(primary_key = True)
+    update_level = models.IntegerField(default = 0)
     title = models.TextField()
     poster_path = models.TextField(blank = True, null = True)
     overview = models.TextField(blank = True, null = True)

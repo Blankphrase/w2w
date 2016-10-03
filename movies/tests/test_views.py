@@ -101,5 +101,3 @@ class PopularMoviesTest(TestCase):
         self.client.post("/movies/popular")
         response = json.loads(self.client.post("/movies/page/999").content.decode())
         self.assertEqual(response["page"], 999)
-
-    
