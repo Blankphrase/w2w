@@ -24,6 +24,9 @@ moviesList.on("onLoaded", function(response) {
 	    				"<div class='movie-rating-star' data-value='4'><span></span></div>" +
 	    				"<div class='movie-rating-star' data-value='5'><span></span></div>" +
 	    			"</div>" +
+                    "<div class='check-off-background'>" + 
+                        "<div class='check-off'><a href='#'>CHECK OFF</a></div>" + 
+                    "</div>" +
 	    			"<span class='movie-title'>" + movies[i].title + "</span>" + // relative
 	    		"<div>"
 

@@ -8,7 +8,6 @@
 <!-- Important Owl stylesheet -->
 <link rel="stylesheet" href="{% static 'main/css/owl.carousel.css' %}">
 <link rel="stylesheet" href="{% static 'main/css/owl.theme.default.min.css' %}">
-<link href="{% static 'main/css/hamburgers.css' %}" rel="stylesheet">
 <style>
     .container-carousel {
         max-width: 960px;
@@ -77,9 +76,47 @@
         content: '\2606';    
     }
 
-    .movies-list-ui {
-        //background-color: green;
+    .check-off-background {
+        position: absolute;
+        width: 0;
+        height: 0;
+        border-style: solid;
+        border-width: 0 100px 100px 0;
+        border-color: transparent #fff700 transparent transparent;
+        right: 0;
+        top: 0;
+        opacity: 0.75;
     }
+    .check-off {     
+        display: inline-block;  
+        /* Safari */
+        -webkit-transform: rotate(45deg) translate(30px, 10px);
+
+        /* Firefox */
+        -moz-transform: rotate(45deg) translate(30px, 10px);
+
+        /* IE */
+        -ms-transform: rotate(45deg) translate(30px, 10px);
+
+        /* Opera */
+        -o-transform: rotate(45deg) translate(30px, 10px);
+    
+        /* Internet Explorer */
+        /*filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);*/
+        transform: rotate(45deg) translate(30px, 10px);
+    }
+    .check-off > a {
+        color: black; /* #fff700; */
+        font-weight: bold;
+        white-space: nowrap;
+    }
+    .check-off > a:link, .check-off > a:visited, .check-off > a:active {
+        text-decoration: none;
+    }
+    .check-off > a:hover {
+        text-decoration: underline;
+    }
+
     .movies-list-search {
         overflow: hidden;
     }
@@ -117,10 +154,6 @@
     .owl-carousel {
         clear: both;
         margin-top: 10px;
-    }
-    .hamburger {
-        padding: 0px;
-        margin-right: 2px;
     }
 </style>
 
