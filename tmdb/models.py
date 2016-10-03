@@ -2,6 +2,8 @@ from django.db import models
 from django.utils import timezone
 
 MIN_UPDATE_LEVEL = 0
+POPULAR_UPDATE_LEVEL = 1
+SEARCH_UPDATE_LEVEL = 1
 MAX_UPDATE_LEVEL = 2
 
 
