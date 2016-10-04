@@ -74,6 +74,10 @@ var prefsList = {
         return (this.source.indexOf(movieId) >= 0);
     },
 
+    getMovie: function(movieId) {
+        return (this.source.get(movieId));
+    },
+
     getData: function(all) {
         if (all === undefined || all === false) {
             var items = this.source.pagination(this.page, this.pageSize);
@@ -159,11 +163,11 @@ moviesList = {
                     this_.totalPages = response.total_pages;
                     this_.currentMovies = response.movies;
 
-                    if (extra !== undefined) {
-                        extra(response);
-                    }
                     if (this_.callbacks.onLoaded !== undefined) {
                         this_.callbacks.onLoaded(response); 
+                    }
+                    if (extra !== undefined) {
+                        extra(response);
                     }
                 }
             ).fail(

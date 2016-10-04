@@ -67,16 +67,17 @@
         text-shadow: 2px 2px #000000;
     }
 
+    .movie-rating-star:before {
+        content: '\2606';    
+    }
+
     .movie-rating-star.selected:before,
     .movie-rating-star.hovered:before {
         content: '\2605';    
     }
 
-    .movie-rating-star:before {
-        content: '\2606';    
-    }
-
-    .check-off-background {
+    .check-off {
+        display: none;
         position: absolute;
         width: 0;
         height: 0;
@@ -87,7 +88,7 @@
         top: 0;
         opacity: 0.75;
     }
-    .check-off {     
+    .check-off-text {     
         display: inline-block;  
         /* Safari */
         -webkit-transform: rotate(45deg) translate(30px, 10px);
@@ -105,15 +106,17 @@
         /*filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);*/
         transform: rotate(45deg) translate(30px, 10px);
     }
-    .check-off > a {
+    .check-off-text > a {
         color: black; /* #fff700; */
         font-weight: bold;
         white-space: nowrap;
     }
-    .check-off > a:link, .check-off > a:visited, .check-off > a:active {
+    .check-off-text > a:link, 
+    .check-off-text > a:visited, 
+    .check-off-text > a:active {
         text-decoration: none;
     }
-    .check-off > a:hover {
+    .check-off-text > a:hover {
         text-decoration: underline;
     }
 
@@ -179,33 +182,6 @@
 
 {% block body %}
 {{ block.super }}
-<!--     <div class="container">
-        <div class="panel panel-primary">
-            <div class="panel-heading">
-                <h3 class="panel-title">Find Your Favourite Movies
-                    <span id="state-msg"></span>
-                </h3>
-            </div>
-            <div class="panel-body">
-
-                <div class="input-group movie-search-group">
-                    <input type="text" class="form-control" id="movie-search-input"
-                           placeholder="Search for movies ...">
-                    <span class="input-group-btn">
-                        <button class="btn btn-default" id="movie-search-button"
-                                type="button">Search!</button>
-                    </span>
-                </div>
-
-                <ul id="movies-list" class="list-group row"></ul>
-                <button id="movies-list-prev" class="btn btn-primary" 
-                    type="button">Prev</button>
-                <button id="movies-list-next" class="btn btn-primary" 
-                    type="button">Next</button>
-            </div>
-        </div>
-    </div> -->
-
     <div class = "container-carousel">
         <div class="movies-list">
             <div class="movies-list-ui">
@@ -234,7 +210,6 @@
 
             <div class="owl-carousel"></div>
         </div>
-
     </div>
 
     <div class="container">
@@ -313,16 +288,11 @@
 
         owl.on('changed.owl.carousel', function(event) {
             if (event.item.index + 20 > event.item.count) {
-                moviesList.next();
+                moviesList.next(function() {
+                    alignMoviesListWithUserPrefs(); 
+                });
             } 
         });
-
-        $(".hamburger").click(function() {
-                this.classList.toggle("is-active");
-                $(".movies-list-menu").toggle();
-        });
-        $(".movies-list-menu").hide();
-
 
         // Required for callback after two asynchronous requests
         var requestStatus = { movies: false, prefs: false, done: false };
@@ -330,19 +300,19 @@
         moviesList.popular(page = 1, callback = function() {
             requestStatus.movies = true;
             if (requestStatus.prefs && !requestStatus.done) {
-                alignMoviesListWithUserPrefs();
+                alignMoviesListWithUserPrefs(); 
                 requestStatus.done = true;
             }
         });
 
-        // prefsList.on("onInitialized", function() {
-        //     refreshPrefsList(prefsList.getCurrentPage());
-        //     requestStatus.prefs = true;
-        //     if (requestStatus.movies && !requestStatus.done) {
-        //         alignMoviesListWithUserPrefs();
-        //         requestStatus.done = true;
-        //     }
-        // });
+        prefsList.on("onInitialized", function() {
+            refreshPrefsList(prefsList.getCurrentPage());
+            requestStatus.prefs = true;
+            if (requestStatus.movies && !requestStatus.done) {
+                alignMoviesListWithUserPrefs(); 
+                requestStatus.done = true;
+            }
+        });
 
         var recoType = "{{reco_type}}";
         if (recoType == "general") {

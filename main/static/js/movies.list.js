@@ -23,15 +23,15 @@ moviesList.on("onLoaded", function(response) {
 	    				"<div class='movie-rating-star' data-value='4'><span></span></div>" +
 	    				"<div class='movie-rating-star' data-value='5'><span></span></div>" +
 	    			"</div>" +
-                    "<div class='check-off-background'>" + 
-                        "<div class='check-off'><a href='#'>CHECK OFF</a></div>" + 
+                    "<div class='check-off'>" + 
+                        "<div class='check-off-text'><a href='#'>CHECK OFF</a></div>" + 
                     "</div>" +
 	    			"<span class='movie-title'>" + movies[i].title + "</span>" + // relative
 	    		"<div>"
 
 	    	owl.owlCarousel("add", movie_html);
 	    }
-	 	owl.owlCarousel("refresh");   
+	 	owl.owlCarousel("refresh");  
 	} else {
 		// alert("NO MORE MOVIES");
 	}
@@ -48,16 +48,24 @@ $(document).on("mouseout", ".movie-rating-star", function() {
 	$(this).prevAll().removeClass("hovered");
 });
 
-$(document).on("mouseover", ".poster", function() {
+$(document).on("click", ".movie-rating-star", function() {
+    // Adjust rating from 1-5 to 1-10
+    var rating = $(this).data("value")*2 - 1;
+    rating = rating == 9 ? 10 : rating;
 
-});
+    var movieId = $(this).parent().parent().data("movie-id");
+    var title = $(this).parent().siblings(".movie-title").html();
 
-$(document).on("click", ".poster", function() {
     prefsList.update(
-        movieId = $(this).data("movie-id"), 
-        movieTtile = $(this).find("span").html(),
-        movieRating = 10 // set be default highest possible rating       
-    );
+        movieId = movieId,
+        movieTitle = title,
+        movieRating = rating   
+    );   
+
+    $(this).nextAll().removeClass("selected");
+    $(this).addClass("selected");
+    $(this).prevAll().addClass("selected");
+    $(this).parent().siblings(".check-off").show();
 });
 
 // Search Movies
@@ -67,7 +75,12 @@ $("#movie-search-button").click(function() {
     showMoviesListInfo("Searching movies...");
     moviesList.search(query, function(response) {
         if (response.movies.length > 0) {
-            clearMoviesList();   
+            // Remove all movies from carousel from previous browsing
+            var owl = $(".owl-carousel");
+            while ($(".owl-item").length > response.movies.length) {
+                owl.trigger("remove.owl.carousel", 0);
+            } 
+            alignMoviesListWithUserPrefs(); 
             hideMoviesListInfo(); 
         } else {
             showMoviesListInfo("No movies found matching your query.");
@@ -81,7 +94,12 @@ $("#movie-search-input").keyup(function (e) {
         showMoviesListInfo("Searching movies...");
         moviesList.search($(this).val(), function(response) {
             if (response.movies.length > 0) {
-                clearMoviesList();   
+                // Remove all movies from carousel from previous browsing
+                var owl = $(".owl-carousel");
+                while ($(".owl-item").length > response.movies.length) {
+                    owl.trigger("remove.owl.carousel", 0);
+                }    
+                alignMoviesListWithUserPrefs(); 
                 hideMoviesListInfo(); 
             } else {
                 showMoviesListInfo("No movies found matching your query.");
@@ -105,6 +123,22 @@ function showMoviesListInfo(msg) {
 
 function hideMoviesListInfo() {
     $("#movies-list-info").hide();
+}
+
+function alignMoviesListWithUserPrefs() {
+    var $movies = $(".movie");
+    $movies.each(function(index) {
+        var movieId = $(this).data("movie-id");
+        if (prefsList.contains(movieId)) {
+            var $starRef = $(this).children(".movie-rating").find("[data-value='" + 
+                prefsList.getMovie(movieId).rating + "']")
+
+            $starRef.nextAll().removeClass("selected");
+            $starRef.addClass("selected");
+            $starRef.prevAll().addClass("selected");
+            $starRef.parent().siblings(".check-off").show();
+        }
+    });
 }
 
 /******************************************************************************/
