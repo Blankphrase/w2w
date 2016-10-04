@@ -159,12 +159,11 @@ moviesList = {
                     this_.totalPages = response.total_pages;
                     this_.currentMovies = response.movies;
 
-                    if (this_.callbacks.onLoaded !== undefined) {
-                        this_.callbacks.onLoaded(response); 
-                    }
-
                     if (extra !== undefined) {
                         extra(response);
+                    }
+                    if (this_.callbacks.onLoaded !== undefined) {
+                        this_.callbacks.onLoaded(response); 
                     }
                 }
             ).fail(

@@ -14,7 +14,7 @@ from unittest.mock import patch
 
 
 @patch("requests.request")
-class ClientTest(TestCase):
+class ClientGetMovieTest(TestCase):
 
     def setUp(self):
         self.tmdb_client = Client()
@@ -47,6 +47,16 @@ class ClientTest(TestCase):
             "title":"Fight Club","video":False,
             "vote_average":8.1,"vote_count":5385}
     
+        self.data_0 = {
+            "id":550, "title":"Fight Club"
+        }
+
+        self.data_1 = {
+            "id":550,
+            "popularity":3.969124,
+            "poster_path":"/811DjJTon9gD6hZ8nCjSitaIXFQ.jpg",
+            "title":"Fight Club", "vote_average":8.1,"vote_count":5385
+        }
 
     def test_get_movie_send_request_if_movie_not_in_db(self, request_mock):
         request_mock.return_value.json.return_value = self.response_id_550
@@ -101,3 +111,58 @@ class ClientTest(TestCase):
         }
         with self.assertRaises(MovieDoesNotExist):
             self.tmdb_client.get_movie(id = 5345)
+
+
+
+class ClientSaveUpdateTest(TestCase):
+
+    def setUp(self):
+        self.tmdb_client = Client()
+
+        self.data_0 = {
+            "id":550, "title":"Fight Club"
+        }
+
+        self.data_1 = {
+            "id":550,
+            "popularity":3.969124,
+            "poster_path":"/811DjJTon9gD6hZ8nCjSitaIXFQ.jpg",
+            "title":"Fight Club", "vote_average":8.1,"vote_count":5385
+        }
+
+    def test_for_saving_movie_in_db(self):
+        self.tmdb_client.save_movie_in_db(self.data_0, 
+            update_level = MIN_UPDATE_LEVEL)
+        self.assertEqual(Movie.objects.count(), 1)
+        self.assertEqual(Movie.objects.first().title, self.data_0["title"])
+        self.assertEqual(Movie.objects.first().update_level, MIN_UPDATE_LEVEL)
+
+
+    def test_for_updating_movie_in_db(self):
+        self.tmdb_client.save_movie_in_db(self.data_0, 
+            update_level = MIN_UPDATE_LEVEL)
+        self.tmdb_client.update_movie_in_db(self.data_1, 
+            update_level = MAX_UPDATE_LEVEL)
+        self.assertEqual(Movie.objects.count(), 1)
+        self.assertEqual(Movie.objects.first().update_level, MAX_UPDATE_LEVEL)
+        self.assertEqual(Movie.objects.first().poster_path, self.data_1["poster_path"])
+    
+    
+    def test_update_or_save_saves_new_movies_in_db(self):
+        self.tmdb_client.save_or_update_movie_in_db(
+            data = self.data_0,
+            update_level = MIN_UPDATE_LEVEL
+        )
+        self.assertEqual(Movie.objects.count(), 1)
+        self.assertEqual(Movie.objects.first().update_level, MIN_UPDATE_LEVEL)
+        self.assertIsNone(Movie.objects.first().poster_path)     
+
+
+    def test_update_or_save_updates_movies_in_db(self):
+        self.tmdb_client.save_movie_in_db(self.data_0, 
+            update_level = MIN_UPDATE_LEVEL)
+        self.tmdb_client.save_or_update_movie_in_db(self.data_1, 
+            update_level = MAX_UPDATE_LEVEL)
+        self.assertEqual(Movie.objects.count(), 1)
+        self.assertEqual(Movie.objects.first().update_level, MAX_UPDATE_LEVEL)
+        self.assertIsNotNone(Movie.objects.first().poster_path)     

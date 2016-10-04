@@ -9,7 +9,6 @@ moviesList.on("onLoad", function() {
 
 moviesList.on("onLoaded", function(response) {
     movies = response.movies;
-
     if (movies.length > 0) {
 	    var owl = $(".owl-carousel");
 	    for (var i = 0; i < movies.length; i++) {
@@ -60,5 +59,52 @@ $(document).on("click", ".poster", function() {
         movieRating = 10 // set be default highest possible rating       
     );
 });
+
+// Search Movies
+
+$("#movie-search-button").click(function() {
+    var query = $("#movie-search-input").val();
+    showMoviesListInfo("Searching movies...");
+    moviesList.search(query, function(response) {
+        if (response.movies.length > 0) {
+            clearMoviesList();   
+            hideMoviesListInfo(); 
+        } else {
+            showMoviesListInfo("No movies found matching your query.");
+        }
+    });
+});
+
+
+$("#movie-search-input").keyup(function (e) {
+    if (e.keyCode == 13) {
+        showMoviesListInfo("Searching movies...");
+        moviesList.search($(this).val(), function(response) {
+            if (response.movies.length > 0) {
+                clearMoviesList();   
+                hideMoviesListInfo(); 
+            } else {
+                showMoviesListInfo("No movies found matching your query.");
+            }
+        });
+    }
+});
+
+function clearMoviesList() {
+    var owl = $(".owl-carousel");
+    while ($(".owl-item").length > 0) {
+        owl.trigger("remove.owl.carousel", 0);
+    }     
+}
+
+function showMoviesListInfo(msg) {
+    var info = $("#movies-list-info");
+    info.find("#movies-list-info-msg").html(msg);
+    info.show();
+}
+
+function hideMoviesListInfo() {
+    $("#movies-list-info").hide();
+}
 
 /******************************************************************************/

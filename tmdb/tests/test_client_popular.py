@@ -2,7 +2,10 @@ from django.test import TestCase
 from django.forms import model_to_dict
 
 from tmdb.client import Client
-from tmdb.models import Movie, MoviePopularQuery
+from tmdb.models import (
+    Movie, MoviePopularQuery,
+    MIN_UPDATE_LEVEL, MAX_UPDATE_LEVEL, POPULAR_UPDATE_LEVEL
+)
 from tmdb.util import tmdb_request
 
 import json
@@ -121,7 +124,7 @@ class ClientPopularTest(TestCase):
         self.assertEqual(Movie.objects.count(), 2)  
 
     
-    @patch.object(Client, "_save_movie_in_database")
+    @patch.object(Client, "save_movie_in_db")
     @patch("requests.request")
     def test_do_not_saved_already_stored_movies(self, request_mock, save_mock):
         request_mock.return_value.json.return_value = {
@@ -130,11 +133,9 @@ class ClientPopularTest(TestCase):
             "page": 1,
             "total_pages": 1
         }
-
         Movie.objects.create(title="0940",id=9)
         Movie.objects.create(title="RGui",id=41)
         self.tmdb_client.get_popular_movies(page = 1)
-
         self.assertEqual(save_mock.call_count, 0)
 
 
@@ -189,3 +190,24 @@ class ClientPopularTest(TestCase):
         mpq = self.tmdb_client.get_popular_movies(page = 1)
         self.assertEqual(len(mpq["movies"]), 0)
         self.assertEqual(Movie.objects.count(), 0)
+
+
+    @patch("requests.request")
+    def test_for_updating_movies_with_too_low_update_level(self, request_mock):
+        request_mock.return_value.json.return_value = {
+            "results": [ {"title": "0940", "id": 9}, {"title": "RGui", "id": 41},
+                {"title": "1038", "id":10} ],
+            "total_results": 3, 
+            "page": 1,
+            "total_pages": 1
+        }  
+        Movie.objects.create(id = 9, title = "0940", 
+            update_level = MIN_UPDATE_LEVEL)
+        Movie.objects.create(id = 10, title = "RGui", 
+            update_level = MIN_UPDATE_LEVEL)
+        data = self.tmdb_client.get_popular_movies(page = 1)
+        self.assertEqual(Movie.objects.get(id = 9).update_level, 
+            POPULAR_UPDATE_LEVEL)
+        self.assertEqual(Movie.objects.get(id = 10).update_level, 
+            POPULAR_UPDATE_LEVEL)
+        self.assertTrue(Movie.objects.count(), 2)

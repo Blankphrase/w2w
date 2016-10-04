@@ -125,7 +125,7 @@
         width: 100%;
         background-color: gray;
         color: white;
-        border: 1px solid black; 
+        /*border: 1px solid black; */
         border-radius: 4px;
         font-size: 1.1em;
         line-height: 1.2em;
@@ -139,21 +139,30 @@
     }
     .owl-prev, .owl-next {
         display: inline-block;
-        padding: 3px;
-        margin: 0px;
-        cursor: pointer;
-        border-radius: 5px;
         background-color: gray;
         font-weight: bold;
         color: white;
-        box-shadow: 1px 1px 5px #444444;
     }
-    .owl-prev:hover, .owl-next:hover {
+/*    .owl-prev:hover, .owl-next:hover {
         color: black;
     }
+    .owl-prev:link, .owl-next:link {
+        color: white;
+    }
+*/
     .owl-carousel {
         clear: both;
         margin-top: 10px;
+    }
+
+    .alert-info {
+        display: none;
+        color: #31708F;
+        background-color: #D9EDF7;
+        border-color: #BCE8F1;
+        margin-top: 10px;
+        /*height: 2em;*/
+        /*padding: 5px;*/
     }
 </style>
 
@@ -201,15 +210,31 @@
         <div class="movies-list">
             <div class="movies-list-ui">
                 <div class="owl-nav">
-                    <div class="owl-prev">&lt</div>
-                    <div class="owl-next">&gt</div>
+                    <button class="btn btn-default owl-prev" type="button">&#9666</button>
+                    <button class="btn btn-default owl-next" type="button">&#9656</button>
                 </div>
-                <div class="movies-list-search">
-                    <input type="text" placeholder="Search movies ...">
+                <div class="input-group movies-list-search">
+                    <input type="text" class="form-control" id="movie-search-input"
+                           placeholder="Search for movies ...">
+                    <span class="input-group-btn">
+                        <button class="btn btn-default" id="movie-search-button"
+                                type="button">Search!</button>
+                    </span>
                 </div>
             </div>
+
+            <div class="alert alert-info alert-dismissible" role="alert" 
+                 id="movies-list-info">
+                <button type="button" class="close" data-dismiss="alert" 
+                        aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                </button>
+                <span id="movies-list-info-msg"></span>
+            </div>
+
             <div class="owl-carousel"></div>
         </div>
+
     </div>
 
     <div class="container">
