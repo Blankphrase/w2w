@@ -32,6 +32,7 @@
         text-align: center;
         background-color: blue;
         height: 278px;
+        width: 185px;
         max-width: 185px;
         max-height: 278px; 
     }
@@ -76,6 +77,14 @@
         content: '\2605';    
     }
 
+    .movie-ui {
+        position: absolute;
+        width: 100%;
+        overflow: hidden;
+        top: 0px;
+        left: 0px;
+    }
+
     .check-off {
         display: none;
         position: absolute;
@@ -90,20 +99,10 @@
     }
     .check-off-text {     
         display: inline-block;  
-        /* Safari */
         -webkit-transform: rotate(45deg) translate(30px, 10px);
-
-        /* Firefox */
         -moz-transform: rotate(45deg) translate(30px, 10px);
-
-        /* IE */
         -ms-transform: rotate(45deg) translate(30px, 10px);
-
-        /* Opera */
         -o-transform: rotate(45deg) translate(30px, 10px);
-    
-        /* Internet Explorer */
-        /*filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);*/
         transform: rotate(45deg) translate(30px, 10px);
     }
     .check-off-text > a {
@@ -117,6 +116,45 @@
         text-decoration: none;
     }
     .check-off-text > a:hover {
+        text-decoration: underline;
+    }
+
+    .movie-info {
+        background: rgba(91, 192, 222, 0.75);
+        width: 100%;
+        padding: 3px;
+        text-align: left;
+    }
+    .movie-info > a {
+        color: black; 
+        font-weight: bold;
+        white-space: nowrap;
+    }
+    .movie-info > a:link, 
+    .movie-info > a:visited, 
+    .movie-info > a:active {
+        text-decoration: none;
+    }
+    .movie-info > a:hover {
+        text-decoration: underline;
+    }
+
+    .movie-watchlist {
+        background: rgba(217,83,79, 0.75);
+        width: 100%;
+        padding: 3px;
+    }
+    .movie-watchlist > a {
+        color: black; 
+        font-weight: bold;
+        white-space: nowrap;
+    }
+    .movie-watchlist > a:link, 
+    .movie-watchlist > a:visited, 
+    .movie-watchlist > a:active {
+        text-decoration: none;
+    }
+    .movie-watchlist > a:hover {
         text-decoration: underline;
     }
 

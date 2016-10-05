@@ -14,20 +14,28 @@ moviesList.on("onLoaded", function(response) {
 	    for (var i = 0; i < movies.length; i++) {
 	    	var img_src = "https://image.tmdb.org/t/p/w154" + movies[i].poster_path;
 	    	var movie_html = 
-	    		"<div class='movie' data-movie-id='" + movies[i].id + "'>" + // relative
-	    			"<img src='" + img_src + "'>" + // relative
-	    			"<div class='movie-rating'>" +  // absolute
-	    				"<div class='movie-rating-star' data-value='1'><span></span></div>" +
-	    				"<div class='movie-rating-star' data-value='2'><span></span></div>" +
-	    				"<div class='movie-rating-star' data-value='3'><span></span></div>" +
-	    				"<div class='movie-rating-star' data-value='4'><span></span></div>" +
-	    				"<div class='movie-rating-star' data-value='5'><span></span></div>" +
-	    			"</div>" +
+                "<div class='movie' data-movie-id='" + movies[i].id + "'>" + // relative
+                    "<img src='" + img_src + "'>" + // relative
+                    "<div class='movie-rating'>" +  // absolute
+                        "<div class='movie-rating-star' data-value='1'><span></span></div>" +
+                        "<div class='movie-rating-star' data-value='2'><span></span></div>" +
+                        "<div class='movie-rating-star' data-value='3'><span></span></div>" +
+                        "<div class='movie-rating-star' data-value='4'><span></span></div>" +
+                        "<div class='movie-rating-star' data-value='5'><span></span></div>" +
+                    "</div>" +
+                    "<div class='movie-ui'>" +
+                        "<div class='movie-info'>" + 
+                            "<a href='#'>INFO</a>" + 
+                        "</div>" +
+                        /*"<div class='movie-watchlist'>" + 
+                            "<a href='#'>+WATCHLIST</a>" + 
+                        "</div>" +*/
+                    "</div>" +
                     "<div class='check-off'>" + 
                         "<div class='check-off-text'><a href='#'>CHECK OFF</a></div>" + 
                     "</div>" +
-	    			"<span class='movie-title'>" + movies[i].title + "</span>" + // relative
-	    		"<div>"
+                    "<span class='movie-title'>" + movies[i].title + "</span>" + // relative
+                "<div>";
 
 	    	owl.owlCarousel("add", movie_html);
 	    }
@@ -50,8 +58,7 @@ $(document).on("mouseout", ".movie-rating-star", function() {
 
 $(document).on("click", ".movie-rating-star", function() {
     // Adjust rating from 1-5 to 1-10
-    var rating = $(this).data("value")*2 - 1;
-    rating = rating == 9 ? 10 : rating;
+    var rating = $(this).data("value");
 
     var movieId = $(this).parent().parent().data("movie-id");
     var title = $(this).parent().siblings(".movie-title").html();
@@ -68,6 +75,14 @@ $(document).on("click", ".movie-rating-star", function() {
     $(this).parent().siblings(".check-off").show();
 });
 
+$(document).on("click", ".movie-info > a", function() {
+    alert("SHOW MOVIE INFO");
+});
+
+$(document).on("click", ".movie-watchlist > a", function() {
+    alert("TIME FOR WATCHLIST");
+});
+
 // Search Movies
 
 $("#movie-search-button").click(function() {
@@ -80,7 +95,7 @@ $("#movie-search-button").click(function() {
             while ($(".owl-item").length > response.movies.length) {
                 owl.trigger("remove.owl.carousel", 0);
             } 
-            alignMoviesListWithUserPrefs(); 
+            alignMoviesListWithUserPrefs();
             hideMoviesListInfo(); 
         } else {
             showMoviesListInfo("No movies found matching your query.");
@@ -99,7 +114,7 @@ $("#movie-search-input").keyup(function (e) {
                 while ($(".owl-item").length > response.movies.length) {
                     owl.trigger("remove.owl.carousel", 0);
                 }    
-                alignMoviesListWithUserPrefs(); 
+                alignMoviesListWithUserPrefs();
                 hideMoviesListInfo(); 
             } else {
                 showMoviesListInfo("No movies found matching your query.");
@@ -132,11 +147,15 @@ function alignMoviesListWithUserPrefs() {
         if (prefsList.contains(movieId)) {
             var $starRef = $(this).children(".movie-rating").find("[data-value='" + 
                 prefsList.getMovie(movieId).rating + "']")
-
             $starRef.nextAll().removeClass("selected");
             $starRef.addClass("selected");
             $starRef.prevAll().addClass("selected");
             $starRef.parent().siblings(".check-off").show();
+        } else {
+            if ($(this).children(".check-off").is(":visible")) {
+                $(this).children(".movie-rating").children().removeClass("selected");
+                $(this).children(".check-off").hide();
+            }
         }
     });
 }

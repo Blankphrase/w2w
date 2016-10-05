@@ -13,6 +13,7 @@ $("#prefs-list-prev").click(function() {
 $("#clear-my-prefs").click(function() {
     if (confirm("Are your sure you want to clear all your preferences?")) {
         clearPrefsList();
+        alignMoviesListWithUserPrefs();
     }
 });
 
