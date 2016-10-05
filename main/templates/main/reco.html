@@ -9,15 +9,14 @@
 <link rel="stylesheet" href="{% static 'main/css/owl.carousel.css' %}">
 <link rel="stylesheet" href="{% static 'main/css/owl.theme.default.min.css' %}">
 <style>
-    .container-carousel {
-        max-width: 960px;
-        margin: 0 auto;
-    }
 
-    .movies-list {
+    .container-w2w {
+        max-width: 960px;
         background-color: white;
-        padding: 25px;
-        margin: 10px;
+        padding: 5px 25px 25px 25px;
+        margin-left: auto;
+        margin-right: auto;
+        margin-bottom: 25px;
     }
 
     .movie {
@@ -205,6 +204,54 @@
         /*height: 2em;*/
         /*padding: 5px;*/
     }
+
+    #pref-list {
+        display: table;
+        table-layout: fixed;
+        width: 100%;
+    }
+
+    .pref-movie {
+        display: table-row;
+        width: 100%;
+        height: 0px;
+    }
+
+    .pref-movie-title {
+        display: table-cell;
+        height: 100%;
+        padding: 10px;
+        width: 100%;
+        border: 1px solid black;
+        vertical-align: middle;
+        word-wrap: break-word;
+    }
+
+    .pref-movie-ui {
+        display: table-cell;
+        height: 100%;
+        float: right;
+        width: 200px;
+    }
+
+    .pref-movie-rating {
+        /*display: table-cell;*/
+        display: inline-block;
+        height: 100%;
+        width: 180px;
+        border: 1px solid black;
+        vertical-align: middle;
+        padding-right: 10px;
+        padding-left: 10px;
+    }
+    .pref-movie-remove {
+        display: inline-block;
+        /*display: table-cell;*/
+        height: 100%;
+        border: 1px solid black;
+        vertical-align: middle;
+    }
+
 </style>
 
 <style>
@@ -220,37 +267,67 @@
 
 {% block body %}
 {{ block.super }}
-    <div class = "container-carousel">
-        <div class="movies-list">
-            <div class="movies-list-ui">
-                <div class="owl-nav">
-                    <button class="btn btn-default owl-prev" type="button">&#9666</button>
-                    <button class="btn btn-default owl-next" type="button">&#9656</button>
-                </div>
-                <div class="input-group movies-list-search">
-                    <input type="text" class="form-control" id="movie-search-input"
-                           placeholder="Search for movies ...">
-                    <span class="input-group-btn">
-                        <button class="btn btn-default" id="movie-search-button"
-                                type="button">Search!</button>
-                    </span>
-                </div>
+    <div class = "container-w2w">
+        <h3>Select your favourite movies</h3>
+        <div class="movies-list-ui">
+            <div class="owl-nav">
+                <button class="btn btn-default owl-prev" type="button">&#9666</button>
+                <button class="btn btn-default owl-next" type="button">&#9656</button>
             </div>
-
-            <div class="alert alert-info alert-dismissible" role="alert" 
-                 id="movies-list-info">
-                <button type="button" class="close" data-dismiss="alert" 
-                        aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                </button>
-                <span id="movies-list-info-msg"></span>
+            <div class="input-group movies-list-search">
+                <input type="text" class="form-control" id="movie-search-input"
+                       placeholder="Search for movies ...">
+                <span class="input-group-btn">
+                    <button class="btn btn-default" id="movie-search-button"
+                            type="button">Search!</button>
+                </span>
             </div>
+        </div>
 
-            <div class="owl-carousel"></div>
+        <div class="alert alert-info alert-dismissible" role="alert" 
+             id="movies-list-info">
+            <button type="button" class="close" data-dismiss="alert" 
+                    aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+            </button>
+            <span id="movies-list-info-msg"></span>
+        </div>
+
+        <div class="owl-carousel"></div>
+    </div>
+
+    <div class = "container-w2w">
+        <h3>Your preferences</h3>
+
+        <div id="pref-list">
+<!--             <ul class="pref-movie">
+                <span class = "pref-movie-title">Fight Club</span>
+                <div class = "pref-movie-rating">
+                    <div class = "movie-rating-star"><span></span></div>
+                    <div class = "movie-rating-star"><span></span></div>
+                    <div class = "movie-rating-star"><span></span></div>
+                    <div class = "movie-rating-star"><span></span></div>
+                    <div class = "movie-rating-star"><span></span></div>
+                </div>
+                <button class='pref-movie-remove' type='button'>Remove</button>
+            </ul> -->
+        </div>
+
+        <div class="panel-body">
+
+            <button id="prefs-list-prev" class="btn btn-primary" 
+                type="button">Prev</button>
+            <button id="prefs-list-next" class="btn btn-primary" 
+                type="button">Next</button>
+
+            {% if reco_type == 'standalone' %}
+            <button id="clear-my-prefs" class="btn btn-danger" 
+                type="button">Clear My Preferences</button>
+            {% endif %}
         </div>
     </div>
 
-    <div class="container">
+<!--     <div class="container">
         <div class="panel panel-primary">
             <div class="panel-heading">
                 <h3 class="panel-title">Your Preferences</h3>
@@ -270,7 +347,7 @@
             </div>
         </div>
     </div>
-
+ -->
     <div class="container">
         <button id="make-reco-btn" class="btn btn-primary" 
             type="button">Make Recommendation</button>
@@ -344,7 +421,7 @@
         });
 
         prefsList.on("onInitialized", function() {
-            refreshPrefsList(prefsList.getCurrentPage());
+            reloadPrefsList(prefsList.getCurrentPage());
             requestStatus.prefs = true;
             if (requestStatus.movies && !requestStatus.done) {
                 alignMoviesListWithUserPrefs(); 
@@ -354,9 +431,9 @@
 
         var recoType = "{{reco_type}}";
         if (recoType == "general") {
-            prefsList.init(new UserBasedPrefsSource(), 4);
+            prefsList.init(new UserBasedPrefsSource(), 5);
         } else {
-            prefsList.init(new SessionBasedPrefsSource(sessionStorage), 4);  
+            prefsList.init(new SessionBasedPrefsSource(sessionStorage), 5);  
         }
 
         $("#reco-container").hide();

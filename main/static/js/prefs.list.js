@@ -17,13 +17,6 @@ $("#clear-my-prefs").click(function() {
     }
 });
 
-$(document).on("change", ".pref-item-rating", function() {
-    var movieId = $(this).parent().parent().data("movie-id");
-    var rating = $(this).val();
-    var title = $(this).parent().parent().find(".pref-item-title").html();
-    prefsList.update(movieId, title, rating);
-});
-
 
 $(document).on("click", ".pref-item-remove", function() {
     var movieId = $(this).parent().data("movie-id");
@@ -35,7 +28,7 @@ $(document).on("click", ".pref-item-remove", function() {
 });
 
 prefsList.on("onUpdate", function() {
-    refreshPrefsList(prefsList.getCurrentPage());
+    reloadPrefsList(prefsList.getCurrentPage());
 });
 
 prefsList.on("onRemove", function(movieId) {
@@ -45,13 +38,13 @@ prefsList.on("onRemove", function(movieId) {
         prefsList.prevPage(noCallback = true);
         items = prefsList.getCurrentPage();
     } 
-    refreshPrefsList(items);
+    reloadPrefsList(items);
 });
 
 prefsList.on("onNextPage", function(page) {
     var items = prefsList.getCurrentPage();
     if (items.length > 0 ) {
-        refreshPrefsList(items);
+        reloadPrefsList(items);
     } else {
         prefsList.prevPage(noCallback = true);
     }
@@ -59,37 +52,40 @@ prefsList.on("onNextPage", function(page) {
 
 prefsList.on("onPrevPage", function(page) {
     var items = prefsList.getCurrentPage();
-    refreshPrefsList(items);
+    reloadPrefsList(items);
 });
 
 function addMovieToPrefsList(movieId, movieTitle, movieRating) {
     var $prefList = $("#pref-list");
-    var $prefItem = $("<li class='list-group-item col-xs-4'></li>")
+    var $prefItem = $("<div class='pref-movie'></div>")
        .data("movie-id", movieId);
-    $prefItem.append($("<span class='pref-item-title'></span>")
+    $prefItem.append($("<span class='pref-movie-title'></span>")
         .html(movieTitle));
-    var $ratingForm = $("<form></form>");
-    for(var i = 1; i <= 10; i++) {
-        $ratingForm.append("<input type='radio' name='movie_" + 
-            movieId + "' " + "value='" + i + "' " + 
-            (i == movieRating ? "checked": "")  + " " + 
-            "class='pref-item-rating'>" + i + "");
+    var $prefUI = $("<div></div>");
+    var $ratingForm = $("<div class='pref-movie-rating'></div>");
+    for(var i = 1; i <= 5; i++) {
+        $ratingForm.append($("<div class='movie-rating-star " +
+            (i <= movieRating ? "selected" : "") +
+            " '><span></span></div>"));
+
     }
-    $prefItem.append($ratingForm);
-    $prefItem.append($("<button class='pref-item-remove' " +
+    $prefUI.append($ratingForm);
+    $prefUI.append($("<button class='pref-movie-remove' " +
         "type='button'>Remove</button>"));
+    $prefItem.append($prefUI);
     $prefList.append($prefItem);        
 }
 
+
 function removeMovieFromPrefsList(movieId) {
     var $prefList = $("#pref-list");
-    $prefList.children("li").filter(function() {
+    $prefList.children("div").filter(function() {
         return $(this).data("movie-id") == movieId; 
     }).remove();       
 }
 
-function refreshPrefsList(items) {
-    $("#pref-list").children("li").remove(); 
+function reloadPrefsList(items) {
+    $("#pref-list").children().remove();
     if (items.length > 0) {
         for (var i = 0; i < items.length; i++) {
             addMovieToPrefsList(items[i].id, items[i].title, items[i].rating);
@@ -104,8 +100,8 @@ function clearPrefsList() {
         prefsList.remove(movies[i].id, noCallback = true);
     }
     prefsList.setPage(0);
-    $("#pref-list").children("li").remove(); 
-    $("#movies-list > li > input").prop("checked", false); 
+    $("#pref-list").children("div").remove(); 
+    alignMoviesListWithUserPrefs();
 }
 
 /******************************************************************************/
