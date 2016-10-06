@@ -1,0 +1,23 @@
+- show recommended movies
+- style recommended movies
+- add functionality to return to popular movies browsing (from search)
+- info window
+- add +watchlist for recommended movies
+- user profile
+    - previous recommendations
+    - watchlist
+    - edit profile
+    - settings (remove profile, change password)
+- main page
+    - the most popular movies
+    - the newest movies
+    - the upcoming movies
+    - better styling
+
+
+
+The most popular movies/the latest movies/Comming movies on front page
+Your last recommendation
+Recommendation for log in user and for anonymouse user (Reco)
+User profile (list of recommendation, favourite movies)
+Edit profile

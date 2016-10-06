@@ -60,17 +60,23 @@
 
     .movie-rating-star.selected,
     .movie-rating-star.hovered,
-    .movie-rating-star {
+    .movie-rating-star,
+    .pref-rating-star.selected,
+    .pref-rating-star.hovered,
+    .pref-rating-star {
         display: inline-block;
         color: #FFBB00;
         font-size: 2.5em; 
         text-shadow: 2px 2px #000000;
     }
 
+    .pref-rating-star:before,
     .movie-rating-star:before {
         content: '\2606';    
     }
 
+    .pref-rating-star.selected:before,
+    .pref-rating-star.hovered:before,
     .movie-rating-star.selected:before,
     .movie-rating-star.hovered:before {
         content: '\2605';    
@@ -183,13 +189,7 @@
         font-weight: bold;
         color: white;
     }
-/*    .owl-prev:hover, .owl-next:hover {
-        color: black;
-    }
-    .owl-prev:link, .owl-next:link {
-        color: white;
-    }
-*/
+
     .owl-carousel {
         clear: both;
         margin-top: 10px;
@@ -209,47 +209,67 @@
         display: table;
         table-layout: fixed;
         width: 100%;
+        border-collapse: collapse;
     }
 
     .pref-movie {
         display: table-row;
         width: 100%;
+        margin: 20px;
+        border-bottom: 1px solid black;
+        padding: 100px;
         height: 0px;
     }
 
     .pref-movie-title {
         display: table-cell;
-        height: 100%;
-        padding: 10px;
-        width: 100%;
-        border: 1px solid black;
-        vertical-align: middle;
         word-wrap: break-word;
+        vertical-align: middle;
+        padding: 5px;
+        height: 100%;
+        text-align: left;
+        width: 50%;
+
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     .pref-movie-ui {
         display: table-cell;
-        height: 100%;
         float: right;
-        width: 200px;
+        white-space: nowrap;
+        vertical-align: middle;
+        padding: 5px;
+        height: 100%;
     }
 
     .pref-movie-rating {
-        /*display: table-cell;*/
         display: inline-block;
-        height: 100%;
-        width: 180px;
-        border: 1px solid black;
         vertical-align: middle;
-        padding-right: 10px;
-        padding-left: 10px;
+        margin-right: 20px;
+        margin-left: 20px;
+        cursor: pointer;
     }
     .pref-movie-remove {
         display: inline-block;
-        /*display: table-cell;*/
-        height: 100%;
-        border: 1px solid black;
         vertical-align: middle;
+    }
+
+    #prefs-ui {
+        margin-top: 10px;
+    }
+
+    .reco-btn-container {
+        text-align:center;
+        background-color: transparent !important;
+        padding: 0px !important;
+    }
+
+    #reco-btn {
+        margin:auto;
+        background-color: #FFBB00;
+        color: black;
     }
 
 </style>
@@ -299,22 +319,9 @@
     <div class = "container-w2w">
         <h3>Your preferences</h3>
 
-        <div id="pref-list">
-<!--             <ul class="pref-movie">
-                <span class = "pref-movie-title">Fight Club</span>
-                <div class = "pref-movie-rating">
-                    <div class = "movie-rating-star"><span></span></div>
-                    <div class = "movie-rating-star"><span></span></div>
-                    <div class = "movie-rating-star"><span></span></div>
-                    <div class = "movie-rating-star"><span></span></div>
-                    <div class = "movie-rating-star"><span></span></div>
-                </div>
-                <button class='pref-movie-remove' type='button'>Remove</button>
-            </ul> -->
-        </div>
+        <div id="pref-list"></div>
 
-        <div class="panel-body">
-
+        <div id="prefs-ui">
             <button id="prefs-list-prev" class="btn btn-primary" 
                 type="button">Prev</button>
             <button id="prefs-list-next" class="btn btn-primary" 
@@ -327,44 +334,29 @@
         </div>
     </div>
 
-<!--     <div class="container">
-        <div class="panel panel-primary">
-            <div class="panel-heading">
-                <h3 class="panel-title">Your Preferences</h3>
-            </div>
-            <div class="panel-body">
-                <ul id="pref-list" class="list-group row"></ul>
-
-                <button id="prefs-list-prev" class="btn btn-primary" 
-                    type="button">Prev</button>
-                <button id="prefs-list-next" class="btn btn-primary" 
-                    type="button">Next</button>
-
-                {% if reco_type == 'standalone' %}
-                <button id="clear-my-prefs" class="btn btn-danger" 
-                    type="button">Clear My Preferences</button>
-                {% endif %}
-            </div>
-        </div>
-    </div>
- -->
-    <div class="container">
-        <button id="make-reco-btn" class="btn btn-primary" 
+    <div class="container-w2w reco-btn-container">
+        <button id="reco-btn" class="btn btn-primary btn-lg" 
             type="button">Make Recommendation</button>
+    </div>
+
+    <div class = "container-w2w">
+        <h3>Recomendation</h3>
 
         <div id="reco-status" class="alert alert-info" role="alert"></div>
-    </div>
 
-    <div class="container" id="reco-container">
-        <div class="panel panel-primary">
-            <div class="panel-heading">
-                <h3 class="panel-title">Recommendation</h3>
-            </div>
-            <div class="panel-body">
-                <ul id="reco-list" class="list-group row"></ul>
+        <div class="container" id="reco-container">
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Recommendation</h3>
+                </div>
+                <div class="panel-body">
+                    <ul id="reco-list" class="list-group row"></ul>
+                </div>
             </div>
         </div>
+
     </div>
+
 {% endblock %}
 
 {% block body_scripts %}
