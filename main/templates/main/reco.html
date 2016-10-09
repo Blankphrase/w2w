@@ -272,6 +272,20 @@
         color: black;
     }
 
+    #reco-output {
+        /*display: none;*/
+    }
+
+    #reco-list {
+        list-style-type: none;
+    }
+
+    .reco-item {
+        border-bottom: 1px solid black;
+        margin: 20px;
+        padding: 10px;
+    }
+    
 </style>
 
 <style>
@@ -341,20 +355,28 @@
 
     <div class = "container-w2w">
         <h3>Recomendation</h3>
-
-        <div id="reco-status" class="alert alert-info" role="alert"></div>
-
-        <div class="container" id="reco-container">
-            <div class="panel panel-primary">
-                <div class="panel-heading">
-                    <h3 class="panel-title">Recommendation</h3>
-                </div>
-                <div class="panel-body">
-                    <ul id="reco-list" class="list-group row"></ul>
-                </div>
-            </div>
+        <div class="alert alert-info alert-dismissible" role="alert" 
+             id="reco-status">
+            <button type="button" class="close" data-dismiss="alert" 
+                    aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+            </button>
+            <span id="reco-status-msg"></span>
         </div>
+        <div id="reco-output">
+            <ul id="reco-list" class="list-group row">
+<!--                 <li class="reco-item">Fight Club</li>
+                <li class="reco-item">The Lord of The Rings</li> -->
+            </ul>
 
+            <dev id="reco-ui">
+                <button id="reco-list-prev" class="btn btn-primary" 
+                    type="button">Prev</button>
+                <span class="label label-primary" id="reco-page"></span>
+                <button id="reco-list-next" class="btn btn-primary" 
+                    type="button">Next</button>
+            </dev>
+        </div>
     </div>
 
 {% endblock %}
@@ -366,6 +388,7 @@
     <script src="{% static 'js/generic.lists.js' %}"></script>
     <script src="{% static 'js/movies.list.js' %}"></script>
     <script src="{% static 'js/prefs.list.js' %}"></script>
+    <script src="{% static 'js/reco.list.js' %}"></script>
     <script>
         var owl = $('.owl-carousel');
         owl.owlCarousel({

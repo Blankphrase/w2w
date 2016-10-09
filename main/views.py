@@ -45,10 +45,10 @@ def reco_page(request):
 def make_reco(request):
     reco_request = json.loads(request.body.decode())
     reco_type = reco_request["type"]
+
     if request.user.is_authenticated and reco_type == "general":
         source = UserSource(user = request.user)
     else:
-        print(reco_request)
         source = JsonSource(data = reco_request["prefs"], user = request.user)
 
     # Save pseudo preflist for anonymouse users. They can improve
@@ -56,7 +56,7 @@ def make_reco(request):
     if not request.user.is_authenticated:
         preflist = PrefList.objects.create()
         for movie in source.get_data():
-            preflist.add_pref(movie["id"], movie["rating"])
+            preflist.add(movie["id"], movie["rating"])
 
     rengine = RecoManager(source = source, engine = SlopeOne())
     reco = rengine.make_reco()

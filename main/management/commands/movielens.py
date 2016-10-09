@@ -122,7 +122,7 @@ class Command(BaseCommand):
                 # Create artificial users and their favourite movies list
                 self.stdout.write("Populating database with users ...")
                 users2create = list()
-                users_db = dict()
+                new_users = list()
                 for user in users:
                     try:
                         user_db = User.objects.get(
@@ -134,8 +134,8 @@ class Command(BaseCommand):
                             is_real = False, 
                             password = "movielens"
                         )
+                        new_users.append(user)
                         users2create.append(user_db)
-                        users_db[user] = user_db
 
                     if len(users2create) > batch:
                         print(" - insarting ...")
@@ -144,12 +144,12 @@ class Command(BaseCommand):
                 if len(users2create) > 0:
                     User.objects.bulk_create(users2create)
 
-                print("%d users saved." % User.objects.count())
+                print("%d users saved." % len(new_users))
 
                 self.stdout.write("Creating users' preferences lists ...")
                 prefs2create = list()
-                for user in users_db:
-                    user_db = users_db[user]
+                for user in new_users:
+                    user_db = User.objects.get(email="user_%s.movielens@umn.edu" % user)
                     pref_db = PrefList(user = user_db)
                     prefs2create.append(pref_db)
                     if len(prefs2create) > batch:
@@ -191,4 +191,4 @@ class Command(BaseCommand):
 
 
     def adjust_rating(self, rating):
-        return 2*rating
+        return rating

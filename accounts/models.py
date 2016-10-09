@@ -125,5 +125,5 @@ class PrefList(models.Model):
 class MoviePref(models.Model):
     preflist = models.ForeignKey(PrefList, related_name = "data")
     movie = models.ForeignKey(Movie, related_name = "ratings")
-    rating = models.IntegerField()
+    rating = models.FloatField()
     timestamp = models.DateTimeField(default = timezone.now)

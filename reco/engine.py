@@ -1,6 +1,6 @@
 from reco.source import UserSource, JsonSource
 from reco.exceptions import RecoSourceError
-from reco.models import Reco, MovieSim
+from reco.models import Reco
 from accounts.models import MoviePref
 
 import math

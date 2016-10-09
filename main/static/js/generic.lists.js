@@ -1,4 +1,77 @@
 /*******************************************************************************
+    recoList
+*******************************************************************************/
+
+var recoList = {
+
+    callbacks: {
+        onNewPage: undefined
+    },
+    page: 0,
+    data: undefined,
+    pageSize: 10,
+
+    init: function(data, pageSize) {
+        this.data = data;
+        if (pageSize !== undefined) this.pageSize = pageSize;
+        if (this.callbacks.onNewPage !== undefined) {
+            this.callbacks.onNewPage(this.getData(this.page));
+        }
+    },
+
+    on: function(event, callback) {
+        this.callbacks[event] = callback;
+    },
+
+    nextPage: function() {
+        this.page += 1;
+        if (this.callbacks.onNewPage !== undefined) {
+            this.callbacks.onNewPage(this.getData(this.page));
+        }
+    },
+
+    setPage: function(page) {
+        if (this.page != page) {
+            this.page = page;
+            if (this.callbacks.onNewPage !== undefined) {
+                this.callbacks.onNewPage(this.getData(this.page));
+            }
+        }
+    },
+
+    prevPage: function() {
+        if (this.page > 0) {
+            this.page -= 1;
+            if (this.callbacks.onNewPage !== undefined) {
+                this.callbacks.onNewPage(this.getData(this.page));
+            }
+        }
+    },  
+
+    getData: function(page) {
+        if (page === undefined) {
+            return (this.data);
+        } else {
+            return (this.data.slice(
+                page * this.pageSize,
+                (page+1)*this.pageSize
+            ));
+        }
+    },
+
+    getPagesCount: function() {
+        return (Math.floor(this.data.length / this.pageSize));
+    },
+
+    getPage: function() {
+        return (this.page);
+    }
+};
+
+/******************************************************************************/
+
+
+/*******************************************************************************
     prefsList 
 *******************************************************************************/
 
@@ -92,7 +165,6 @@ var prefsList = {
     }
 };
 
-/******************************************************************************/
 /******************************************************************************/
 
 /*******************************************************************************
