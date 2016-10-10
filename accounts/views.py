@@ -81,3 +81,7 @@ def remove_prefs(request):
     except KeyError:
         return JsonResponse({"status": "ERROR"}, safe=False)
     
+
+@login_required
+def profile(request):
+    return render(request, "accounts/profile.html")

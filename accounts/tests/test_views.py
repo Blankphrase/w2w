@@ -15,6 +15,48 @@ import json
 User = get_user_model()
 
 
+class ProfileEditTest(TestCase):
+
+    def setUp(self):
+        self.login_user()
+
+
+    def login_user(self, email = "test@jago.com", password = "test"):
+        user = User(email = email)
+        user.set_password(password)
+        user.save()
+        self.client.login(email = email, password = password)    
+        return user    
+
+
+    def test_for_rendering_proper_template(self):
+        response = self.client.get("/accounts/profile")
+        self.assertTemplateUsed(response, "accounts/profile.html")
+
+
+    def test_for_returning_error_anonymous_users(self):
+        self.client.logout()
+        response = self.client.get("/accounts/profile")
+        self.assertEqual(response.status_code, 302)
+
+
+    def test_for_rendering_edit_profile_form(self):
+        response = self.client.get("/accounts/profile")
+        self.assertIsInstance(response.context["form"], EditProfileForm)
+
+
+class ProfileWatchlistTest(TestCase):
+    pass
+
+
+class ProfilePrefsTest(TestCase):
+    pass
+
+
+class ProfileRecoTest(TestCase):
+    pass
+
+
 class UserPrefsTest(TestCase):
 
     def setUp(self):

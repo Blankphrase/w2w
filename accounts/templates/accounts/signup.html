@@ -3,8 +3,16 @@
 
 {% block title %}Create new account{% endblock title %}
 
-{% block body %}
+{% block styles %}
+{{ block.super }}
+<style>
+    label {
+        color: white;
+    }
+</style>
+{% endblock styles %}
 
+{% block body %}
 <div class="container">
     <form method="POST" role="form">
         {% csrf_token %}
@@ -49,6 +57,4 @@
 
     </form>
 </div>
-
 {% endblock body %}
-

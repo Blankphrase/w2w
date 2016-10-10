@@ -1,0 +1,41 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}Create new account{% endblock title %}
+
+{% block styles %}
+{{ block.super }}
+<style>
+ul.side-navbar {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+ul.side-navbar li {
+    float: left;
+    color: white;
+}
+
+ul.side-navbar li a {
+    display: block;
+    padding: 8px;
+    color: white;
+}
+.container-navbar {
+    border-bottom: 2px solid white;
+}
+</style>
+{% endblock styles %}
+
+{% block body %}
+<div class="container container-navbar">
+    <ul class="side-navbar">
+      <li><a class="active" href="#home">Edit Profile</a></li>
+      <li><a href="#news">Preferences</a></li>
+      <li><a href="#contact">Watchlist</a></li>
+      <li><a href="#about">Recommendations</a></li>
+    </ul>
+</div>
+{% endblock body %}
