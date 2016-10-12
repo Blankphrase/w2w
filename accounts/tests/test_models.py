@@ -1,5 +1,5 @@
 from tmdb.models import Movie
-from accounts.models import MoviePref, PrefList
+from accounts.models import MoviePref, PrefList, WatchList, UserProfile
 
 from django.test import TestCase
 from django.contrib.auth import get_user_model
@@ -102,3 +102,52 @@ class UserModelTest(TestCase):
         self.assertEqual(user.pref.data.count(), 1)
         user.remove_pref(id = movie_id)
         self.assertEqual(user.pref.data.count(), 0)
+
+
+    def test_user_has_watchlist_by_default(self):
+        user = User.objects.create(email = "admin@jago.com", password = "test")
+        self.assertEqual(user.watchlist, WatchList.objects.first())
+
+
+    def test_for_adding_movie_to_watchlist(self):
+        user = User.objects.create()
+        user.add_to_watchlist(id = self.pref[0]["id"])
+        self.assertEqual(user.watchlist.movies.count(), 1)
+
+
+    def test_for_preventing_duplicated_movies_in_watchlist(self):
+        user = User.objects.create()
+        user.add_to_watchlist(id = self.pref[0]["id"])
+        user.add_to_watchlist(id = self.pref[0]["id"])
+        self.assertEqual(user.watchlist.movies.count(), 1)
+
+ 
+    def test_add_to_watchlist_raises_error_when_movie_not_in_db(self):
+        user = User.objects.create()    
+        with self.assertRaises(Movie.DoesNotExist):
+            user.add_to_watchlist(id = 1323)
+        
+
+    def test_for_removing_movie_from_watchlist(self):
+        user = User.objects.create()
+        user.add_to_watchlist(id = self.pref[0]["id"])
+        user.remove_from_watchlist(id = self.pref[0]["id"])
+        self.assertEqual(user.watchlist.movies.count(), 0)
+
+
+    def test_user_has_profile_by_default(self):
+        user = User.objects.create()
+        self.assertEqual(user.profile, UserProfile.objects.first())
+
+
+    def test_for_updating_profile(self):
+        user = User.objects.create()
+        user.update_profile({
+            "birthday": "2016-10-30",
+            "country": "Poland",
+            "sex": "M"
+        })
+        user = User.objects.first()
+        self.assertEqual(user.profile.country, "Poland")
+        self.assertEqual(user.profile.sex, "M")
+        self.assertEqual(user.profile.birthday.strftime("%Y-%m-%d"), "2016-10-30")

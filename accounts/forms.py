@@ -1,6 +1,6 @@
 from django import forms
 
-from accounts.models import User
+from accounts.models import User, UserProfile
 
 
 EMPTY_EMAIL_ERROR = "Valid Email address is required"
@@ -60,3 +60,10 @@ class LoginForm(forms.Form):
         widget = forms.PasswordInput(),
         error_messages = {'required': EMPTY_PASSWORD_ERROR}
     )
+
+
+class EditProfileForm(forms.ModelForm):
+
+    class Meta:
+        model = UserProfile
+        fields = [ "birthday", "sex", "country" ]

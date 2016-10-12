@@ -1,12 +1,14 @@
 from django.test import TestCase
 from django.utils.html import escape
 from django.contrib.auth import get_user_model
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger, Page
 
 from accounts.forms import (
     EMPTY_EMAIL_ERROR, EMPTY_PASSWORD_ERROR, EMPTY_PASSWORD2_ERROR,
     UNIQUE_EMAIL_ERROR, DIFFERENT_PASSWORDS_ERROR, INVALID_LOGIN_ERROR,
-    SignUpForm, LoginForm
+    SignUpForm, LoginForm, EditProfileForm
 )
+from reco.models import Reco
 from tmdb.models import Movie
 
 import json
@@ -15,18 +17,20 @@ import json
 User = get_user_model()
 
 
-class ProfileEditTest(TestCase):
-
-    def setUp(self):
-        self.login_user()
-
+class TestCaseWithLogin(TestCase):
 
     def login_user(self, email = "test@jago.com", password = "test"):
         user = User(email = email)
         user.set_password(password)
         user.save()
         self.client.login(email = email, password = password)    
-        return user    
+        return user 
+
+
+class ProfileEditTest(TestCaseWithLogin):
+
+    def setUp(self):
+        self.user = self.login_user()
 
 
     def test_for_rendering_proper_template(self):
@@ -34,7 +38,7 @@ class ProfileEditTest(TestCase):
         self.assertTemplateUsed(response, "accounts/profile.html")
 
 
-    def test_for_returning_error_anonymous_users(self):
+    def test_for_returning_error_for_anonymous_users(self):
         self.client.logout()
         response = self.client.get("/accounts/profile")
         self.assertEqual(response.status_code, 302)
@@ -45,27 +49,199 @@ class ProfileEditTest(TestCase):
         self.assertIsInstance(response.context["form"], EditProfileForm)
 
 
-class ProfileWatchlistTest(TestCase):
-    pass
+    def test_for_updating_profile_info(self):
+        self.client.post("/accounts/profile", {
+            "birthday": '2000-01-01', "country": "Poland", "sex": "M"
+        })
+        user = User.objects.first()
+        self.assertEqual(user.profile.country, "Poland")
+        self.assertEqual(user.profile.sex, "M")
+        self.assertEqual(user.profile.birthday.strftime("%Y-%m-%d"), '2000-01-01')
+
+    def test_for_redirecting_after_valid_post_request(self):
+        response = self.client.post("/accounts/profile", data = {
+            "birthday": '2000-01-01', "country": "Poland", "sex": "M"
+        })
+        self.assertEqual(response.status_code, 302) 
 
 
-class ProfilePrefsTest(TestCase):
-    pass
-
-
-class ProfileRecoTest(TestCase):
-    pass
-
-
-class UserPrefsTest(TestCase):
-
+class ProfileWatchlistTest(TestCaseWithLogin):
+    
     def setUp(self):
+        self.user = self.login_user()
         for i in range(0, 5):
             Movie.objects.create(id = i, title = "movie_%d" % i)
 
 
     def tearDown(self):
         Movie.objects.all().delete()
+
+    
+    def test_for_rendering_proper_template(self):
+        response = self.client.get("/accounts/watchlist")
+        self.assertTemplateUsed(response, "accounts/watchlist.html")
+
+    
+    def test_for_passing_watchlist_to_template(self):
+        self.user.add_to_watchlist(id = 0)
+        self.user.add_to_watchlist(id = 1)
+        response = self.client.get("/accounts/watchlist")
+        self.assertIsNotNone(response["watchlist"])
+
+
+    # django pagination
+    def test_for_rendering_Page_object(self):
+        self.user.add_to_watchlist(id = 0)
+        response = self.client.get("/accounts/watchlist")
+        self.assertIsInstance(response["watchlist"], Page)
+
+    
+    def test_for_passing_page_in_arguments(self):
+        self.user.add_to_watchlist(id = 0)
+        self.user.add_to_watchlist(id = 1)
+        response = self.client.get("/accounts/watchlist", {page: 2, page_size: 1})
+        self.assertEqual(response["watchlist"].number, 2)
+        self.assertEqual(response["watchlist"][0]["id"], 1)
+
+   
+    def test_for_rendering_last_page_for_out_of_range(self):
+        self.user.add_to_watchlist(id = 0)
+        self.user.add_to_watchlist(id = 1)
+        response = self.client.get("/accounts/watchlist", {page: 999, page_size: 1})       
+        self.assertEqual(response["watchlist"].number, 2)
+
+
+    def test_for_rendering_first_page_for_invalid_page(self):
+        self.user.add_to_watchlist(id = 0)
+        self.user.add_to_watchlist(id = 1)
+        response = self.client.get("/accounts/watchlist", {page: "fuck", page_size: 1})       
+        self.assertEqual(response["watchlist"].number, 1)
+
+
+
+class ProfilePrefsTest(TestCaseWithLogin):
+
+    def setUp(self):
+        self.user = self.login_user()
+        for i in range(0, 5):
+            Movie.objects.create(id = i, title = "movie_%d" % i)
+
+
+    def tearDown(self):
+        Movie.objects.all().delete()
+
+    
+    def test_for_rendering_proper_template(self):
+        response = self.client.get("/accounts/prefs")
+        self.assertTemplateUsed(response, "accounts/prefs.html")
+
+    
+    def test_for_passing_prefs_to_template(self):
+        self.user.add_pref(id = 0)
+        self.user.add_pref(id = 1)
+        response = self.client.get("/accounts/prefs")
+        self.assertIsNotNone(response["prefs"])
+
+
+    # django pagination
+    def test_for_rendering_Page_object(self):
+        self.user.add_pref(id = 0)
+        response = self.client.get("/accounts/prefs")
+        self.assertIsInstance(response["prefs"], Page)
+
+    
+    def test_for_passing_page_in_arguments(self):
+        self.user.add_pref(id = 0)
+        self.user.add_pref(id = 1)
+        response = self.client.get("/accounts/prefs", {page: 2, page_size: 1})
+        self.assertEqual(response["prefs"].number, 2)
+        self.assertEqual(response["prefs"][0]["id"], 1)
+
+   
+    def test_for_rendering_last_page_for_out_of_range(self):
+        self.user.add_pref(id = 0)
+        self.user.add_pref(id = 1)
+        response = self.client.get("/accounts/prefs", {page: 999, page_size: 1})       
+        self.assertEqual(response["prefs"].number, 2)
+
+
+    def test_for_rendering_first_page_for_invalid_page(self):
+        self.user.add_pref(id = 0)
+        self.user.add_pref(id = 1)
+        response = self.client.get("/accounts/prefs", {page: "fuck", page_size: 1})       
+        self.assertEqual(response["prefs"].number, 1)
+
+
+class ProfileRecoTest(TestCase):
+
+    def setUp(self):
+        self.user = self.login_user()
+        for i in range(0, 5):
+            Movie.objects.create(id = i, title = "movie_%d" % i)
+        self.reco1 = Reco.create_new(
+            base = [{"id": 0, "rating": 5}, {"id": 1, "rating": 4}], 
+            reco = [{"id": 2}], 
+            user = self.user
+        )
+        self.reco2 = Reco.create_new(
+            base = [{"id": 1, "rating": 5}, {"id": 3, "rating": 4}], 
+            reco = [{"id": 4}], 
+            user = self.user
+        )
+
+    def tearDown(self):
+        Movie.objects.all().delete()
+        Reco.objects.all().delete()
+
+    
+    def test_for_rendering_proper_template(self):
+        response = self.client.get("/accounts/recos")
+        self.assertTemplateUsed(response, "accounts/recos.html")
+
+    
+    def test_for_passing_recos_to_template(self):
+        response = self.client.get("/accounts/recos")
+        self.assertIsNotNone(response["recos"])
+
+
+    # django pagination
+    def test_for_rendering_Page_object(self):
+        response = self.client.get("/accounts/reocs")
+        self.assertIsInstance(response["recos"], Page)
+
+    
+    def test_for_passing_page_in_arguments(self):
+        response = self.client.get("/accounts/recos", {page: 2, page_size: 1})
+        self.assertEqual(response["recos"].number, 2)
+        self.assertEqual(response["recos"][0][0]["id"], self.rec1[0]["id"])
+
+   
+    def test_for_rendering_last_page_for_out_of_range(self):
+        response = self.client.get("/accounts/recos", {page: 999, page_size: 1})       
+        self.assertEqual(response["recos"].number, 2)
+
+
+    def test_for_rendering_first_page_for_invalid_page(self):
+        response = self.client.get("/accounts/recos", {page: "fuck", page_size: 1})       
+        self.assertEqual(response["recos"].number, 1)
+
+
+class UserPrefsTest(TestCase):
+
+    def setUp(self):
+        self.user = self.login_user()
+        for i in range(0, 5):
+            Movie.objects.create(id = i, title = "movie_%d" % i)
+
+
+    def tearDown(self):
+        Movie.objects.all().delete()
+
+
+    def test_for_returning_error_for_anonymous_users(self):
+        self.client.logout()
+        response = self.client.get("/accounts/prefs")
+        self.assertEqual(response.status_code, 302)
 
 
     def login_user(self, email = "test@jago.com", password = "test"):

@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, reverse
 from django.urls import reverse
 from django.contrib.auth import login, authenticate, get_user_model, logout
 from django.contrib.auth.decorators import login_required
@@ -6,7 +6,9 @@ from django.db.models import F
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
-from accounts.forms import SignUpForm, LoginForm, INVALID_LOGIN_ERROR
+from accounts.forms import (
+    SignUpForm, LoginForm, INVALID_LOGIN_ERROR, EditProfileForm
+)
 
 
 User = get_user_model()
@@ -84,4 +86,10 @@ def remove_prefs(request):
 
 @login_required
 def profile(request):
-    return render(request, "accounts/profile.html")
+    if request.method == "POST":
+        form = EditProfileForm(request.POST)
+        if form.is_valid():
+            request.user.update_profile(form.cleaned_data)
+            return redirect(reverse("accounts:profile"))
+    form = EditProfileForm()
+    return render(request, "accounts/profile.html", {"form": form})
