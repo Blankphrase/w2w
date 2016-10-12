@@ -87,9 +87,10 @@ def remove_prefs(request):
 @login_required
 def profile(request):
     if request.method == "POST":
-        form = EditProfileForm(request.POST)
-        if form.is_valid():
+        form = EditProfileForm(request.user, request.POST)
+        if form.is_valid():     
             request.user.update_profile(form.cleaned_data)
             return redirect(reverse("accounts:profile"))
-    form = EditProfileForm()
+    else:
+        form = EditProfileForm(request.user)
     return render(request, "accounts/profile.html", {"form": form})

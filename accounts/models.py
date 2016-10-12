@@ -84,6 +84,8 @@ class User(AbstractBaseUser):
 
 
     def update_profile(self, data):
+        self.email = data.get("email", self.email)
+        self.save()
         self.profile.update(data)
 
 
@@ -117,9 +119,14 @@ class UserProfile(models.Model):
         null = False
     )
 
+    MALE = "M"
+    FEMALE = "F"
+    SEX = ((MALE, "Male"),(FEMALE, "Female"))  
+
     birthday = models.DateTimeField(blank = True, null = True)
-    country = models.TextField(blank = True, null = True)
-    sex = models.CharField(blank = True, null = True, max_length = 1)
+    country = models.CharField(blank = True, null = True, max_length = 255)
+    sex = models.CharField(blank = True, null = True, max_length = 1, 
+        choices=SEX)
 
     def update(self, data):
         self.country = data.get("country", self.country)

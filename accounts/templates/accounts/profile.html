@@ -1,41 +1,90 @@
-{% extends 'main/base.html' %}
+{% extends 'accounts/profile_base.html' %}
 {% load static %}
-
-{% block title %}Create new account{% endblock title %}
 
 {% block styles %}
 {{ block.super }}
+<link href="{% static 'accounts/css/jquery.datetimepicker.min.css' %}" rel="stylesheet">
 <style>
-ul.side-navbar {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-}
-
-ul.side-navbar li {
-    float: left;
-    color: white;
-}
-
-ul.side-navbar li a {
-    display: block;
-    padding: 8px;
-    color: white;
-}
-.container-navbar {
-    border-bottom: 2px solid white;
-}
+    label {
+        color: white;
+    }
 </style>
 {% endblock styles %}
 
+{% block edit_active %}submenu-active{% endblock %}
+
 {% block body %}
-<div class="container container-navbar">
-    <ul class="side-navbar">
-      <li><a class="active" href="#home">Edit Profile</a></li>
-      <li><a href="#news">Preferences</a></li>
-      <li><a href="#contact">Watchlist</a></li>
-      <li><a href="#about">Recommendations</a></li>
-    </ul>
+{{ block.super }}
+<div class="container">
+    <form method="POST" role="form">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="{{ form.email.id_for_label }}">Email</label>
+            {{ form.email|linebreaks }}
+            {% if form.errors %}
+                <div class="has-error">
+                    <div class="help-block">{{ form.email.errors }}</div>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.birthday.id_for_label }}">Birthday</label>
+            {{ form.birthday|linebreaks }}
+            {% if form.errors %}
+                <div class="has-error">
+                    <div class="help-block">{{ form.birthday.errors }}</div>
+                </div>
+            {% endif %}
+        </div>
+
+
+        <div class="form-group">
+            <label for="{{ form.sex.id_for_label }}">Sex</label>
+            {{ form.sex|linebreaks }}
+            {% if form.errors %}
+                <div class="has-error">
+                    <div class="help-block">{{ form.sex.errors }}</div>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.country.id_for_label }}">Country</label>
+            {{ form.country|linebreaks }}
+            {% if form.errors %}
+                <div class="has-error">
+                    <div class="help-block">{{ form.country.errors }}</div>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="has-error">
+            <div class="help-block">{{ form.non_field_errors }}</div>
+        </div>
+
+        <div class="form-group">
+            <input type="submit" id="id_submit" class="btn btn-default" 
+                   value="Edit Profile"/>
+        </div>
+
+    </form>
 </div>
 {% endblock body %}
+
+{% block body_scripts %}
+{{ block.super }}
+<script src="{% static 'accounts/js/jquery.datetimepicker.full.min.js' %}"></script>
+<script>
+    $.datetimepicker.setLocale('en');
+    $('#id_birthday').datetimepicker({
+        timepicker:false,
+        format:'Y-m-d'
+    });
+</script>
+{% endblock %}
+
+
+
+
