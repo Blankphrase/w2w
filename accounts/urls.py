@@ -10,5 +10,6 @@ urlpatterns = [
     url(r"^user/prefs/load$", views.load_prefs, name = "load_prefs"),
     url(r"^user/prefs/update$", views.update_prefs, name = "update_prefs"),
     url(r"^user/prefs/remove$", views.remove_prefs, name = "remove_prefs"),
-    url(r"^profile$", views.profile, name = "profile")
+    url(r"^profile$", views.profile, name = "profile"),
+    url(r"^prefs$", views.prefs, name = "prefs")
 ]

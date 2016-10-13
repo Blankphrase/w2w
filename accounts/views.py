@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import F
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.core.paginator import Page, Paginator, EmptyPage, PageNotAnInteger
 
 from accounts.forms import (
     SignUpForm, LoginForm, INVALID_LOGIN_ERROR, EditProfileForm
@@ -94,3 +95,24 @@ def profile(request):
     else:
         form = EditProfileForm(request.user)
     return render(request, "accounts/profile.html", {"form": form})
+
+
+@login_required
+def prefs(request):
+    page = request.GET.get("page", 1)
+    page_size = request.GET.get("page_size", 10)
+
+    prefs_db = list(request.user.pref.data.order_by("timestamp").
+        values("movie__id", "movie__title", "rating").
+        annotate(id=F("movie__id"),title=F("movie__title")).
+        values("id", "title", "rating").all())
+    paginator = Paginator(prefs_db, page_size)
+
+    try:
+        prefs = paginator.page(page)
+    except PageNotAnInteger:
+        prefs = paginator.page(1)
+    except EmptyPage:
+        prefs = paginator.page(paginator.num_pages)
+
+    return render(request, "accounts/prefs.html", { "prefs": prefs})

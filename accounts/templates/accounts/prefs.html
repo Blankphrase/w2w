@@ -1,0 +1,205 @@
+{% extends 'accounts/profile_base.html' %}
+{% load static %}
+
+{% block prefs_active %}submenu-active{% endblock %}
+
+{% block styles %}
+{{ block.super }}
+<style>
+    .container-w2w {
+        max-width: 960px;
+        background-color: white;
+        padding: 5px 25px 25px 25px;
+        margin-left: auto;
+        margin-right: auto;
+        margin-bottom: 25px;
+        border-radius: 10px;
+    }
+
+    #pref-list {
+        display: table;
+        table-layout: fixed;
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .pref-movie {
+        display: table-row;
+        width: 100%;
+        margin: 20px;
+        border-bottom: 1px solid black;
+        padding: 100px;
+        height: 0px;
+    }
+
+    .pref-movie-title {
+        display: table-cell;
+        word-wrap: break-word;
+        vertical-align: middle;
+        padding: 5px;
+        height: 100%;
+        text-align: left;
+        width: 50%;
+
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .pref-movie-ui {
+        display: table-cell;
+        float: right;
+        white-space: nowrap;
+        vertical-align: middle;
+        padding: 5px;
+        height: 100%;
+    }
+
+    .pref-movie-rating {
+        display: inline-block;
+        vertical-align: middle;
+        margin-right: 20px;
+        margin-left: 20px;
+        cursor: pointer;
+    }
+    .pref-movie-remove {
+        display: inline-block;
+        vertical-align: middle;
+    }
+
+    #prefs-ui {
+        margin-top: 10px;
+    }
+
+    .pref-rating-star.selected,
+    .pref-rating-star.hovered,
+    .pref-rating-star {
+        display: inline-block;
+        color: #FFBB00;
+        font-size: 2.5em; 
+        text-shadow: 2px 2px #000000;
+    }
+
+    .pref-rating-star:before {
+        content: '\2606';    
+    }
+
+    .pref-rating-star.selected:before,
+    .pref-rating-star.hovered:before {
+        content: '\2605';    
+    }
+
+</style>
+{% endblock styles %}
+
+
+{% block body %}
+{{ block.super }}
+<div class = "container-w2w">
+    <h3>Your preferences</h3>
+
+    <div id="pref-list">
+        {% for pref in prefs %}
+            <div class="pref-movie" data-movie-id="{{ pref.id }}">
+                <span class='pref-movie-title'>{{ pref.title }}</span>
+                <div class="pref-movie-ui">
+                    <div class = "pref-movie-rating">
+                        <div class="pref-rating-star {% if 1 <= pref.rating %}selected{% endif %}" data-value="1">
+                            <span></span>
+                        </div>
+                        <div class="pref-rating-star {% if 2 <= pref.rating %}selected{% endif %}" data-value="2">
+                            <span></span>
+                        </div>
+                        <div class="pref-rating-star {% if 3 <= pref.rating %}selected{% endif %}" data-value="3">
+                            <span></span>
+                        </div>
+                        <div class="pref-rating-star {% if 4 <= pref.rating %}selected{% endif %}" data-value="4">
+                            <span></span>
+                        </div>
+                        <div class="pref-rating-star {% if 5 <= pref.rating %}selected{% endif %}" data-value="5">
+                            <span></span>
+                        </div>
+                    </div>
+                    <button class='btn btn-default pref-movie-remove' 
+                            type='button'>Remove</button>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    {% if prefs.has_other_pages %}
+        <ul class="pagination">
+            {% if prefs.has_previous %}
+                <li><a href="?page={{ prefs.previous_page_number }}">&laquo;</a></li>
+            {% else %}
+                <li class="disabled"><span>&laquo;</span></li>
+            {% endif %}
+            {% for i in prefs.paginator.page_range %}
+                {% if prefs.number == i %}
+                    <li class="active">
+                        <span>{{ i }} <span class="sr-only">(current)</span></span>
+                    </li>
+                {% else %}
+                    <li><a href="?page={{ i }}">{{ i }}</a></li>
+                {% endif %}
+            {% endfor %}
+            {% if prefs.has_next %}
+                <li><a href="?page={{ prefs.next_page_number }}">&raquo;</a></li>
+            {% else %}
+                <li class="disabled"><span>&raquo;</span></li>
+            {% endif %}
+        </ul>
+    {% endif %}
+
+</div>
+{% endblock %}
+
+{% block body_scripts %}
+{{ block.super }}
+<script src="{% static 'js/prefs.source.js' %}"></script>
+<script>
+
+    var prefsHandler = new UserBasedPrefsSource();
+
+    $(document).on("mouseover", ".pref-rating-star", function() {
+        $(this).addClass("hovered");
+        $(this).prevAll().addClass("hovered");
+    });
+
+    $(document).on("mouseout", ".pref-rating-star", function() {
+        $(this).removeClass("hovered");
+        $(this).prevAll().removeClass("hovered");
+    });
+
+    $(document).on("click", ".pref-rating-star", function() {
+        var rating = $(this).data("value");
+        var movieId = $(this).parent().parent().parent().data("movie-id");
+        var title = $(this).parent().parent().siblings(".pref-movie-title").html();
+
+        prefsHandler.update(
+            movieId = movieId,
+            movieTitle = title,
+            movieRating = rating,
+            function() {
+                var $movie = $(".pref-movie").filter(function() { 
+                    return $(this).data("movie-id") == movieId
+                });
+                $movie.find(".pref-movie-rating").children().removeClass("selected");
+
+                var $movieStar =  $movie.find(".pref-movie-rating").
+                    find("[data-value='" + rating + "']");
+                $movieStar.addClass("selected");
+                $movieStar.prevAll().addClass("selected");            
+            }  
+        );   
+    });
+
+    $(document).on("click", ".pref-movie-remove", function() {
+        var $movie = $(this).parent().parent();
+        prefsHandler.remove($movie.data("movie-id"), function() {
+            $movie.remove();
+        });
+    });
+
+</script>
+{% endblock body_scripts %}

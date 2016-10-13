@@ -135,41 +135,47 @@ class ProfilePrefsTest(TestCaseWithLogin):
         response = self.client.get("/accounts/prefs")
         self.assertTemplateUsed(response, "accounts/prefs.html")
 
-    
-    def test_for_passing_prefs_to_template(self):
-        self.user.add_pref(id = 0)
-        self.user.add_pref(id = 1)
+
+    def test_for_returning_error_for_anonymous_users(self):
+        self.client.logout()
         response = self.client.get("/accounts/prefs")
-        self.assertIsNotNone(response["prefs"])
+        self.assertEqual(response.status_code, 302)
 
 
-    # django pagination
+    def test_for_passing_prefs_to_template(self):
+        response = self.client.get("/accounts/prefs")
+        self.assertIsNotNone(response.context["prefs"])
+
+
     def test_for_rendering_Page_object(self):
         self.user.add_pref(id = 0)
         response = self.client.get("/accounts/prefs")
-        self.assertIsInstance(response["prefs"], Page)
+        self.assertIsInstance(response.context["prefs"], Page)
 
     
     def test_for_passing_page_in_arguments(self):
         self.user.add_pref(id = 0)
         self.user.add_pref(id = 1)
-        response = self.client.get("/accounts/prefs", {page: 2, page_size: 1})
-        self.assertEqual(response["prefs"].number, 2)
-        self.assertEqual(response["prefs"][0]["id"], 1)
+        response = self.client.get("/accounts/prefs", {"page": 2, 
+            "page_size": 1})
+        self.assertEqual(response.context["prefs"].number, 2)
+        self.assertEqual(response.context["prefs"][0]["id"], 1)
 
    
     def test_for_rendering_last_page_for_out_of_range(self):
         self.user.add_pref(id = 0)
         self.user.add_pref(id = 1)
-        response = self.client.get("/accounts/prefs", {page: 999, page_size: 1})       
-        self.assertEqual(response["prefs"].number, 2)
+        response = self.client.get("/accounts/prefs", {"page": 999, 
+            "page_size": 1})       
+        self.assertEqual(response.context["prefs"].number, 2)
 
 
     def test_for_rendering_first_page_for_invalid_page(self):
         self.user.add_pref(id = 0)
         self.user.add_pref(id = 1)
-        response = self.client.get("/accounts/prefs", {page: "fuck", page_size: 1})       
-        self.assertEqual(response["prefs"].number, 1)
+        response = self.client.get("/accounts/prefs", {"page": "fuck", 
+            "page_size": 1})       
+        self.assertEqual(response.context["prefs"].number, 1)
 
 
 class ProfileRecoTest(TestCase):
@@ -226,7 +232,7 @@ class ProfileRecoTest(TestCase):
         self.assertEqual(response["recos"].number, 1)
 
 
-class UserPrefsTest(TestCase):
+class UserPrefsTest(TestCaseWithLogin):
 
     def setUp(self):
         self.user = self.login_user()
@@ -244,15 +250,8 @@ class UserPrefsTest(TestCase):
         self.assertEqual(response.status_code, 302)
 
 
-    def login_user(self, email = "test@jago.com", password = "test"):
-        user = User(email = email)
-        user.set_password(password)
-        user.save()
-        self.client.login(email = email, password = password)    
-        return user    
-
-
     def test_load_prefs_error_for_anonymous_users(self):
+        self.client.logout()
         response = self.client.get("/accounts/user/prefs/load")
         self.assertEqual(response.status_code, 302)
 

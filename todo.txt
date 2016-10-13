@@ -13,6 +13,8 @@
     - the newest movies
     - the upcoming movies
     - better styling
+- create css file with style for website
+- put js/css in order
 
 
 
