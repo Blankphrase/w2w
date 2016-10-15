@@ -96,7 +96,7 @@
 {% block body %}
 {{ block.super }}
 <div class = "container-w2w">
-    <h3>Your preferences</h3>
+    <h3>Your Preferences</h3>
 
     {% if prefs.paginator.count == 0 %}
         It seems you have not any preferences. Your preferences are being automatically collected for you when you make recommendations. You can state your preferences in <a href="{% url 'reco' %}">General Recommendation</a> section.

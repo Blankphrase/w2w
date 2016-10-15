@@ -15,6 +15,9 @@
     - better styling
 - create css file with style for website
 - put js/css in order
+- add alert bar showing what is going on in profile (
+    e.g. updating database, adding movie to your preferences, and so on.
+)
 
 
 

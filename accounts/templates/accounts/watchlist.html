@@ -1,7 +1,7 @@
 {% extends 'accounts/profile_base.html' %}
 {% load static %}
 
-{% block prefs_watchlist %}submenu-active{% endblock %}
+{% block watchlist_active %}submenu-active{% endblock %}
 
 {% block styles %}
 {{ block.super }}
@@ -15,6 +15,78 @@
         margin-bottom: 25px;
         border-radius: 10px;
     }
+
+    #watchlist {
+        display: table;
+        table-layout: fixed;
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .watchlist-movie {
+        display: table-row;
+        width: 100%;
+        margin: 20px;
+        border-bottom: 1px solid black;
+        padding: 100px;
+        height: 0px;
+    }
+
+    .watchlist-movie-title {
+        display: table-cell;
+        word-wrap: break-word;
+        vertical-align: middle;
+        padding: 5px;
+        height: 100%;
+        text-align: left;
+        width: 50%;
+
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .watchlist-movie-ui {
+        display: table-cell;
+        float: right;
+        white-space: nowrap;
+        vertical-align: middle;
+        padding: 5px;
+        height: 100%;
+    }
+
+    .watchlist-movie-remove {
+        display: inline-block;
+        vertical-align: middle;
+    }
+
+
+    .pref-movie-rating {
+        display: inline-block;
+        vertical-align: middle;
+        margin-right: 20px;
+        margin-left: 20px;
+        cursor: pointer;
+    }
+
+    .pref-rating-star.selected,
+    .pref-rating-star.hovered,
+    .pref-rating-star {
+        display: inline-block;
+        color: #FFBB00;
+        font-size: 2.5em; 
+        text-shadow: 2px 2px #000000;
+    }
+
+    .pref-rating-star:before {
+        content: '\2606';    
+    }
+
+    .pref-rating-star.selected:before,
+    .pref-rating-star.hovered:before {
+        content: '\2605';    
+    }
+
 </style>
 {% endblock %}
 
@@ -25,7 +97,113 @@
     {% if watchlist.paginator.count == 0 %}
         Your watchlist is empty. You can add movies to your watchlist from among recommended movies.
     {% else %}
-
+        <div id="watchlist">
+            {% for movie in watchlist %}
+                <div class="watchlist-movie" data-movie-id="{{ movie.id }}">
+                    <span class='watchlist-movie-title'>{{ movie.title }}</span>
+                    <div class="watchlist-movie-ui">
+                        <div class="pref-movie-rating">
+                            <div class="pref-rating-star {% if 1 <= pref.rating %}selected{% endif %}" data-value="1">
+                                <span></span>
+                            </div>
+                            <div class="pref-rating-star {% if 2 <= pref.rating %}selected{% endif %}" data-value="2">
+                                <span></span>
+                            </div>
+                            <div class="pref-rating-star {% if 3 <= pref.rating %}selected{% endif %}" data-value="3">
+                                <span></span>
+                            </div>
+                            <div class="pref-rating-star {% if 4 <= pref.rating %}selected{% endif %}" data-value="4">
+                                <span></span>
+                            </div>
+                            <div class="pref-rating-star {% if 5 <= pref.rating %}selected{% endif %}" data-value="5">
+                                <span></span>
+                            </div>
+                        </div>
+                        <button class='btn btn-default watchlist-movie-remove' 
+                                type='button'>Remove</button>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        {% if watchlist.has_other_pages %}
+            <ul class="pagination">
+                {% if watchlist.has_previous %}
+                    <li><a href="?page={{ watchlist.previous_page_number }}">&laquo;</a></li>
+                {% else %}
+                    <li class="disabled"><span>&laquo;</span></li>
+                {% endif %}
+                {% for i in watchlist.paginator.page_range %}
+                    {% if watchlist.number == i %}
+                        <li class="active">
+                            <span>{{ i }} <span class="sr-only">(current)</span></span>
+                        </li>
+                    {% else %}
+                        <li><a href="?page={{ i }}">{{ i }}</a></li>
+                    {% endif %}
+                {% endfor %}
+                {% if watchlist.has_next %}
+                    <li><a href="?page={{ watchlist.next_page_number }}">&raquo;</a></li>
+                {% else %}
+                    <li class="disabled"><span>&raquo;</span></li>
+                {% endif %}
+            </ul>
+        {% endif %}
     {% endif %}
 </div>
 {% endblock %}
+
+{% block body_scripts %}
+{{ block.super }}
+<script src="{% static 'js/prefs.source.js' %}"></script>
+<script>
+    var prefsHandler = new UserBasedPrefsSource();
+
+    $(document).on("mouseover", ".pref-rating-star", function() {
+        $(this).addClass("hovered");
+        $(this).prevAll().addClass("hovered");
+    });
+
+    $(document).on("mouseout", ".pref-rating-star", function() {
+        $(this).removeClass("hovered");
+        $(this).prevAll().removeClass("hovered");
+    });
+
+    $(document).on("click", ".pref-rating-star", function() {
+        var rating = $(this).data("value");
+        var movieId = $(this).parent().parent().parent().data("movie-id");
+        var title = $(this).parent().parent().siblings(".watchlist-movie-title").html();
+
+        prefsHandler.update(
+            movieId = movieId,
+            movieTitle = title,
+            movieRating = rating,
+            function() {
+                var $movie = $(".watchlist-movie").filter(function() { 
+                    return $(this).data("movie-id") == movieId
+                });
+                $movie.find(".pref-movie-rating").children().removeClass("selected");
+
+                var $movieStar =  $movie.find(".pref-movie-rating").
+                    find("[data-value='" + rating + "']");
+                $movieStar.addClass("selected");
+                $movieStar.prevAll().addClass("selected");  
+
+                $movie.remove();          
+            }  
+        );   
+    });
+
+    $(document).on("click", ".watchlist-movie-remove", function() {
+        var $movie = $(this).parent().parent();
+        $.post(
+            "/accounts/watchlist/remove",
+            {id: $movie.data("movie-id")},
+            success = function(response) {
+                if (response.status.toUpperCase() === "OK") {
+                    $movie.remove();
+                }
+            }
+        );
+    });
+</script>
+{% endblock body_scripts %}

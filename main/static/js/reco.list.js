@@ -18,6 +18,22 @@ $("#reco-list-prev").click(function() {
     recoList.prevPage();
 });
 
+$(document).on("click", ".watchlist-add-btn", function(event) {
+    event.preventDefault();
+    
+    var $movie = $(this).parent();
+    $.post(
+        "/accounts/watchlist/add",
+        {id: $movie.data("movie-id")},
+        success = function(response) {
+            if (response.status.toUpperCase() === "ERROR") {
+                alert(response.msg);
+            }
+        }
+    );
+
+    return (false);
+});
 
 var recoInProgress = false;
 $("#reco-btn").click(function() {
@@ -83,8 +99,9 @@ function updateRecoList(movies) {
     var $recoList = $("#reco-list");
     $recoList.children("li").remove();
     for (var i = 0; i < movies.length; i++) {
-        $recoList.append($("<li class='reco-item'>" + movies[i].title + 
-            " (Add to Watchlist)</li>")); 
+        $recoList.append($("<li class='reco-item' data-movie-id='" + 
+            movies[i].id + "'>" + movies[i].title + 
+            " (<a href='#' class='watchlist-add-btn'>+Watchlist</a>)</li>")); 
     }
 }
 
