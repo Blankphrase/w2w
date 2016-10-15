@@ -27,6 +27,61 @@ class TestCaseWithLogin(TestCase):
         return user 
 
 
+class ProfileRecoTest(TestCaseWithLogin):
+
+    def setUp(self):
+        self.user = self.login_user()
+
+    def test_passes_correct_reco_to_template(self):
+        other_reco = Reco.objects.create(user = self.user)
+        correct_reco = Reco.objects.create(user = self.user)
+        response = self.client.get("/accounts/reco/%d/" % (correct_reco.id,))
+        self.assertEqual(response.context["reco"], correct_reco)
+
+    def test_uses_reco_template(self):
+        reco = Reco.objects.create(user = self.user)
+        response = self.client.get("/accounts/reco/%d/" % (reco.id,))
+        self.assertTemplateUsed(response, "accounts/reco.html")
+
+    def test_redirects_to_reco_list_for_invalid_reco_id(self):
+        user = User.objects.create(email="other@jago.com")
+        reco = Reco.objects.create(user = user, id = 1)
+        response = self.client.get("/accounts/reco/1/")
+        self.assertEqual(response["location"], "/accounts/recos")
+
+
+class ProfileRecoTitleTest(TestCaseWithLogin):
+
+    def setUp(self):
+        self.user = self.login_user()
+
+    def test_changes_reco_title(self):
+        reco = Reco.objects.create(user = self.user)
+        response = self.client.post("/accounts/reco/%d/title" % (reco.id),
+            {"title": "My Reco"})
+        reco = Reco.objects.first()
+        self.assertEqual(reco.title, "My Reco")
+
+    def test_returns_ok_status(self):
+        reco = Reco.objects.create(user = self.user)
+        response = self.client.post("/accounts/reco/%d/title" % (reco.id),
+            {"title": "My Reco"})
+        data = json.loads(response.content.decode())
+        self.assertEqual(data["status"].upper(), "OK")
+
+    def test_returns_error_status_for_invalid_id(self):
+        response = self.client.post("/accounts/reco/5/title",
+            {"title": "My Reco"})
+        data = json.loads(response.content.decode())
+        self.assertEqual(data["status"].upper(), "ERROR")
+
+    def test_returns_error_status_for_no_title(self):
+        reco = Reco.objects.create(user = self.user)
+        response = self.client.post("/accounts/reco/%d/title" % (reco.id))
+        data = json.loads(response.content.decode())
+        self.assertEqual(data["status"].upper(), "ERROR")
+
+
 class ProfileEditTest(TestCaseWithLogin):
 
     def setUp(self):
@@ -246,7 +301,7 @@ class ProfilePrefsTest(TestCaseWithLogin):
         self.assertEqual(response.context["prefs"].number, 1)
 
 
-class ProfileRecoTest(TestCase):
+class ProfileRecosTest(TestCaseWithLogin):
 
     def setUp(self):
         self.user = self.login_user()
@@ -272,32 +327,40 @@ class ProfileRecoTest(TestCase):
         response = self.client.get("/accounts/recos")
         self.assertTemplateUsed(response, "accounts/recos.html")
 
-    
+
+    def test_for_returning_error_for_anonymous_users(self):
+        self.client.logout()
+        response = self.client.get("/accounts/recos")
+        self.assertEqual(response.status_code, 302)
+
+
     def test_for_passing_recos_to_template(self):
         response = self.client.get("/accounts/recos")
-        self.assertIsNotNone(response["recos"])
+        self.assertIsNotNone(response.context["recos"])
 
 
-    # django pagination
     def test_for_rendering_Page_object(self):
-        response = self.client.get("/accounts/reocs")
-        self.assertIsInstance(response["recos"], Page)
+        response = self.client.get("/accounts/recos")
+        self.assertIsInstance(response.context["recos"], Page)
 
     
     def test_for_passing_page_in_arguments(self):
-        response = self.client.get("/accounts/recos", {page: 2, page_size: 1})
-        self.assertEqual(response["recos"].number, 2)
-        self.assertEqual(response["recos"][0][0]["id"], self.rec1[0]["id"])
+        response = self.client.get("/accounts/recos", 
+            {"page": 2, "page_size": 1})
+        self.assertEqual(response.context["recos"].number, 2)
+        self.assertEqual(response.context["recos"][0][0]["id"], self.reco1[0]["id"])
 
    
     def test_for_rendering_last_page_for_out_of_range(self):
-        response = self.client.get("/accounts/recos", {page: 999, page_size: 1})       
-        self.assertEqual(response["recos"].number, 2)
+        response = self.client.get("/accounts/recos", 
+            {"page": 999, "page_size": 1})       
+        self.assertEqual(response.context["recos"].number, 2)
 
 
     def test_for_rendering_first_page_for_invalid_page(self):
-        response = self.client.get("/accounts/recos", {page: "fuck", page_size: 1})       
-        self.assertEqual(response["recos"].number, 1)
+        response = self.client.get("/accounts/recos", 
+            {"page": "fuck", "page_size": 1})       
+        self.assertEqual(response.context["recos"].number, 1)
 
 
 class UserPrefsTest(TestCaseWithLogin):

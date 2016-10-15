@@ -273,7 +273,7 @@
     }
 
     #reco-output {
-        /*display: none;*/
+        display: none;
     }
 
     #reco-list {
@@ -362,12 +362,21 @@
             </button>
             <span id="reco-status-msg"></span>
         </div>
-        <div id="reco-output">
-            <ul id="reco-list" class="list-group row">
-<!--                 <li class="reco-item">Fight Club</li>
-                <li class="reco-item">The Lord of The Rings</li> -->
-            </ul>
 
+        <div id="reco-output">
+            {% if user.is_authenticated %}
+                <label for="reco-title">Title (display in your recommednations' history)</label>
+                <div class="input-group">
+                    <input type="text" class="form-control" id="reco-title">
+                    <input type="hidden" class="form-control" id="reco-id">
+                    <span class="input-group-btn">
+                        <button id="btn-reco-title" class="btn btn-default" type="button">
+                            Change Title
+                        </button>
+                    </span>
+                </div>
+            {% endif %}
+            <ul id="reco-list" class="list-group row"></ul>
             <dev id="reco-ui">
                 <button id="reco-list-prev" class="btn btn-primary" 
                     type="button">Prev</button>

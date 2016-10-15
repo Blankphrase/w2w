@@ -30,9 +30,22 @@ class RecoModelTest(TestCase):
         for movie in self.reco:
             Movie.objects.create(title = movie["title"], id = movie["id"])
 
+
     def tearDown(self):
         Movie.objects.all().delete()
         Reco.objects.all().delete()
+
+
+    def test_get_absolute_url(self):
+        reco = Reco.create_new(
+            base = self.preferences,
+            reco = self.reco,
+            user = None, title = None
+        )
+        self.assertEqual(
+            "/accounts/reco/%d/" % reco.id,
+            reco.get_absolute_url()
+        )
 
     def test_create_new_creates_reco(self):
         Reco.create_new(
@@ -41,6 +54,7 @@ class RecoModelTest(TestCase):
             user = None
         )        
         self.assertEqual(Reco.objects.count(), 1)
+
 
     def test_create_new_links_base_movies_to_reco(self):
         reco = Reco.create_new(
@@ -54,6 +68,8 @@ class RecoModelTest(TestCase):
         self.assertTrue(reco.base.filter(id=self.preferences[2]["id"]).exists())
         self.assertFalse(reco.base.filter(id=self.reco[2]["id"]).exists())
 
+
+    @unittest.skip
     def test_create_new_links_reco_movies_to_reco(self):
         reco = Reco.create_new(
             base = self.preferences, 
@@ -66,6 +82,7 @@ class RecoModelTest(TestCase):
         self.assertTrue(reco.movies.filter(id=self.reco[2]["id"]).exists())
         self.assertFalse(reco.movies.filter(id=self.preferences[2]["id"]).exists())
 
+
     def test_create_new_links_user_to_reco(self):
         user = User.objects.create()
         reco = Reco.create_new(
@@ -73,4 +90,4 @@ class RecoModelTest(TestCase):
             reco = self.reco, 
             user = user
         )    
-        self.assertEqual(user.reco_set.count(), 1)
+        self.assertEqual(user.recos.count(), 1)

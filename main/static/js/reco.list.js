@@ -14,9 +14,30 @@ $("#reco-list-next").click(function() {
 });
 
 
+$("#btn-reco-title").click(function() {
+    var recoId = $("#reco-id").val();
+    var recoTitle = $("#reco-title").val();
+
+    if (recoTitle === "") {
+        alert("The given title seems to be empty. Please fill correct title into input box.");
+    } else {
+        $.post(
+            "/accounts/reco/" + recoId + "/title",
+            {title: recoTitle},
+            success = function(response) {
+                if (response.status.toUpperCase() === "ERROR") {
+                    alert(response.msg);
+                }
+            }
+        );
+    }
+});
+
+
 $("#reco-list-prev").click(function() {
     recoList.prevPage();
 });
+
 
 $(document).on("click", ".watchlist-add-btn", function(event) {
     event.preventDefault();
@@ -34,6 +55,7 @@ $(document).on("click", ".watchlist-add-btn", function(event) {
 
     return (false);
 });
+
 
 var recoInProgress = false;
 $("#reco-btn").click(function() {
@@ -84,6 +106,8 @@ function handleRecoResponse(response) {
             $("#reco-status").show();
             $("#reco-status-msg").html("Recommendation complete.");
             $("#reco-output").show();
+            $("#reco-title").val(response.title);
+            $("#reco-id").val(response.id);
             recoList.init(movies, 5);
         }
     } else {

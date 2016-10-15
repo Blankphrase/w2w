@@ -97,10 +97,10 @@
 {{ block.super }}
 <div class = "container-w2w">
     <h3>Your Preferences</h3>
-
     {% if prefs.paginator.count == 0 %}
-        It seems you have not any preferences. Your preferences are being automatically collected for you when you make recommendations. You can state your preferences in <a href="{% url 'reco' %}">General Recommendation</a> section.
+        It seems you have not any preferences. Your preferences are being automatically collected for you when you take recommendations. You can state your preferences in <a href="{% url 'reco' %}">General Recommendation</a> section.
     {% else %}
+        <p>Adjust your preferences or remove some movies if you've changed your mind.</p>
         <div id="pref-list">
             {% for pref in prefs %}
                 <div class="pref-movie" data-movie-id="{{ pref.id }}">
@@ -154,7 +154,6 @@
             </ul>
         {% endif %}
     {% endif %}
-
 </div>
 {% endblock %}
 

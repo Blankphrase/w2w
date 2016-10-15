@@ -80,6 +80,9 @@ def make_reco(request):
         reco_final = []
 
     # substitute orginal reco with preparated by this view
-    rengine.save_last_reco(reco = reco_final) 
+    reco_db = rengine.save_reco(
+        reco = reco_final
+    ) 
 
-    return JsonResponse({"status": "OK", "movies": reco_final}, safe=False)
+    return JsonResponse({"status": "OK", "movies": reco_final, "id": 
+        reco_db.id, "title": reco_db.title}, safe=False)

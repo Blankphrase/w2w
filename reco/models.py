@@ -4,6 +4,7 @@ from django.db import models
 from django.utils import timezone
 from django.conf import settings
 from reco.exceptions import SimCalculationError
+from django.shortcuts import reverse
 
 
 class Reco(models.Model):
@@ -12,13 +13,18 @@ class Reco(models.Model):
         related_name = "reco_base")
     movies = models.ManyToManyField(Movie, through = "RecoMovie",
         related_name = "reco_movies")
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, blank = True, null = True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, blank = True, 
+        null = True, related_name = "recos")
 
     timestamp = models.DateTimeField(default = timezone.now)
+    title = models.TextField(blank = True, null = True)
+
+    def get_absolute_url(self):
+        return reverse("accounts:reco", args=[self.id])
 
     @staticmethod
-    def create_new(base, reco, user = None):
-        reco_ = Reco.objects.create()
+    def create_new(base, reco, user = None, title = None):
+        reco_ = Reco.objects.create(title = title)
 
         obj2save = list()
         for item in base:
@@ -34,7 +40,7 @@ class Reco(models.Model):
         RecoMovie.objects.bulk_create(obj2save)
 
         if user and user.is_authenticated:
-            user.reco_set.add(reco_)
+            user.recos.add(reco_)
 
         return reco_
 

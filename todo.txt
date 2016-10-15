@@ -12,17 +12,14 @@
     - the most popular movies
     - the newest movies
     - the upcoming movies
+    - last recommendation for logged in users
     - better styling
 - create css file with style for website
 - put js/css in order
 - add alert bar showing what is going on in profile (
     e.g. updating database, adding movie to your preferences, and so on.
 )
-
-
-
-The most popular movies/the latest movies/Comming movies on front page
-Your last recommendation
-Recommendation for log in user and for anonymouse user (Reco)
-User profile (list of recommendation, favourite movies)
-Edit profile
+- add delete account in edit profile
+- show last recommendation in recommendations section (add to session storage for
+  standalone recommendation and for general recommendation ...)
+- recommendation title (default or defined by user)

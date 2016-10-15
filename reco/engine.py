@@ -81,7 +81,6 @@ class RecoManager:
 
     def __init__(self, source, engine = None):
         self.source = source
-        self.last_reco = None
 
         if engine is None:
             self.engine = globals()["SlopeOne"]()
@@ -101,15 +100,16 @@ class RecoManager:
     def make_reco(self):
         if self.source.is_empty():
             raise RecoSourceError
-        self.last_reco = self.engine.make_reco(self.source)
-        return self.last_reco
+        reco = self.engine.make_reco(self.source)
+        return reco
 
 
-    def save_last_reco(self, reco = None):
+    def save_reco(self, reco, title = None):
         reco = Reco.create_new(
             base = self.source.get_data(), 
-            reco = reco if reco is not None else self.last_reco, 
-            user = self.source.get_user()
+            reco = reco,
+            user = self.source.get_user(),
+            title = title
         )
         return reco   
 

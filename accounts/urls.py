@@ -15,4 +15,7 @@ urlpatterns = [
     url(r"^watchlist$", views.watchlist, name = "watchlist"),
     url(r"^watchlist/add$", views.watchlist_add, name= "watchlist_add"),
     url(r"^watchlist/remove$", views.watchlist_remove, name = "watchlist_remove"),
+    url(r"^recos$", views.recos, name = "recos"),
+    url(r"^reco/(\d+)/$", views.reco, name = "reco"),
+    url(r"^reco/(\d+)/title$", views.reco_title, name = "reco_title")
 ]

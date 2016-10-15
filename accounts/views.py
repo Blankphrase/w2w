@@ -11,6 +11,7 @@ from accounts.forms import (
     SignUpForm, LoginForm, INVALID_LOGIN_ERROR, EditProfileForm
 )
 from tmdb.models import Movie
+from reco.models import Reco
 
 User = get_user_model()
 
@@ -164,4 +165,52 @@ def watchlist_remove(request):
         return JsonResponse({"status": "ERROR", "msg": "No movie id."}, 
             safe=False)
     request.user.watchlist.movies.filter(id=movie_id).delete()
+    return JsonResponse({"status": "OK"}, safe=False)
+
+
+@login_required
+def recos(request):
+    page = request.GET.get("page", 1)
+    page_size = request.GET.get("page_size", 10)
+
+    recos_db = request.user.recos.all()
+    paginator = Paginator(recos_db, page_size)
+
+    # list(request.user.watchlist.movies.order_by("title").
+    #         values("id", "title").all())
+
+    try:
+        recos = paginator.page(page)
+    except PageNotAnInteger:
+        recos = paginator.page(1)
+    except EmptyPage:
+        recos = paginator.page(paginator.num_pages)
+
+    return render(request, "accounts/recos.html", {"recos": recos})
+
+
+@login_required
+def reco(request, id):
+    try:
+        reco = Reco.objects.get(id=id, user=request.user)
+    except Reco.DoesNotExist:
+        return redirect(reverse("accounts:recos"))
+    return render(request, "accounts/reco.html", {"reco": reco})
+
+
+@login_required
+@csrf_exempt
+def reco_title(request, id):
+    try:
+        title = request.POST["title"]
+    except:
+        return JsonResponse({"status": "ERROR", "msg": "No title"}, safe=False)
+
+    try:
+        reco = Reco.objects.get(id=id,user=request.user)
+    except:
+        return JsonResponse({"status": "ERROR", "msg": "No reco"}, safe=False)
+
+    reco.title = title
+    reco.save()
     return JsonResponse({"status": "OK"}, safe=False)

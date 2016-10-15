@@ -97,6 +97,7 @@
     {% if watchlist.paginator.count == 0 %}
         Your watchlist is empty. You can add movies to your watchlist from among recommended movies.
     {% else %}
+        <p>State your preferences for movies you have just watched or remove some movies from your watchlist.
         <div id="watchlist">
             {% for movie in watchlist %}
                 <div class="watchlist-movie" data-movie-id="{{ movie.id }}">

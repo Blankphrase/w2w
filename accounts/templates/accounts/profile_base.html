@@ -47,7 +47,8 @@ ul.side-navbar li a {
              href="{% url 'accounts:prefs' %}">Preferences</a></li>
       <li><a class="{% block watchlist_active %}{% endblock %}"
              href="{% url 'accounts:watchlist' %}">Watchlist</a></li>
-      <li><a href="#recommendation">Recommendations</a></li>
+      <li><a class="{% block recos_active %}{% endblock %}"
+             href="{% url 'accounts:recos' %}">Recommendations</a></li>
       <li><a href="#password">Change Password</a></li>
     </ul>
 </div>
