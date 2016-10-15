@@ -81,43 +81,111 @@ class ProfileWatchlistTest(TestCaseWithLogin):
         response = self.client.get("/accounts/watchlist")
         self.assertTemplateUsed(response, "accounts/watchlist.html")
 
-    
-    def test_for_passing_watchlist_to_template(self):
-        self.user.add_to_watchlist(id = 0)
-        self.user.add_to_watchlist(id = 1)
+
+    def test_for_returning_error_for_anonymous_users(self):
+        self.client.logout()
         response = self.client.get("/accounts/watchlist")
-        self.assertIsNotNone(response["watchlist"])
+        self.assertEqual(response.status_code, 302)
 
 
-    # django pagination
+    def test_for_passing_watchlist_to_template(self):
+        response = self.client.get("/accounts/watchlist")
+        self.assertIsNotNone(response.context["watchlist"])
+
+
     def test_for_rendering_Page_object(self):
         self.user.add_to_watchlist(id = 0)
         response = self.client.get("/accounts/watchlist")
-        self.assertIsInstance(response["watchlist"], Page)
+        self.assertIsInstance(response.context["watchlist"], Page)
 
     
     def test_for_passing_page_in_arguments(self):
         self.user.add_to_watchlist(id = 0)
         self.user.add_to_watchlist(id = 1)
-        response = self.client.get("/accounts/watchlist", {page: 2, page_size: 1})
-        self.assertEqual(response["watchlist"].number, 2)
-        self.assertEqual(response["watchlist"][0]["id"], 1)
+        response = self.client.get("/accounts/watchlist", 
+            {"page": 2, "page_size": 1})
+        self.assertEqual(response.context["watchlist"].number, 2)
+        self.assertEqual(response.context["watchlist"][0]["id"], 1)
 
    
     def test_for_rendering_last_page_for_out_of_range(self):
         self.user.add_to_watchlist(id = 0)
         self.user.add_to_watchlist(id = 1)
-        response = self.client.get("/accounts/watchlist", {page: 999, page_size: 1})       
-        self.assertEqual(response["watchlist"].number, 2)
+        response = self.client.get("/accounts/watchlist", 
+            {"page": 999, "page_size": 1})       
+        self.assertEqual(response.context["watchlist"].number, 2)
 
 
     def test_for_rendering_first_page_for_invalid_page(self):
         self.user.add_to_watchlist(id = 0)
         self.user.add_to_watchlist(id = 1)
-        response = self.client.get("/accounts/watchlist", {page: "fuck", page_size: 1})       
-        self.assertEqual(response["watchlist"].number, 1)
+        response = self.client.get("/accounts/watchlist", 
+            {"page": "fuck", "page_size": 1})       
+        self.assertEqual(response.context["watchlist"].number, 1)
 
 
+    def test_for_returning_ok_status_when_extending_watchlist(self):
+        response = self.client.post(
+            "/accounts/watchlist/add",
+            {"id": 2}
+        )
+        data = json.loads(response.content.decode())
+        self.assertEqual(data["status"].upper(), "OK")
+
+
+    def test_for_returning_error_when_adding_to_watchlist_without_id(self):
+        response = self.client.post(
+            "/accounts/watchlist/add"
+        )
+        data = json.loads(response.content.decode())
+        self.assertEqual(data["status"].upper(), "ERROR")
+
+
+    def test_for_returning_error_when_adding_to_watchlist_with_inavlid_movie(self):
+        response = self.client.post(
+            "/accounts/watchlist/add",
+            {"id": 550}
+        )
+        data = json.loads(response.content.decode())
+        self.assertEqual(data["status"].upper(), "ERROR")
+
+
+    def test_for_adding_movies_to_watchlist(self):
+        self.client.post("/accounts/watchlist/add", {"id": 1})
+        self.assertEqual(self.user.watchlist.movies.count(), 1)
+        self.assertEqual(self.user.watchlist.movies.first().id, 1)
+
+
+    def test_for_returing_ok_status_when_truncating_watchlist(self):
+        response = self.client.post(
+            "/accounts/watchlist/remove",
+            {"id": 1}
+        )
+        data = json.loads(response.content.decode())
+        self.assertEqual(data["status"].upper(), "OK")
+
+
+    def test_for_returning_error_when_truncating_watchlist_without_id(self):
+        response = self.client.post("/accounts/watchlist/remove")
+        data = json.loads(response.content.decode())
+        self.assertEqual(data["status"].upper(), "ERROR")
+
+
+    def test_for_removing_movies_from_watchlist(self):
+        self.user.add_to_watchlist(id = 0)
+        self.user.add_to_watchlist(id = 1)
+        self.client.post("/accounts/watchlist/remove", {"id": 0})
+        self.assertEqual(self.user.watchlist.movies.count(), 1)
+        self.assertNotIn(0, list(self.user.watchlist.movies.values_list("id", 
+            flat=True).all()))
+
+
+    def test_for_returing_ok_status_when_removing_not_exising_movie(self):
+        self.user.add_to_watchlist(id = 1)
+        response = self.client.post("/accounts/watchlist/remove", {"id": 0})
+        data = json.loads(response.content.decode())
+        self.assertEqual(data["status"].upper(), "OK")
+        
 
 class ProfilePrefsTest(TestCaseWithLogin):
 

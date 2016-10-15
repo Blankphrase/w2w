@@ -1,0 +1,31 @@
+{% extends 'accounts/profile_base.html' %}
+{% load static %}
+
+{% block prefs_watchlist %}submenu-active{% endblock %}
+
+{% block styles %}
+{{ block.super }}
+<style>
+    .container-w2w {
+        max-width: 960px;
+        background-color: white;
+        padding: 5px 25px 25px 25px;
+        margin-left: auto;
+        margin-right: auto;
+        margin-bottom: 25px;
+        border-radius: 10px;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+{{ block.super }}
+<div class = "container-w2w">
+    <h3>Your Watchlist</h3>
+    {% if watchlist.paginator.count == 0 %}
+        Your watchlist is empty. You can add movies to your watchlist from among recommended movies.
+    {% else %}
+
+    {% endif %}
+</div>
+{% endblock %}

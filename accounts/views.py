@@ -3,14 +3,14 @@ from django.urls import reverse
 from django.contrib.auth import login, authenticate, get_user_model, logout
 from django.contrib.auth.decorators import login_required
 from django.db.models import F
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.core.paginator import Page, Paginator, EmptyPage, PageNotAnInteger
 
 from accounts.forms import (
     SignUpForm, LoginForm, INVALID_LOGIN_ERROR, EditProfileForm
 )
-
+from tmdb.models import Movie
 
 User = get_user_model()
 
@@ -116,3 +116,52 @@ def prefs(request):
         prefs = paginator.page(paginator.num_pages)
 
     return render(request, "accounts/prefs.html", { "prefs": prefs})
+
+
+@login_required
+def watchlist(request):
+    page = request.GET.get("page", 1)
+    page_size = request.GET.get("page_size", 10)
+
+    watchlist_db = list(request.user.watchlist.movies.order_by("title").
+        values("id", "title").all())
+    paginator = Paginator(watchlist_db, page_size)
+
+    try:
+        watchlist = paginator.page(page)
+    except PageNotAnInteger:
+        watchlist = paginator.page(1)
+    except EmptyPage:
+        watchlist = paginator.page(paginator.num_pages)
+    
+    return render(request, "accounts/watchlist.html", {"watchlist": watchlist})
+
+
+@login_required
+@csrf_exempt
+def watchlist_add(request):
+    try:
+        movie_id = request.POST["id"]
+    except KeyError:
+        return JsonResponse({"status": "ERROR", "msg": "No movie id."}, 
+            safe=False)
+
+    try:
+        request.user.add_to_watchlist(id = movie_id)
+    except Movie.DoesNotExist:
+        return JsonResponse({"status": "ERROR", "msg": "Invalid movie id"}, 
+            safe=False)
+
+    return JsonResponse({"status": "OK"}, safe=False)
+
+
+@login_required
+@csrf_exempt
+def watchlist_remove(request):
+    try:
+        movie_id = request.POST["id"]
+    except KeyError:
+        return JsonResponse({"status": "ERROR", "msg": "No movie id."}, 
+            safe=False)
+    request.user.watchlist.movies.filter(id=movie_id).delete()
+    return JsonResponse({"status": "OK"}, safe=False)

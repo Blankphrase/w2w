@@ -11,5 +11,8 @@ urlpatterns = [
     url(r"^user/prefs/update$", views.update_prefs, name = "update_prefs"),
     url(r"^user/prefs/remove$", views.remove_prefs, name = "remove_prefs"),
     url(r"^profile$", views.profile, name = "profile"),
-    url(r"^prefs$", views.prefs, name = "prefs")
+    url(r"^prefs$", views.prefs, name = "prefs"),
+    url(r"^watchlist$", views.watchlist, name = "watchlist"),
+    url(r"^watchlist/add$", views.watchlist_add, name= "watchlist_add"),
+    url(r"^watchlist/remove$", views.watchlist_remove, name = "watchlist_remove"),
 ]
