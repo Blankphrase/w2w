@@ -32,6 +32,25 @@ class ProfileRecoTest(TestCaseWithLogin):
     def setUp(self):
         self.user = self.login_user()
 
+        self.preferences = [
+            { "title": "Killer", "id": 10, "rating": 8 },
+            { "title": "Spiderman", "id": 19, "rating": 6 },
+            { "title": "Terminator 2", "id": 5, "rating": 10 }
+        ]
+        self.reco = [
+            { "title": "Killer 2", "id": 11},
+            { "title": "Batman Begins", "id": 100 },
+            { "title": "Terminator", "id": 50 }
+        ]
+
+        for movie in self.preferences:
+            Movie.objects.create(title = movie["title"], id = movie["id"])
+        for movie in self.reco:
+            Movie.objects.create(title = movie["title"], id = movie["id"])
+
+    def tearDown(self):
+        Movie.objects.all().delete()
+
     def test_passes_correct_reco_to_template(self):
         other_reco = Reco.objects.create(user = self.user)
         correct_reco = Reco.objects.create(user = self.user)
@@ -48,6 +67,37 @@ class ProfileRecoTest(TestCaseWithLogin):
         reco = Reco.objects.create(user = user, id = 1)
         response = self.client.get("/accounts/reco/1/")
         self.assertEqual(response["location"], "/accounts/recos")
+
+    def test_for_displaying_base_movies(self):
+        reco = Reco.create_new(
+            base = self.preferences,
+            reco = self.reco,
+            user = self.user, title = "My Reco"
+        )
+        response = self.client.get("/accounts/reco/{0}/".format(reco.id))
+        self.assertContains(response, self.preferences[0]["title"])
+        self.assertContains(response, self.preferences[1]["title"])
+        self.assertContains(response, self.preferences[2]["title"])
+
+    def test_for_displaying_reco_movies(self):
+        reco = Reco.create_new(
+            base = self.preferences,
+            reco = self.reco,
+            user = self.user, title = "My Reco"
+        )
+        response = self.client.get("/accounts/reco/{0}/".format(reco.id))
+        self.assertContains(response, self.reco[0]["title"])
+        self.assertContains(response, self.reco[1]["title"])
+        self.assertContains(response, self.reco[2]["title"])
+
+    def test_for_displaying_reco_title(self):
+        reco = Reco.create_new(
+            base = self.preferences,
+            reco = self.reco,
+            user = self.user, title = "My Reco"
+        )
+        response = self.client.get("/accounts/reco/{0}/".format(reco.id))
+        self.assertContains(response, reco.title)
 
 
 class ProfileRecoTitleTest(TestCaseWithLogin):

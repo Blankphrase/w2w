@@ -1,2 +1,228 @@
 {% extends 'accounts/profile_base.html' %}
 {% load static %}
+
+{% block recos_active %}submenu-active{% endblock %}
+
+{% block styles %}
+{{ block.super }}
+<style>
+    .container-w2w {
+        max-width: 960px;
+        background-color: white;
+        padding: 5px 25px 25px 25px;
+        margin-left: auto;
+        margin-right: auto;
+        margin-bottom: 25px;
+        border-radius: 10px;
+    }
+
+    .base-list {
+        display: none;
+        /*display: table;*/
+        table-layout: fixed;
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .base-list.active {
+        display: table !important;
+    }
+
+    .reco-list {
+        display: none;
+        /*display: table;*/
+        table-layout: fixed;
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .reco-list.active {
+        display: table !important;
+    }
+
+    .pref-movie {
+        display: table-row;
+        width: 100%;
+        margin: 20px;
+        border-bottom: 1px solid black;
+        padding: 100px;
+        height: 0px;
+    }
+
+    .pref-movie-title {
+        display: table-cell;
+        word-wrap: break-word;
+        vertical-align: middle;
+        padding: 15px 5px;
+        height: 100%;
+        text-align: left;
+        width: 50%;
+
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .pref-movie-ui {
+        display: table-cell;
+        float: right;
+        white-space: nowrap;
+        vertical-align: middle;
+        height: 100%;
+    }
+
+    .pref-movie-rating {
+        display: inline-block;
+        vertical-align: middle;
+        margin-right: 20px;
+        margin-left: 20px;
+    }
+    .pref-movie-remove {
+        display: inline-block;
+        vertical-align: middle;
+    }
+
+    .pref-rating-star.selected,
+    .pref-rating-star.hovered,
+    .pref-rating-star {
+        display: inline-block;
+        color: #FFBB00;
+        font-size: 2.5em; 
+        text-shadow: 2px 2px #000000;
+    }
+
+    .pref-rating-star:before {
+        content: '\2606';    
+    }
+
+    .pref-rating-star.selected:before,
+    .pref-rating-star.hovered:before {
+        content: '\2605';    
+    }
+
+</style>
+{% endblock styles %}
+
+{% block body %}
+{{ block.super }}
+<div class = "container-w2w">
+    <div class = "page-header">
+        <h1>
+            {% if reco.title is None %}
+                No Title
+            {% else %}
+                {{ reco.title }}
+            {% endif %}<br>
+            <small>({{ reco.timestamp }})</small>
+        </h1>
+    </div>
+    <h3>Recommended Movies</h3>
+    {% if reco.movies.count == 0 %}
+        It seems there were no movies recommended to you.
+    {% else %}
+        <div class="reco-list active">
+        {% for movie in reco.movies.all %}
+            <div class="pref-movie">
+                <span class='pref-movie-title'>{{ movie.movie.title }}</span>
+            </div>
+            {% if forloop.counter|divisibleby:"5" %}
+                {% if not forloop.last %}
+                    </div>
+                    <div class="reco-list">
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+        </div>
+        <dev>
+            <button id="reco-list-prev" class="btn btn-primary" 
+                type="button">Prev</button>
+            <button id="reco-list-next" class="btn btn-primary" 
+                type="button">Next</button>
+        </dev>
+    {% endif %}
+</div>
+<div class = "container-w2w">
+    <h3>Recommendation Base</h3>
+    {% if reco.base.count == 0 %}
+        It seems there were no base movies for this recommendation (error).
+    {% else %}
+        <div class="base-list active">
+        {% for movie in reco.base.all %}
+            <div class="pref-movie">
+                <span class='pref-movie-title'>{{ movie.movie.title }}</span>
+                <div class="pref-movie-ui">
+                    <div class = "pref-movie-rating">
+                        <div class="pref-rating-star {% if 1 <= movie.rating %}selected{% endif %}" data-value="1">
+                            <span></span>
+                        </div>
+                        <div class="pref-rating-star {% if 2 <= movie.rating %}selected{% endif %}" data-value="2">
+                            <span></span>
+                        </div>
+                        <div class="pref-rating-star {% if 3 <= movie.rating %}selected{% endif %}" data-value="3">
+                            <span></span>
+                        </div>
+                        <div class="pref-rating-star {% if 4 <= movie.rating %}selected{% endif %}" data-value="4">
+                            <span></span>
+                        </div>
+                        <div class="pref-rating-star {% if 5 <= movie.rating %}selected{% endif %}" data-value="5">
+                            <span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% if forloop.counter|divisibleby:"5" %}
+                {% if not forloop.last %}
+                    </div>
+                    <div class="base-list">
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+        </div>
+        <dev>
+            <button id="base-list-prev" class="btn btn-primary" 
+                type="button">Prev</button>
+            <button id="base-list-next" class="btn btn-primary" 
+                type="button">Next</button>
+        </dev>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block body_scripts %}
+{{ block.super }}
+<script>
+    $("#reco-list-next").click(function() {
+        var $current = $(".reco-list.active");
+        var $next = $current.next(".reco-list");
+        if ($next.length) {
+            $current.removeClass("active");
+            $next.addClass("active");
+        }
+    });
+
+    $("#reco-list-prev").click(function() {
+        var $current = $(".reco-list.active");
+        var $prev = $current.prev(".reco-list");
+        if ($prev.length) {
+            $current.removeClass("active");
+            $prev.addClass("active");
+        }
+    });
+
+    $("#base-list-next").click(function() {
+        var $current = $(".base-list.active");
+        var $next = $current.next(".base-list");
+        if ($next.length) {
+            $current.removeClass("active");
+            $next.addClass("active");
+        }
+    });
+
+    $("#base-list-prev").click(function() {
+        var $current = $(".base-list.active");
+        var $prev = $current.prev(".base-list");
+        if ($prev.length) {
+            $current.removeClass("active");
+            $prev.addClass("active");
+        }
+    });
+</script>
+{% endblock %}

@@ -8,11 +8,6 @@ from django.shortcuts import reverse
 
 
 class Reco(models.Model):
-    
-    base = models.ManyToManyField(Movie, through = "RecoBase", 
-        related_name = "reco_base")
-    movies = models.ManyToManyField(Movie, through = "RecoMovie",
-        related_name = "reco_movies")
     user = models.ForeignKey(settings.AUTH_USER_MODEL, blank = True, 
         null = True, related_name = "recos")
 
@@ -37,6 +32,7 @@ class Reco(models.Model):
         for item in reco:
             movie2reco = RecoMovie(reco = reco_, score = None)
             movie2reco.movie_id = item["id"]
+            obj2save.append(movie2reco)
         RecoMovie.objects.bulk_create(obj2save)
 
         if user and user.is_authenticated:
@@ -46,12 +42,12 @@ class Reco(models.Model):
 
 
 class RecoBase(models.Model):
-    reco = models.ForeignKey(Reco)
-    movie = models.ForeignKey(Movie)
+    reco = models.ForeignKey(Reco, related_name = "base")
+    movie = models.ForeignKey(Movie, related_name = "+")
     rating = models.IntegerField()
 
 
 class RecoMovie(models.Model):
-    reco = models.ForeignKey(Reco)
-    movie = models.ForeignKey(Movie)
+    reco = models.ForeignKey(Reco, related_name = "movies")
+    movie = models.ForeignKey(Movie, related_name = "+")
     score = models.FloatField(blank=True,null=True)
