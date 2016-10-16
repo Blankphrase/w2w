@@ -132,3 +132,6 @@ STATIC_ROOT = os.path.abspath(os.path.join(BASE_DIR, '../static'))
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'w2w', 'static'),
 )
+
+from django.urls import reverse_lazy
+LOGIN_URL = reverse_lazy("home")

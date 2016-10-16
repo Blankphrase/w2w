@@ -9,6 +9,7 @@ EMPTY_PASSWORD_ERROR = "Password is required"
 EMPTY_PASSWORD2_ERROR = "Password confirmation is required"
 DIFFERENT_PASSWORDS_ERROR = "Your passwords do not match"
 INVALID_LOGIN_ERROR = "Email address or password is invalid"
+INVALID_PASSWORD_ERROR = "Password is invalid"
 
 
 class SignUpForm(forms.ModelForm):
@@ -35,6 +36,8 @@ class SignUpForm(forms.ModelForm):
         password = self.cleaned_data.get('password')
         password2 = self.cleaned_data.get('password2')
 
+        if not password:
+            raise forms.ValidationError(EMPTY_PASSWORD_ERROR)
         if not password2:
             raise forms.ValidationError(EMPTY_PASSWORD2_ERROR)
         if password != password2:
@@ -60,6 +63,46 @@ class LoginForm(forms.Form):
         widget = forms.PasswordInput(),
         error_messages = {'required': EMPTY_PASSWORD_ERROR}
     )
+
+
+class ChangePasswordForm(forms.Form):
+
+    def __init__(self, user, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user = user
+
+    password = forms.CharField(required = True, 
+        widget = forms.PasswordInput(),
+        error_messages = {'required': EMPTY_PASSWORD_ERROR}
+    )
+    new_password = forms.CharField(required = True, 
+        widget = forms.PasswordInput(),
+        error_messages = {'required': EMPTY_PASSWORD_ERROR}
+    )
+    new_password2 = forms.CharField(required = True, 
+        widget = forms.PasswordInput(),
+        error_messages = {'required': EMPTY_PASSWORD2_ERROR}
+    )
+
+    def clean(self):
+        super(ChangePasswordForm, self).clean()
+
+        password = self.cleaned_data.get('password')
+        new_password = self.cleaned_data.get('new_password')
+        new_password2 = self.cleaned_data.get('new_password2')
+
+        if not password:
+            raise forms.ValidationError(EMPTY_PASSWORD_ERROR)           
+        if not new_password:
+            raise forms.ValidationError(EMPTY_PASSWORD_ERROR)
+        if not new_password2:
+            raise forms.ValidationError(EMPTY_PASSWORD2_ERROR)
+        if new_password != new_password2:
+            raise forms.ValidationError(DIFFERENT_PASSWORDS_ERROR)
+        if not self.user.check_password(password):
+            raise forms.ValidationError(INVALID_PASSWORD_ERROR)
+
+        return self.cleaned_data
 
 
 class EditProfileForm(forms.ModelForm):

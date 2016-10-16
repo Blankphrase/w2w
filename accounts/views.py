@@ -6,9 +6,11 @@ from django.db.models import F
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.core.paginator import Page, Paginator, EmptyPage, PageNotAnInteger
+from django.contrib.auth import update_session_auth_hash
 
 from accounts.forms import (
-    SignUpForm, LoginForm, INVALID_LOGIN_ERROR, EditProfileForm
+    SignUpForm, LoginForm, INVALID_LOGIN_ERROR, EditProfileForm,
+    ChangePasswordForm
 )
 from tmdb.models import Movie
 from reco.models import Reco
@@ -214,3 +216,16 @@ def reco_title(request, id):
     reco.title = title
     reco.save()
     return JsonResponse({"status": "OK"}, safe=False)
+
+
+@login_required()
+def password(request):
+    if request.method == "POST":
+        form = ChangePasswordForm(request.user, request.POST)
+        if form.is_valid():
+            request.user.set_password(form.cleaned_data["new_password"])
+            request.user.save()
+            update_session_auth_hash(request, request.user)
+    else:
+        form = ChangePasswordForm(request.user)
+    return render(request, "accounts/password.html", {"form": form})

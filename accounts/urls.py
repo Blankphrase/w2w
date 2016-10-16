@@ -17,5 +17,6 @@ urlpatterns = [
     url(r"^watchlist/remove$", views.watchlist_remove, name = "watchlist_remove"),
     url(r"^recos$", views.recos, name = "recos"),
     url(r"^reco/(\d+)/$", views.reco, name = "reco"),
-    url(r"^reco/(\d+)/title$", views.reco_title, name = "reco_title")
+    url(r"^reco/(\d+)/title$", views.reco_title, name = "reco_title"),
+    url(r"^password$", views.password, name = "password")
 ]

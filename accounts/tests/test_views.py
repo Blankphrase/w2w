@@ -2,11 +2,13 @@ from django.test import TestCase
 from django.utils.html import escape
 from django.contrib.auth import get_user_model
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger, Page
+from django.shortcuts import reverse
+from django.contrib.auth import authenticate
 
 from accounts.forms import (
     EMPTY_EMAIL_ERROR, EMPTY_PASSWORD_ERROR, EMPTY_PASSWORD2_ERROR,
     UNIQUE_EMAIL_ERROR, DIFFERENT_PASSWORDS_ERROR, INVALID_LOGIN_ERROR,
-    SignUpForm, LoginForm, EditProfileForm
+    SignUpForm, LoginForm, EditProfileForm, ChangePasswordForm
 )
 from reco.models import Reco
 from tmdb.models import Movie
@@ -25,6 +27,98 @@ class TestCaseWithLogin(TestCase):
         user.save()
         self.client.login(email = email, password = password)    
         return user 
+
+
+class ChangePasswordTest(TestCaseWithLogin):
+    
+    def setUp(self):
+        self.user = self.login_user()
+
+    def test_uses_correct_template(self):
+        response = self.client.get("/accounts/password")
+        self.assertTemplateUsed(response, "accounts/password.html")
+
+    def test_redirects_anonymous_users_to_home_page(self):
+        self.client.logout()
+        response = self.client.get("/accounts/password")
+        self.assertEqual(response["location"].split("?")[0], reverse("home"))
+
+    def test_passes_form(self):
+        response = self.client.get("/accounts/password")
+        self.assertIsNotNone(response.context["form"])
+
+    def test_passes_correct_form(self):
+        response = self.client.get("/accounts/password")
+        self.assertIsInstance(response.context["form"], ChangePasswordForm)
+
+    def test_changes_password(self):
+        response = self.client.post(
+            "/accounts/password", data = {
+                "password": "test",
+                "new_password": "test2", "new_password2": "test2"
+            }
+        )
+        user = User.objects.first()
+        self.assertTrue(user.check_password("test2"))
+
+    def test_does_not_change_password_when_invalid_old_password(self):
+        response = self.client.post(
+            "/accounts/password", data = {
+                "password": "test_bad",
+                "new_password": "test2", "new_password2": "test2"
+            }
+        )
+        user = User.objects.first()
+        self.assertTrue(user.check_password("test"))       
+
+    def test_does_not_change_password_for_different_new_passwords(self):
+        response = self.client.post(
+            "/accounts/password", data = {
+                "password": "test",
+                "new_password": "test2", "new_password2": "test3"
+            }
+        )
+        user = User.objects.first()
+        self.assertTrue(user.check_password("test"))  
+
+    def test_does_not_change_password_for_empty_password(self):
+        response = self.client.post(
+            "/accounts/password", data = {
+                "password": "test",
+                "new_password": "", "new_password2": ""
+            }
+        )
+        user = User.objects.first()
+        self.assertTrue(user.check_password("test"))              
+
+
+
+
+    # def test_show_positive_message_after_password_changed(self):
+    #     response = self.client.post(
+    #         "/accounts/password",
+    #         data = {
+    #             "password": "test", 
+    #             "new_password": "test2", 
+    #             "new_password2": "test2"
+    #         }
+    #     )      
+    #     self.assertEqual(response["location"], "/accounts/profile")
+
+    # def test_empty_password_error(self):
+    #     response = self.client.post('/accounts/password', data={
+    #         "password": "",
+    #         "new_password": "test2", "new_password2": "test2"
+    #     })
+    #     self.assertContains(response, escape(EMPTY_PASSWORD_ERROR))
+
+
+    # def test_different_new(self):
+    #     response = self.client.post('/accounts/signup', data={
+    #         "password": "test",
+    #         "new_password": "test2", "new_password2": "test3"
+    #     })
+    #     self.assertContains(response, escape(DIFFERENT_PASSWORDS_ERROR))
 
 
 class ProfileRecoTest(TestCaseWithLogin):

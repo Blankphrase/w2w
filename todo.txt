@@ -23,3 +23,4 @@
 - show last recommendation in recommendations section (add to session storage for
   standalone recommendation and for general recommendation ...)
 - recommendation title (default or defined by user)
+- change password
