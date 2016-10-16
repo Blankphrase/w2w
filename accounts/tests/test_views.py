@@ -8,7 +8,8 @@ from django.contrib.auth import authenticate
 from accounts.forms import (
     EMPTY_EMAIL_ERROR, EMPTY_PASSWORD_ERROR, EMPTY_PASSWORD2_ERROR,
     UNIQUE_EMAIL_ERROR, DIFFERENT_PASSWORDS_ERROR, INVALID_LOGIN_ERROR,
-    SignUpForm, LoginForm, EditProfileForm, ChangePasswordForm
+    SignUpForm, LoginForm, EditProfileForm, ChangePasswordForm,
+    INVALID_PASSWORD_ERROR, DIFFERENT_NEW_PASSWORDS_ERROR
 )
 from reco.models import Reco
 from tmdb.models import Movie
@@ -91,34 +92,40 @@ class ChangePasswordTest(TestCaseWithLogin):
         user = User.objects.first()
         self.assertTrue(user.check_password("test"))              
 
+    def test_displays_empty_password_error(self):
+        response = self.client.post('/accounts/password', data={
+            "password": "",
+            "new_password": "test2", "new_password2": "test2"
+        })
+        self.assertContains(response, escape(EMPTY_PASSWORD_ERROR))
 
+    def test_displays_different_new_passwords_error(self):
+        response = self.client.post('/accounts/password', data={
+            "password": "test",
+            "new_password": "test2", "new_password2": "test3"
+        })
+        self.assertContains(response, escape(DIFFERENT_NEW_PASSWORDS_ERROR))
 
+    def test_displays_invalid_passwords_error(self):
+        response = self.client.post('/accounts/password', data={
+            "password": "test1",
+            "new_password": "test2", "new_password2": "test2"
+        })
+        self.assertContains(response, escape(INVALID_PASSWORD_ERROR))
 
-    # def test_show_positive_message_after_password_changed(self):
-    #     response = self.client.post(
-    #         "/accounts/password",
-    #         data = {
-    #             "password": "test", 
-    #             "new_password": "test2", 
-    #             "new_password2": "test2"
-    #         }
-    #     )      
-    #     self.assertEqual(response["location"], "/accounts/profile")
-
-    # def test_empty_password_error(self):
-    #     response = self.client.post('/accounts/password', data={
-    #         "password": "",
-    #         "new_password": "test2", "new_password2": "test2"
-    #     })
-    #     self.assertContains(response, escape(EMPTY_PASSWORD_ERROR))
-
-
-    # def test_different_new(self):
-    #     response = self.client.post('/accounts/signup', data={
-    #         "password": "test",
-    #         "new_password": "test2", "new_password2": "test3"
-    #     })
-    #     self.assertContains(response, escape(DIFFERENT_PASSWORDS_ERROR))
+    def test_show_positive_message_after_password_changed(self):
+        response = self.client.post(
+            "/accounts/password",
+            data = {
+                "password": "test", 
+                "new_password": "test2", 
+                "new_password2": "test2"
+            }
+        )      
+        self.assertContains(
+            response, 
+            escape("Your password has been successfuly changed.")
+        )
 
 
 class ProfileRecoTest(TestCaseWithLogin):

@@ -1,6 +1,11 @@
 {% extends 'accounts/profile_base.html' %}
 {% load static %}
 
+{% block title %}{{ block.super }}Edit{% endblock title %}
+
+{% block edit_active %}submenu-active{% endblock %}
+
+
 {% block styles %}
 {{ block.super }}
 <link href="{% static 'accounts/css/jquery.datetimepicker.min.css' %}" rel="stylesheet">
@@ -10,8 +15,6 @@
     }
 </style>
 {% endblock styles %}
-
-{% block edit_active %}submenu-active{% endblock %}
 
 {% block body %}
 {{ block.super }}

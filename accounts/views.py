@@ -220,12 +220,15 @@ def reco_title(request, id):
 
 @login_required()
 def password(request):
+    password_changed = False
     if request.method == "POST":
         form = ChangePasswordForm(request.user, request.POST)
         if form.is_valid():
             request.user.set_password(form.cleaned_data["new_password"])
             request.user.save()
             update_session_auth_hash(request, request.user)
+            password_changed = True
     else:
         form = ChangePasswordForm(request.user)
-    return render(request, "accounts/password.html", {"form": form})
+    return render(request, "accounts/password.html", 
+        {"form": form, "password_changed": password_changed})

@@ -1,6 +1,8 @@
 {% extends 'accounts/profile_base.html' %}
 {% load static %}
 
+{% block title %}{{ block.super }}Watchlist{% endblock title %}
+
 {% block watchlist_active %}submenu-active{% endblock %}
 
 {% block styles %}
