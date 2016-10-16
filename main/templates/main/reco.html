@@ -18,6 +18,9 @@
         margin-bottom: 25px;
         border-radius: 10px;
     }
+    .container-w2w .page-header {
+        margin-top: 0px;
+    }
 
     .movie {
         position: relative;
@@ -300,8 +303,10 @@
 
 {% block body %}
 {{ block.super }}
-    <div class = "container-w2w">
-        <h3>Select Your Favourite Movies</h3>
+    <div class="container container-w2w">
+        <div class="page-header">
+            <h3>Select Your Favourite Movies</h3>
+        </div>
         <div class="movies-list-ui">
             <div class="owl-nav">
                 <button class="btn btn-default owl-prev" type="button">&#9666</button>
@@ -330,8 +335,9 @@
     </div>
 
     <div class = "container-w2w">
-        <h3>Your Preferences</h3>
-
+        <div class="page-header">
+            <h3>Your Preferences</h3>
+        </div>
         <div id="pref-list"></div>
 
         <div id="prefs-ui">
@@ -353,7 +359,9 @@
     </div>
 
     <div class = "container-w2w">
-        <h3>Recomendation</h3>
+        <div class="page-header">
+            <h3>Recomendation</h3>
+        </div>
         <div class="alert alert-info alert-dismissible" role="alert" 
              id="reco-status">
             <button type="button" class="close" data-dismiss="alert" 

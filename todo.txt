@@ -1,8 +1,8 @@
+TO DO:
 - show recommended movies
 - style recommended movies
 - add functionality to return to popular movies browsing (from search)
 - info window
-- add +watchlist for recommended movies
 - user profile
     - previous recommendations
     - watchlist
@@ -19,8 +19,12 @@
 - add alert bar showing what is going on in profile (
     e.g. updating database, adding movie to your preferences, and so on.
 )
-- add delete account in edit profile
+- add delete account (+password confirmation)
 - show last recommendation in recommendations section (add to session storage for
   standalone recommendation and for general recommendation ...)
+
+
+DONE:
 - recommendation title (default or defined by user)
 - change password
+- add +watchlist for recommended movies

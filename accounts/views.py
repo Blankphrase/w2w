@@ -218,7 +218,7 @@ def reco_title(request, id):
     return JsonResponse({"status": "OK"}, safe=False)
 
 
-@login_required()
+@login_required
 def password(request):
     password_changed = False
     if request.method == "POST":
@@ -232,3 +232,9 @@ def password(request):
         form = ChangePasswordForm(request.user)
     return render(request, "accounts/password.html", 
         {"form": form, "password_changed": password_changed})
+
+
+@login_required
+def delete(request):
+    request.user.delete()
+    return redirect(reverse("home"))

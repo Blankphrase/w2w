@@ -18,5 +18,6 @@ urlpatterns = [
     url(r"^recos$", views.recos, name = "recos"),
     url(r"^reco/(\d+)/$", views.reco, name = "reco"),
     url(r"^reco/(\d+)/title$", views.reco_title, name = "reco_title"),
-    url(r"^password$", views.password, name = "password")
+    url(r"^password$", views.password, name = "password"),
+    url(r"^delete$", views.delete, name = "delete")
 ]

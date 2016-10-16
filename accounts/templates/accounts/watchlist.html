@@ -17,7 +17,10 @@
         margin-bottom: 25px;
         border-radius: 10px;
     }
-
+    .container-w2w .page-header {
+        margin-top: 0px;
+    }
+    
     #watchlist {
         display: table;
         table-layout: fixed;
@@ -95,11 +98,14 @@
 {% block body %}
 {{ block.super }}
 <div class = "container-w2w">
-    <h3>Your Watchlist</h3>
+    <div class="page-header">
+        <h3>Your Watchlist</h3>
     {% if watchlist.paginator.count == 0 %}
+        </div>
         Your watchlist is empty. You can add movies to your watchlist from among recommended movies.
     {% else %}
-        <p>State your preferences for movies you have just watched or remove some movies from your watchlist.
+        State your preferences for movies you have just watched or remove some movies from your watchlist.
+            </div>
         <div id="watchlist">
             {% for movie in watchlist %}
                 <div class="watchlist-movie" data-movie-id="{{ movie.id }}">

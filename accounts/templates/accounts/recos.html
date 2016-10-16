@@ -17,13 +17,18 @@
         margin-bottom: 25px;
         border-radius: 10px;
     }
+    .container-w2w .page-header {
+        margin-top: 0px;
+    }
 </style>
 {% endblock %}
 
 {% block body %}
 {{ block.super }}
 <div class = "container-w2w">
-    <h3>Your Recommendations</h3>
+    <div class="page-header">
+        <h3>Your Recommendations</h3>
+    </div>
     {% if recos.paginator.count == 0 %}
         It seems you have not yet get any recommendations. What are you waiting for? Please visit recommendation section and find out new movies. 
     {% else %}

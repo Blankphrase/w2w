@@ -10,15 +10,27 @@
 {{ block.super }}
 <link href="{% static 'accounts/css/jquery.datetimepicker.min.css' %}" rel="stylesheet">
 <style>
-    label {
-        color: white;
+    .container-w2w {
+        max-width: 960px;
+        background-color: white;
+        padding: 5px 25px 25px 25px;
+        margin-left: auto;
+        margin-right: auto;
+        margin-bottom: 25px;
+        border-radius: 10px;
+    }
+    .container-w2w .page-header {
+        margin-top: 0px;
     }
 </style>
 {% endblock styles %}
 
 {% block body %}
 {{ block.super }}
-<div class="container">
+<div class="container container-w2w">
+    <div class="page-header">
+        <h3>Profile Information</h3>
+    </div>
     <form method="POST" role="form">
         {% csrf_token %}
 
