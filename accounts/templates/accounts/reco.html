@@ -107,14 +107,14 @@
 {{ block.super }}
 <div class = "container-w2w">
     <div class = "page-header">
-        <h1>
+        <h2>
             {% if reco.title is None %}
                 No Title
             {% else %}
                 {{ reco.title }}
             {% endif %}<br>
-            <small>({{ reco.timestamp }})</small>
-        </h1>
+            <small>({{ reco.timestamp|date:'Y-m-d H:i' }})</small>
+        </h2>
     </div>
     <h3>Recommended Movies</h3>
     {% if reco.movies.count == 0 %}

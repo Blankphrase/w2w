@@ -19,12 +19,14 @@ TO DO:
 - add alert bar showing what is going on in profile (
     e.g. updating database, adding movie to your preferences, and so on.
 )
-- add delete account (+password confirmation)
 - show last recommendation in recommendations section (add to session storage for
   standalone recommendation and for general recommendation ...)
+- adjust star ratings for smaller screen (list box instead of stars)
+- responsieve menu in profile
 
 
 DONE:
 - recommendation title (default or defined by user)
 - change password
 - add +watchlist for recommended movies
+- add delete account (+password confirmation)

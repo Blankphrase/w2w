@@ -177,11 +177,8 @@ def recos(request):
     page = request.GET.get("page", 1)
     page_size = request.GET.get("page_size", 10)
 
-    recos_db = request.user.recos.all()
+    recos_db = request.user.recos.order_by("-timestamp").all()
     paginator = Paginator(recos_db, page_size)
-
-    # list(request.user.watchlist.movies.order_by("title").
-    #         values("id", "title").all())
 
     try:
         recos = paginator.page(page)

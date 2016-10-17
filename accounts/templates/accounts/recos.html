@@ -20,6 +20,36 @@
     .container-w2w .page-header {
         margin-top: 0px;
     }
+
+    #reco-list {
+        display: table;
+        table-layout: fixed;
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .reco-movie {
+        display: table-row;
+        width: 100%;
+        margin: 20px;
+        border-bottom: 1px solid black;
+        padding: 100px;
+        height: 0px;
+    }
+
+    .reco-movie-title {
+        display: table-cell;
+        word-wrap: break-word;
+        vertical-align: middle;
+        padding: 15px 5px;
+        height: 100%;
+        text-align: left;
+        width: 50%;
+
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 </style>
 {% endblock %}
 
@@ -34,7 +64,7 @@
     {% else %}
         <div id="reco-list">
             {% for reco in recos %}
-                <div class="reco" data-movie-id="{{ reco.id }}">
+                <div class="reco-movie" data-movie-id="{{ reco.id }}">
                     <span class='reco-movie-title'>
                         <a href="{{ reco.get_absolute_url }}">
                         {% if reco.title is None %}
@@ -43,7 +73,7 @@
                             {{ reco.title }} 
                         {% endif %}
                         </a>
-                        ({{ reco.timestamp }})
+                        ({{ reco.timestamp|date:'Y-m-d H:i' }})
                     </span>
                 </div>
             {% endfor %}
