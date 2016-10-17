@@ -109,7 +109,8 @@ UserBasedPrefsSource.prototype.pagination = function(page, pageSize) {
         return (undefined);
     }
     var start = page*pageSize;
-    var end = (page-1)*pageSize;
+    var end = (page+1)*pageSize;
+
     return (this.data.slice(start, end));
 }
 

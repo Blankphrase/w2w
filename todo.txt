@@ -3,11 +3,6 @@ TO DO:
 - style recommended movies
 - add functionality to return to popular movies browsing (from search)
 - info window
-- user profile
-    - previous recommendations
-    - watchlist
-    - edit profile
-    - settings (remove profile, change password)
 - main page
     - the most popular movies
     - the newest movies
@@ -23,10 +18,18 @@ TO DO:
   standalone recommendation and for general recommendation ...)
 - adjust star ratings for smaller screen (list box instead of stars)
 - responsieve menu in profile
-
+- add loading picture at the end of carousel
+- add messages when something is happening (e.g. change title of recommendation)
+  user neets to know that sth is hepanning on the server and should wait
+  a second or more
 
 DONE:
 - recommendation title (default or defined by user)
 - change password
 - add +watchlist for recommended movies
 - add delete account (+password confirmation)
+- user profile
+    - previous recommendations
+    - watchlist
+    - edit profile
+    - settings (remove profile, change password)

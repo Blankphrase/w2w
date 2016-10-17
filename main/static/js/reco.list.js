@@ -8,7 +8,7 @@ recoList.on("onNewPage", function(movies) {
 
 
 $("#reco-list-next").click(function() {
-    if (recoList.getPage() < recoList.getPagesCount()) {
+    if (recoList.getPage() < recoList.getPagesCount()-1) {
         recoList.nextPage();
     }
 });
@@ -118,7 +118,7 @@ function handleRecoResponse(response) {
 
 function updateRecoList(movies) {
     $("#reco-page").html("Page " + (recoList.getPage() + 1) + " of " +
-            (recoList.getPagesCount() + 1)
+            recoList.getPagesCount()
     );
     var $recoList = $("#reco-list");
     $recoList.children("li").remove();
