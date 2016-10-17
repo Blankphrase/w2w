@@ -1,0 +1,62 @@
+{% extends 'accounts/profile_base.html' %}
+{% load static %}
+
+{% block title %}{{ block.super }}Delete Account{% endblock title %}
+
+{% block delete_active %}submenu-active{% endblock %}
+
+{% block styles %}
+{{ block.super }}
+<style>
+    .container-w2w {
+        max-width: 960px;
+        background-color: white;
+        padding: 5px 25px 25px 25px;
+        margin-left: auto;
+        margin-right: auto;
+        margin-bottom: 25px;
+        border-radius: 10px;
+    }
+    .container-w2w .page-header {
+        margin-top: 0px;
+    }
+</style>
+{% endblock styles %}
+
+{% block body %}
+{{ block.super }}
+<div class="container container-w2w">
+     <div class="page-header">
+        <h3>Delete Account</h3>
+        This operation is not reversible.
+    </div>
+    {% if form.non_field_errors %}
+        <div class="alert alert-danger alert-dismissible" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            {{ form.non_field_errors }}
+        </div>
+    {% endif %}
+
+    <p>You need to verify your person with current account in order to delete your account.</p>
+    <form method="POST" role="form">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="{{ form.password.id_for_label }}">Password</label>
+            {{ form.password|linebreaks }}
+            {% if form.errors %}
+                <div class="has-error">
+                    <div class="help-block">{{ form.password.errors }}</div>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <input type="submit" id="id_submit" class="btn btn-default" value="Delete Account"/>
+        </div>
+
+    </form>
+</div>
+{% endblock body %}

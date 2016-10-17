@@ -51,6 +51,8 @@ ul.side-navbar li a {
              href="{% url 'accounts:recos' %}">Recommendations</a></li>
       <li><a class="{% block password_active %}{% endblock %}"
              href="{% url 'accounts:password' %}">Change Password</a></li>
+      <li><a class="{% block delete_active %}{% endblock %}"
+             href="{% url 'accounts:delete' %}">Delete Account</a></li>
     </ul>
 </div>
 {% endblock body %}

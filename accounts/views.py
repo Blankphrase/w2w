@@ -10,7 +10,7 @@ from django.contrib.auth import update_session_auth_hash
 
 from accounts.forms import (
     SignUpForm, LoginForm, INVALID_LOGIN_ERROR, EditProfileForm,
-    ChangePasswordForm
+    ChangePasswordForm, DeleteAccountForm
 )
 from tmdb.models import Movie
 from reco.models import Reco
@@ -97,7 +97,9 @@ def profile(request):
             return redirect(reverse("accounts:profile"))
     else:
         form = EditProfileForm(request.user)
-    return render(request, "accounts/profile.html", {"form": form})
+    return render(request, "accounts/profile.html", 
+        {"form": form, "form_delete": form}
+    )
 
 
 @login_required
@@ -236,5 +238,11 @@ def password(request):
 
 @login_required
 def delete(request):
-    request.user.delete()
-    return redirect(reverse("home"))
+    if request.method == "POST":
+        form = DeleteAccountForm(request.user, request.POST)
+        if form.is_valid():
+            request.user.delete()
+            return redirect(reverse("home"))
+    else:
+        form = DeleteAccountForm(request.user)
+    return render(request, "accounts/delete.html", {"form": form})

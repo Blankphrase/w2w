@@ -130,3 +130,22 @@ class EditProfileForm(forms.ModelForm):
         if email != self.user.email and User.objects.filter(email=email).exists():
             raise forms.ValidationError(UNIQUE_EMAIL_ERROR)
         return email
+
+
+class DeleteAccountForm(forms.Form):
+
+    def __init__(self, user, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user = user
+
+    password = forms.CharField(required = True, 
+        widget = forms.PasswordInput(),
+        error_messages = {'required': EMPTY_PASSWORD_ERROR}
+    )
+
+    def clean(self):
+        super(DeleteAccountForm, self).clean()
+        password = self.cleaned_data.get('password')
+        if not self.user.check_password(password):
+            raise forms.ValidationError(INVALID_PASSWORD_ERROR)
+        return self.cleaned_data

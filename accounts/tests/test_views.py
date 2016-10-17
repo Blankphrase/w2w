@@ -9,7 +9,8 @@ from accounts.forms import (
     EMPTY_EMAIL_ERROR, EMPTY_PASSWORD_ERROR, EMPTY_PASSWORD2_ERROR,
     UNIQUE_EMAIL_ERROR, DIFFERENT_PASSWORDS_ERROR, INVALID_LOGIN_ERROR,
     SignUpForm, LoginForm, EditProfileForm, ChangePasswordForm,
-    INVALID_PASSWORD_ERROR, DIFFERENT_NEW_PASSWORDS_ERROR
+    INVALID_PASSWORD_ERROR, DIFFERENT_NEW_PASSWORDS_ERROR,
+    DeleteAccountForm
 )
 from reco.models import Reco
 from tmdb.models import Movie
@@ -257,7 +258,8 @@ class ProfileEditTest(TestCaseWithLogin):
 
     def test_for_updating_profile_info(self):
         self.client.post("/accounts/profile", {
-            "birthday": '2000-01-01', "country": "Poland", "sex": "M"
+            "email": self.user.email, "birthday": '2000-01-01', 
+            "country": "Poland", "sex": "M"
         })
         user = User.objects.first()
         self.assertEqual(user.profile.country, "Poland")
@@ -266,9 +268,45 @@ class ProfileEditTest(TestCaseWithLogin):
 
     def test_for_redirecting_after_valid_post_request(self):
         response = self.client.post("/accounts/profile", data = {
-            "birthday": '2000-01-01', "country": "Poland", "sex": "M"
+            "email": self.user.email, "birthday": '2000-01-01', 
+            "country": "Poland", "sex": "M"
         })
-        self.assertEqual(response.status_code, 302) 
+        self.assertEqual(response["location"], reverse("accounts:profile"))
+
+
+class DeleteAccountTest(TestCaseWithLogin):
+
+    def setUp(self):
+        self.user = self.login_user()
+
+    def test_renders_proper_template(self):
+        response = self.client.get("/accounts/delete")
+        self.assertTemplateUsed(response, "accounts/delete.html")
+
+    def test_passes_form_to_template(self):
+        response = self.client.get("/accounts/delete")
+        self.assertIsInstance(response.context["form"], DeleteAccountForm)
+
+    def test_redirects_to_home_page_after_valid_post(self):
+        response = self.client.post("/accounts/delete",
+            data = {"password": "test"})
+        self.assertTrue(response["location"], "/")
+
+    def test_deletes_account_when_password_ok(self):
+        self.client.post("/accounts/delete", data={"password": "test"})
+        self.assertEqual(User.objects.count(), 0)
+
+    def test_does_not_delete_account_when_wrong_password(self):
+        self.client.post("/accounts/delete", data={"password": "test2"})
+        self.assertEqual(User.objects.count(), 1)
+
+    def test_displays_error_msg_when_wrong_password(self):
+        response = self.client.post("/accounts/delete", data={"password": "ba"})
+        self.assertContains(response, escape(INVALID_PASSWORD_ERROR))
+
+    def test_displays_error_msg_when_empty_password(self):
+        response = self.client.post("/accounts/delete")
+        self.assertContains(response, escape(EMPTY_PASSWORD_ERROR))       
 
 
 class ProfileWatchlistTest(TestCaseWithLogin):
