@@ -1,5 +1,5 @@
 from tmdb.models import (
-    Movie, MoviePopularQuery,
+    Movie, MoviePopularQuery, NowPlayingQuery,
     MIN_UPDATE_LEVEL, MAX_UPDATE_LEVEL,
     POPULAR_UPDATE_LEVEL, SEARCH_UPDATE_LEVEL
 )
@@ -14,9 +14,16 @@ import requests
 class Client():
     
 
-    def get_popular_movies(
-        self, page = 1, update_data = False
-    ):
+    def get_nowplaying_movies(self, page):
+
+        try:
+            NowPlayingQuery.objects.get(page = page)
+        except:
+            tmdb_request(method = "GET", path = "movie/nowplaying")
+            NowPlayingQuery.objects.create(page = page)
+            
+
+    def get_popular_movies(self, page = 1, update_data = False):
         '''
         Returns popular movies for chosen page in dictionary form. First search 
         internal database. When id doesn't exist, tries to load it from tmdb. 
