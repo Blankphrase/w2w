@@ -25,16 +25,16 @@ class Movie(models.Model):
     @staticmethod
     def save_movie_in_db(id, data_for_update = None):
         if data_for_update:
-            fields_to_update = [
-                field.name for field in Movie._meta.get_fields()
-            ]
-            data = { key: value for key, value in data_for_update.items()
-                        if key in fields_to_update }
+            data = data_for_update
         else:
             data = tmdb_request(method = "GET", path = "movie/%s" % (id))
             if data.get("status_code", None) == 34:
                 raise Movie.DoesNotExist()
             data["update_level"] = MOVIE_UPDATE_LEVEL 
+
+        fields_to_update = [ field.name for field in Movie._meta.get_fields() ]
+        data = { key: value for key, value in data.items() 
+            if key in fields_to_update }
 
         movie, created = Movie.objects.update_or_create(
             id = id, defaults = data
