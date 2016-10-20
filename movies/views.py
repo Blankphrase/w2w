@@ -8,6 +8,11 @@ from tmdb.settings import TMDB_MAX_PAGE, TMDB_MIN_PAGE
 import re
 
 
+
+def nowplaying(request):
+    return JsonResponse({})
+
+
 @csrf_exempt
 def movies_page(request, page):
     page = int(page)

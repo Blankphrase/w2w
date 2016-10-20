@@ -44,10 +44,8 @@ class Movie(models.Model):
         return movie      
 
     @staticmethod
-    def save_movie_in_db(id, data_for_update = None):
-        if data_for_update:
-            data = data_for_update
-        else:
+    def save_movie_in_db(id, data = None):
+        if data is None:
             data = Movie.download_movie(id)
 
         fields_to_update = [ field.name for field in Movie._meta.get_fields() ]
@@ -135,7 +133,7 @@ class TMDBQueryModel(models.Model):
                     movie["update_level"] = cls.update_level
                     movie_db = Movie.save_movie_in_db(
                         id = movie["id"],
-                        data_for_update = movie
+                        data = movie
                     )
                     npq.movies.add(movie_db)
         return npq
