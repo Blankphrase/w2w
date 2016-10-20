@@ -22,15 +22,33 @@ class Movie(models.Model):
     def __str__(self):
         return self.title
 
+
+    @staticmethod
+    def download_movie(id):
+        data = tmdb_request(method = "GET", path = "movie/%s" % (id))
+        if data.get("status_code", None) == 34:
+            raise Movie.DoesNotExist()
+        data["update_level"] = MOVIE_UPDATE_LEVEL        
+        return data
+
+    @staticmethod
+    def create_movie(id, data = None):
+        if data is None:
+            data = Movie.download_movie(id)
+
+        fields_to_update = [ field.name for field in Movie._meta.get_fields() ]
+        data = { key: value for key, value in data.items() 
+            if key in fields_to_update }
+
+        movie = Movie(**data)
+        return movie      
+
     @staticmethod
     def save_movie_in_db(id, data_for_update = None):
         if data_for_update:
             data = data_for_update
         else:
-            data = tmdb_request(method = "GET", path = "movie/%s" % (id))
-            if data.get("status_code", None) == 34:
-                raise Movie.DoesNotExist()
-            data["update_level"] = MOVIE_UPDATE_LEVEL 
+            data = Movie.download_movie(id)
 
         fields_to_update = [ field.name for field in Movie._meta.get_fields() ]
         data = { key: value for key, value in data.items() 
@@ -59,21 +77,7 @@ class Movie(models.Model):
         return movie
 
 
-class MoviePopularQuery(models.Model):
-    page = models.IntegerField()
-    timestamp = models.DateTimeField(default = timezone.now)
-    total_pages = models.IntegerField(blank = True, null = True)
-    total_results = models.IntegerField(blank = True, null = True)
-    movies = models.ManyToManyField(Movie, related_name = "+")
-
-    class Meta:
-        unique_together = ("page",)
-
-    def __str__(self):
-        return "page: {0}/{1}".format(self.page, self.timestamp)
-
-
-class NowPlayingQuery(models.Model):
+class TMDBQueryModel(models.Model):
     page = models.IntegerField()
     timestamp = models.DateTimeField(default = timezone.now)
     total_pages = models.IntegerField(blank = True, null = True)
@@ -82,35 +86,40 @@ class NowPlayingQuery(models.Model):
 
     class Meta:
         unique_together = ("page", )
+        abstract = True
+
+    # class attributes (to override in children classes)
+    update_level = None
+    url = None
 
     def __str__(self):
         return "page: {0} ({1})".format(self.page, self.timestamp)
 
-    @staticmethod
-    def get(page, force_update = False):
+    @classmethod
+    def get(cls, page, force_update = False):
         try:
             if force_update:
-                raise NowPlayingQuery.DoesNotExist()
+                raise cls.DoesNotExist()
 
-            npq = NowPlayingQuery.objects.get(page = page)
-            # Update NowPlayginQuery when at least one movie is below
+            npq = cls.objects.get(page = page)
+            # Update cls when at least one movie is below
             # required update level (it should not happen in practice)
             if any(map(
-                lambda update_level: update_level < NOWPLAYING_UPDATE_LEVEL,
+                lambda update_level: update_level < cls.update_level,
                 npq.movies.values_list("update_level", flat=True)
             )):
-                raise NowPlayingQuery.DoesNotExist()
-        except NowPlayingQuery.DoesNotExist:
-            data = tmdb_request(method = "GET", path = "movie/now_playing", 
+                raise cls.DoesNotExist()
+        except cls.DoesNotExist:
+            data = tmdb_request(method = "GET", path = cls.url, 
                 params = {"page": page})
             
             # Filter already updated movies
             updated_movies = Movie.objects.filter(
                 id__in=[ int(movie["id"]) for movie in data["results"] ]
-            ).filter(update_level__gte=NOWPLAYING_UPDATE_LEVEL)
+            ).filter(update_level__gte=cls.update_level)
             updated_ids = [ movie.id for movie in updated_movies ]
 
-            npq, created = NowPlayingQuery.objects.update_or_create(
+            npq, created = cls.objects.update_or_create(
                 page = page,
                 defaults = {
                     "total_pages": data["total_pages"],
@@ -123,10 +132,30 @@ class NowPlayingQuery(models.Model):
                         
             for movie in data["results"]:
                 if movie["id"] not in updated_ids:
-                    movie["update_level"] = NOWPLAYING_UPDATE_LEVEL
+                    movie["update_level"] = cls.update_level
                     movie_db = Movie.save_movie_in_db(
                         id = movie["id"],
                         data_for_update = movie
                     )
                     npq.movies.add(movie_db)
         return npq
+
+
+class MoviePopularQuery(TMDBQueryModel):
+    update_level = 1
+    url = "movie/popular"
+
+
+class NowPlayingQuery(TMDBQueryModel):
+    update_level = 1
+    url = "movie/now_playing"
+
+
+class UpcomingQuery(TMDBQueryModel):
+    update_level = 1
+    url = "movie/upcoming"
+
+
+class TopRatedQuery(TMDBQueryModel):
+    update_level = 1
+    url = "movie/top_rated"
