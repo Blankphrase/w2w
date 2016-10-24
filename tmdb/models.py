@@ -5,11 +5,12 @@ from tmdb.util import tmdb_request
 
 
 MIN_UPDATE_LEVEL = 0
-POPULAR_UPDATE_LEVEL = 1
+# POPULAR_UPDATE_LEVEL = 1
 SEARCH_UPDATE_LEVEL = 1
-NOWPLAYING_UPDATE_LEVEL = 1
+# NOWPLAYING_UPDATE_LEVEL = 1
+QUERY_UPDATE_LEVEL = 1
 MOVIE_UPDATE_LEVEL = 2
-MAX_UPDATE_LEVEL = 2
+# MAX_UPDATE_LEVEL = 2
 
 
 class Movie(models.Model):
@@ -87,7 +88,7 @@ class TMDBQueryModel(models.Model):
         abstract = True
 
     # class attributes (to override in children classes)
-    update_level = None
+    update_level = QUERY_UPDATE_LEVEL
     url = None
 
     def __str__(self):
@@ -140,20 +141,16 @@ class TMDBQueryModel(models.Model):
 
 
 class MoviePopularQuery(TMDBQueryModel):
-    update_level = 1
     url = "movie/popular"
 
 
 class NowPlayingQuery(TMDBQueryModel):
-    update_level = 1
     url = "movie/now_playing"
 
 
 class UpcomingQuery(TMDBQueryModel):
-    update_level = 1
     url = "movie/upcoming"
 
 
 class TopRatedQuery(TMDBQueryModel):
-    update_level = 1
     url = "movie/top_rated"

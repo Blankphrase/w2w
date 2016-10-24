@@ -9,8 +9,21 @@ import re
 
 
 
-def nowplaying(request):
-    return JsonResponse({})
+def nowplaying_movies(request):
+    page = int(request.GET.get("page", 1))
+    data = Client().get_nowplaying_movies(page = page)
+    return JsonResponse(data)
+
+def upcoming_movies(request):
+    page = int(request.GET.get("page", 1))
+    data = Client().get_upcoming_movies(page = page)
+    return JsonResponse(data)
+
+def toprated_movies(request):
+    page = int(request.GET.get("page", 1))
+    data = Client().get_toprated_movies(page = page)
+    return JsonResponse(data)
+
 
 
 @csrf_exempt

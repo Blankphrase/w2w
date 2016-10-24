@@ -4,7 +4,7 @@ from django.forms import model_to_dict
 
 from tmdb.models import (
     Movie, MoviePopularQuery, NowPlayingQuery, UpcomingQuery, TopRatedQuery,
-    SEARCH_UPDATE_LEVEL
+    SEARCH_UPDATE_LEVEL, MIN_UPDATE_LEVEL
 )
 from tmdb.util import tmdb_request
 
@@ -22,7 +22,7 @@ class Client():
                 "total_pages": npq.total_pages,
                 "total_results": npq.total_results
             }
-        except requests.exceptions.HTTPError:
+        except requests.exceptions.RequestException:
             data = {"page": 1, "total_pages": 1, "movies": [], 
                 "total_results": 0}
 
