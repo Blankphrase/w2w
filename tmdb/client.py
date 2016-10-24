@@ -15,6 +15,7 @@ class Client():
         try:
             npq = cls.get(page = page, force_update = force_update)
             data = {
+                "status": "OK",
                 "movies": [ model_to_dict(movie,  
                     fields = [ "title", "id", "poster_path" ])\
                     for movie in npq.movies.all() ],
@@ -23,8 +24,7 @@ class Client():
                 "total_results": npq.total_results
             }
         except requests.exceptions.RequestException:
-            data = {"page": 1, "total_pages": 1, "movies": [], 
-                "total_results": 0}
+            data = {"status": "ERROR" }
 
         return data      
 
@@ -45,6 +45,7 @@ class Client():
             data = tmdb_request(method = "POST", path = "search/movie", 
                     params = {"page": page, "query": query})
             data["movies"] = data.pop("results", [])
+            data["status"] = "OK"
 
             for movie in data["movies"]:
                 try:
@@ -57,10 +58,7 @@ class Client():
                     Movie.save_movie_in_db(id = movie["id"], data = movie)
 
         except requests.exceptions.HTTPError:
-            data = {
-                "page": 1, "total_pages": 1, 
-                "movies": [], "total_results": 0
-            }
+            data = {"status": "ERROR" }
         
         return data
 

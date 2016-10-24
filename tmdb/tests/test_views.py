@@ -8,7 +8,7 @@ from tmdb.models import Movie, MoviePopularQuery
 from django.http.response import JsonResponse
 
 
-@patch("movies.views.Client.get_nowplaying_movies")
+@patch("tmdb.views.Client.get_nowplaying_movies")
 class NowPlayingTest(TestCase):
 
     def setUp(self):
@@ -45,7 +45,7 @@ class NowPlayingTest(TestCase):
     
 
 
-@patch("movies.views.Client.get_upcoming_movies")
+@patch("tmdb.views.Client.get_upcoming_movies")
 class UpcomingTest(TestCase):
 
     def setUp(self):
@@ -81,7 +81,7 @@ class UpcomingTest(TestCase):
         mock_client.assert_called_with(page = 4)
     
 
-@patch("movies.views.Client.get_toprated_movies")
+@patch("tmdb.views.Client.get_toprated_movies")
 class TopRatedTest(TestCase):
 
     def setUp(self):

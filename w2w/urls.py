@@ -8,6 +8,6 @@ urlpatterns = [
     url(r"^$", home_page, name = "home"),
     url(r"^reco", reco_page, name = "reco"),
     url(r"^make_reco", make_reco, name = "make_reco"),
-    url(r"^movies/", include("movies.urls")),
+    url(r"^movies/", include("tmdb.urls")),
     url(r"^accounts/", include("accounts.urls")),
 ]

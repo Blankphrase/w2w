@@ -39,7 +39,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     "main",
     "tmdb",
-    "movies",
     "reco",
     "accounts"
 ]
