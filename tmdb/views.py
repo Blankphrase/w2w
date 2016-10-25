@@ -42,10 +42,10 @@ def popular_movies(request):
 
 def search_movies(request):
     if request.method == "POST":
-        page = request.POST.get("page", 1)
+        page = int(request.POST.get("page", 1))
         query = request.POST.get("query", None)
     else:
-        page = request.GET.get("page", 1)
+        page = int(request.GET.get("page", 1))
         query = request.GET.get("query", None)
 
     if query:

@@ -6,8 +6,7 @@ from django.test import TestCase
 
 from tmdb.client import Client
 from tmdb.models import (
-    Movie, MoviePopularQuery, NowPlayingQuery,
-    MIN_UPDATE_LEVEL, MAX_UPDATE_LEVEL
+    Movie, MoviePopularQuery, NowPlayingQuery
 )
 from tmdb.util import tmdb_request
 

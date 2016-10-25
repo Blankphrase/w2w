@@ -23,253 +23,300 @@
 
         var assert = chai.assert;
 
-        describe("MoviesQuery", function() {
+        describe("Movies Queries", function() {
 
-            describe("constructor", function() {
 
-                it("constructor throws error when empty url argument", function() {
-                    assert.throws(function() {
-                        new MoviesQuery();
-                    }, "MoviesQuery: url parameter is required");
-                });
+            describe("SearchQuery", function() {
 
-                it("constructor does not throw error when gets url", function() {
-                    assert.doesNotThrow(function() {
-                        new MoviesQuery("movies/popular");
+                describe("constructor", function() {
+
+                    it("constructor throws error when empty query argument", function() {
+                        assert.throws(function() {
+                            new SearchQuery();
+                        }, "SearchQuery: query parameter is required");
                     });
+
+                    it("constructor does not throw error when gets query", function() {
+                        assert.doesNotThrow(function() {
+                            new SearchQuery("terminator");
+                        });
+                    });
+
+                    it("SearchQuery inherits from BrowseQuery", function() {
+                        assert.isTrue(SearchQuery.prototype instanceof BrowseQuery);
+                    });
+
                 });
 
             });
 
-            describe("getMovies method sends request", function() {
+            describe("BrowseQuery", function() {
 
-                var xhr = null;
-                var requests = null;
+                describe("constructor", function() {
 
-                beforeEach(function () {
-                    xhr = sinon.useFakeXMLHttpRequest();
-                    requests = this.requests = [];
-                    xhr.onCreate = function (xhr) {
-                        requests.push(xhr);
-                    };
+                    it("constructor throws error when empty url argument", function() {
+                        assert.throws(function() {
+                            new BrowseQuery();
+                        }, "BrowseQuery: url parameter is required");
+                    });
+
+                    it("constructor does not throw error when gets url", function() {
+                        assert.doesNotThrow(function() {
+                            new BrowseQuery("movies/popular");
+                        });
+                    });
+
                 });
 
-                afterEach(function () {
-                    xhr.restore();
+                describe("getMovies method sends request", function() {
+
+                    var xhr = null;
+                    var requests = null;
+
+                    beforeEach(function () {
+                        xhr = sinon.useFakeXMLHttpRequest();
+                        requests = this.requests = [];
+                        xhr.onCreate = function (xhr) {
+                            requests.push(xhr);
+                        };
+                    });
+
+                    afterEach(function () {
+                        xhr.restore();
+                    });
+
+                    it("get sends XMLHttp request to proper address", function() {
+                        var mquery = new BrowseQuery("/movies/popular");
+                        var data = mquery.getMovies(page = 1);
+                        assert.equal(requests.length, 1);
+                        assert.equal(requests[0].url, "/movies/popular")
+                    });
+
+                    it("get includes page in send request", function() {
+                        var mquery = new BrowseQuery("/movies/upcoming");
+                        mquery.getMovies(page = 5);
+                        assert.equal(requests.length, 1);
+                        var data = JSON.parse(requests[0].requestBody);
+                        assert.equal(data.page, 5);
+                    });
+
+                    it("get sets page to 1 when page is missing", function() {
+                        var mquery = new BrowseQuery("/movies/upcoming");
+                        mquery.getMovies();
+                        var data = JSON.parse(requests[0].requestBody);
+                        assert.equal(data.page, 1);
+                    });
+
+                    it("get sets page to 1 when page is not a number", function() {
+                        var mquery = new BrowseQuery("/movies/upcoming");
+                        mquery.getMovies(page = "fuck 124");
+                        var data = JSON.parse(requests[0].requestBody);
+                        assert.equal(data.page, 1);                    
+                    });
+
+                    it("get accepts number as a string", function() {
+                        var mquery = new BrowseQuery("/movies/upcoming");
+                        mquery.getMovies(page = "124");
+                        var data = JSON.parse(requests[0].requestBody);
+                        assert.equal(data.page, 124);     
+                    });
+
+                    it("get truncates number if not integer", function() {
+                        var mquery = new BrowseQuery("/movies/upcoming");
+                        mquery.getMovies(page = 1.24);
+                        var data = JSON.parse(requests[0].requestBody);
+                        assert.equal(data.page, 1);   
+                    });
+
+                    it("get sets page to 1 when page is negative", function() {
+                        var mquery = new BrowseQuery("/movies/upcoming");
+                        mquery.getMovies(page = "-10");
+                        var data = JSON.parse(requests[0].requestBody);
+                        assert.equal(data.page, 1);   
+                    });
+
                 });
 
-                it("get sends XMLHttp request to proper address", function() {
-                    var mquery = new MoviesQuery("/movies/popular");
-                    var data = mquery.getMovies(page = 1);
-                    assert.equal(requests.length, 1);
-                    assert.equal(requests[0].url, "/movies/popular")
-                });
+                describe("getMovies method runs callback", function() {
 
-                it("get includes page in send request", function() {
-                    var mquery = new MoviesQuery("/movies/upcoming");
-                    mquery.getMovies(page = 5);
-                    assert.equal(requests.length, 1);
-                    var data = JSON.parse(requests[0].requestBody);
-                    assert.equal(data.page, 5);
-                });
+                    var server = null;
 
-                it("get sets page to 1 when page is missing", function() {
-                    var mquery = new MoviesQuery("/movies/upcoming");
-                    mquery.getMovies();
-                    var data = JSON.parse(requests[0].requestBody);
-                    assert.equal(data.page, 1);
-                });
+                    beforeEach(function () {
+                        server = sinon.fakeServer.create();
+                        server.respondWith("POST", "/movies/popular", [
+                            200, 
+                            {'Content-type': 'application/json'}, 
+                            JSON.stringify({})
+                        ]);
+                    });
 
-                it("get sets page to 1 when page is not a number", function() {
-                    var mquery = new MoviesQuery("/movies/upcoming");
-                    mquery.getMovies(page = "fuck 124");
-                    var data = JSON.parse(requests[0].requestBody);
-                    assert.equal(data.page, 1);                    
-                });
+                    afterEach(function () {
+                        server.restore();
+                    });
 
-                it("get accepts number as a string", function() {
-                    var mquery = new MoviesQuery("/movies/upcoming");
-                    mquery.getMovies(page = "124");
-                    var data = JSON.parse(requests[0].requestBody);
-                    assert.equal(data.page, 124);     
-                });
+                    it("get calls callback function", function() {
+                        var callback = sinon.spy();
+                        var mquery = new BrowseQuery("/movies/popular");
+                        mquery.getMovies(page = 1, callback);
+                        server.respond();
+                        assert.isTrue(callback.called);
+                    });
 
-                it("get truncates number if not integer", function() {
-                    var mquery = new MoviesQuery("/movies/upcoming");
-                    mquery.getMovies(page = 1.24);
-                    var data = JSON.parse(requests[0].requestBody);
-                    assert.equal(data.page, 1);   
-                });
+                    it("get returns true after being called", function() {
+                        var mquery = new BrowseQuery("/movies/popular");
+                        assert.isTrue(mquery.getMovies(page = 1));
+                    });
 
-                it("get sets page to 1 when page is negative", function() {
-                    var mquery = new MoviesQuery("/movies/upcoming");
-                    mquery.getMovies(page = "-10");
-                    var data = JSON.parse(requests[0].requestBody);
-                    assert.equal(data.page, 1);   
-                });
+                    it("get returns false when request in progress", function() {
+                        var mquery = new BrowseQuery("/movies/popular");
+                        mquery.getMovies(page = 1)
+                        assert.isFalse(mquery.getMovies(page = 1));
+                    });
 
-            });
-
-            describe("getMovies method runs callback", function() {
-
-                var server = null;
-
-                beforeEach(function () {
-                    server = sinon.fakeServer.create();
-                    server.respondWith("POST", "/movies/popular", [
-                        200, 
-                        {'Content-type': 'application/json'}, 
-                        JSON.stringify({})
-                    ]);
-                });
-
-                afterEach(function () {
-                    server.restore();
-                });
-
-                it("get calls callback function", function() {
-                    var callback = sinon.spy();
-                    var mquery = new MoviesQuery("/movies/popular");
-                    mquery.getMovies(page = 1, callback);
-                    server.respond();
-                    assert.isTrue(callback.called);
-                });
-            });
-
-            describe("page handling", function() {
-
-                var server = null;
-
-                beforeEach(function () {
-                    server = sinon.fakeServer.create();
-                    server.respondWith("POST", "response_ok", [
-                        200, 
-                        {'Content-type': 'application/json'}, 
-                        JSON.stringify({
-                            status: "OK",
-                            page: 1,
-                            total_pages: 2,
-                            total_results: 4,
-                            results: [ 
-                                { id:550, title: "Fight Club"},
-                                { id:5, title: "Matrix"}
-                            ]
-                        })
-                    ]);
-                    server.respondWith("POST", "response_empty", [
-                        200, 
-                        {'Content-type': 'application/json'}, 
-                        JSON.stringify({status: "ERROR"})
-                    ]);
-                });
-
-                afterEach(function () {
-                    server.restore();
-                });
-
-                it("getMovies method set page number to last visited page", function() {
-                    var mquery = new MoviesQuery("response_ok");
-                    mquery.getMovies(page = 1);
-                    server.respond();
-                    assert.equal(mquery.getLastPage(), 1);
-                });
-
-                it("getMovies method does not change last page when error", function() {
-                    var mquery = new MoviesQuery("response_empty");
-                    mquery.page = 2;
-                    mquery.getMovies(page = 1);
-                    server.respond();
-                    assert.equal(mquery.getLastPage(), 2);
-                });
-
-                it("getNextPageMovies raises error when page is undefiend", function() {
-                    assert.throws(function() {
-                        var mquery = new MoviesQuery("response_ok");
-                        mquery.getNextPageMovies();
+                    it("get returns true when previous request complates", function() {
+                        var mquery = new BrowseQuery("/movies/popular");
+                        mquery.getMovies(page = 1)
+                        server.respond();
+                        assert.isTrue(mquery.getMovies(page = 1));
                     });
                 });
 
-                it("getNextPageMovies does not raise error when page is defiend", function() {
-                    assert.doesNotThrow(function() {
-                        var mquery = new MoviesQuery("response_ok");
-                        mquery.page = 1;
-                        mquery.getNextPageMovies();
+                describe("page handling", function() {
+
+                    var server = null;
+
+                    beforeEach(function () {
+                        server = sinon.fakeServer.create();
+                        server.respondWith("POST", "response_ok", [
+                            200, 
+                            {'Content-type': 'application/json'}, 
+                            JSON.stringify({
+                                status: "OK",
+                                page: 1,
+                                total_pages: 2,
+                                total_results: 4,
+                                results: [ 
+                                    { id:550, title: "Fight Club"},
+                                    { id:5, title: "Matrix"}
+                                ]
+                            })
+                        ]);
+                        server.respondWith("POST", "response_empty", [
+                            200, 
+                            {'Content-type': 'application/json'}, 
+                            JSON.stringify({status: "ERROR"})
+                        ]);
                     });
-                });
 
-                it("getNextPageMovies calls this.getMovies with proper page", function() {
-                    var mquery = new MoviesQuery("response_ok");
-                    mquery.page = 3;
-                    mquery.getMovies = sinon.spy();
-                    mquery.getNextPageMovies();
-                    assert.isTrue(mquery.getMovies.calledWith(page = 4));
-                });
-
-                it("getPrevPageMovies raises error when page is undefiend", function() {
-                    assert.throws(function() {
-                        var mquery = new MoviesQuery("response_ok");
-                        mquery.getPrevPageMovies();
+                    afterEach(function () {
+                        server.restore();
                     });
-                });
 
-                it("getPrevPageMovies does not raise error when page is defiend", function() {
-                    assert.doesNotThrow(function() {
-                        var mquery = new MoviesQuery("response_ok");
+                    it("getMovies method set page number to last visited page", function() {
+                        var mquery = new BrowseQuery("response_ok");
+                        mquery.getMovies(page = 1);
+                        server.respond();
+                        assert.equal(mquery.getLastPage(), 1);
+                    });
+
+                    it("getMovies method does not change last page when error", function() {
+                        var mquery = new BrowseQuery("response_empty");
                         mquery.page = 2;
-                        mquery.getPrevPageMovies();
+                        mquery.getMovies(page = 1);
+                        server.respond();
+                        assert.equal(mquery.getLastPage(), 2);
                     });
+
+                    it("getNextPageMovies raises error when page is undefiend", function() {
+                        assert.throws(function() {
+                            var mquery = new BrowseQuery("response_ok");
+                            mquery.getNextPageMovies();
+                        });
+                    });
+
+                    it("getNextPageMovies does not raise error when page is defiend", function() {
+                        assert.doesNotThrow(function() {
+                            var mquery = new BrowseQuery("response_ok");
+                            mquery.page = 1;
+                            mquery.getNextPageMovies();
+                        });
+                    });
+
+                    it("getNextPageMovies calls this.getMovies with proper page", function() {
+                        var mquery = new BrowseQuery("response_ok");
+                        mquery.page = 3;
+                        mquery.getMovies = sinon.spy();
+                        mquery.getNextPageMovies();
+                        assert.isTrue(mquery.getMovies.calledWith(page = 4));
+                    });
+
+                    it("getPrevPageMovies raises error when page is undefiend", function() {
+                        assert.throws(function() {
+                            var mquery = new BrowseQuery("response_ok");
+                            mquery.getPrevPageMovies();
+                        });
+                    });
+
+                    it("getPrevPageMovies does not raise error when page is defiend", function() {
+                        assert.doesNotThrow(function() {
+                            var mquery = new BrowseQuery("response_ok");
+                            mquery.page = 2;
+                            mquery.getPrevPageMovies();
+                        });
+                    });
+
+                    it("getPrevPageMovies calls this.getMovies with proper page", function() {
+                        var mquery = new BrowseQuery("response_ok");
+                        mquery.page = 3;
+                        mquery.getMovies = sinon.spy();
+                        mquery.getPrevPageMovies();
+                        assert.isTrue(mquery.getMovies.calledWith(page = 2));
+                    });
+
+                    it("isNextPage returns undefined when page is undefined", function() {
+                        var mquery = new BrowseQuery("response_ok");
+                        assert.isUndefined(mquery.isNextPage());
+                    });
+
+                    it("isNextPage returns undefined when total_pages is undefined", function() {
+                        var mquery = new BrowseQuery("response_ok");
+                        mquery.page = 1;
+                        assert.isUndefined(mquery.isNextPage());
+                    });
+
+                     it("isNextPage returns boolean when page & total_pages are defined", function() {
+                        var mquery = new BrowseQuery("response_ok");
+                        mquery.page = 1;
+                        mquery.total_pages = 2;
+                        assert.isBoolean(mquery.isNextPage());
+                    });               
+
+                    it("isPrevPage returns undefined when page is undefined", function() {
+                        var mquery = new BrowseQuery("response_ok");
+                        assert.isUndefined(mquery.isPrevPage());
+                    });
+
+                    it("isPrevPage returns undefined when total_pages is undefined", function() {
+                        var mquery = new BrowseQuery("response_ok");
+                        mquery.page = 1;
+                        assert.isUndefined(mquery.isPrevPage());
+                    });
+
+                    it("isPrevPage returns true when page > 1 & page in the range", function() {
+                        var mquery = new BrowseQuery("response_ok");
+                        mquery.page = 2;
+                        mquery.total_pages = 2;
+                        assert.isTrue(mquery.isPrevPage());
+                    });   
+
+                    it("isPrevPage returns false when page > total_pages", function() {
+                        var mquery = new BrowseQuery("response_ok");
+                        mquery.page = 10;
+                        mquery.total_pages = 2;
+                        assert.isFalse(mquery.isPrevPage());
+                    });  
                 });
 
-                it("getPrevPageMovies calls this.getMovies with proper page", function() {
-                    var mquery = new MoviesQuery("response_ok");
-                    mquery.page = 3;
-                    mquery.getMovies = sinon.spy();
-                    mquery.getPrevPageMovies();
-                    assert.isTrue(mquery.getMovies.calledWith(page = 2));
-                });
-
-                it("isNextPage returns undefined when page is undefined", function() {
-                    var mquery = new MoviesQuery("response_ok");
-                    assert.isUndefined(mquery.isNextPage());
-                });
-
-                it("isNextPage returns undefined when total_pages is undefined", function() {
-                    var mquery = new MoviesQuery("response_ok");
-                    mquery.page = 1;
-                    assert.isUndefined(mquery.isNextPage());
-                });
-
-                 it("isNextPage returns boolean when page & total_pages are defined", function() {
-                    var mquery = new MoviesQuery("response_ok");
-                    mquery.page = 1;
-                    mquery.total_pages = 2;
-                    assert.isBoolean(mquery.isNextPage());
-                });               
-
-                it("isPrevPage returns undefined when page is undefined", function() {
-                    var mquery = new MoviesQuery("response_ok");
-                    assert.isUndefined(mquery.isPrevPage());
-                });
-
-                it("isPrevPage returns undefined when total_pages is undefined", function() {
-                    var mquery = new MoviesQuery("response_ok");
-                    mquery.page = 1;
-                    assert.isUndefined(mquery.isPrevPage());
-                });
-
-                it("isPrevPage returns true when page > 1 & page in the range", function() {
-                    var mquery = new MoviesQuery("response_ok");
-                    mquery.page = 2;
-                    mquery.total_pages = 2;
-                    assert.isTrue(mquery.isPrevPage());
-                });   
-
-                it("isPrevPage returns false when page > total_pages", function() {
-                    var mquery = new MoviesQuery("response_ok");
-                    mquery.page = 10;
-                    mquery.total_pages = 2;
-                    assert.isFalse(mquery.isPrevPage());
-                });  
             });
 
         });

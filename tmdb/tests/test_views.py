@@ -116,3 +116,45 @@ class TopRatedTest(TestCase):
         self.client.get("/movies/toprated", data={"page": 4})
         mock_client.assert_called_with(page = 4)
     
+
+@patch("tmdb.views.Client.search_movies")
+class SearchMoviesTest(TestCase):
+
+    def setUp(self):
+        self.mock_response = {
+            "results": [ 
+                {"title": "Figt Club", "id": 550}, 
+                {"title": "Matrix", "id": 41} 
+            ],
+            "total_results": 2, 
+            "page": 1,
+            "total_pages": 1
+        }
+
+
+    def test_returns_json_response(self, mock_client):
+        mock_client.return_value = self.mock_response
+        response = self.client.get(
+            "/movies/search", 
+            data={"query": "terminator", "page": 4}
+        )
+        self.assertIsInstance(response, JsonResponse)
+
+    def test_returns_movies_in_response(self, mock_client):
+        mock_client.return_value = self.mock_response
+        response = self.client.get(
+            "/movies/search", 
+            data={"query": "terminator", "page": 4}
+        )
+        data = json.loads(response.content.decode())
+        self.assertEqual(data["total_results"], 2)
+
+    def test_calls_tmdb_client_method(self, mock_client):
+        mock_client.return_value = self.mock_response
+        self.client.get("/movies/search", data={"query": "terminator", "page": 4})
+        self.assertTrue(mock_client.called)
+
+    def test_calls_tmdb_client_with_proper_page(self, mock_client):
+        mock_client.return_value = self.mock_response
+        self.client.get("/movies/search", data={"query": "terminator", "page": 4})
+        mock_client.assert_called_with("terminator", 4)

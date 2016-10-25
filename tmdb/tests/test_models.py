@@ -2,8 +2,7 @@ from django.test import TestCase
 
 from tmdb.util import tmdb_request
 from tmdb.models import (
-    MoviePopularQuery, Movie, NowPlayingQuery,
-    POPULAR_UPDATE_LEVEL
+    MoviePopularQuery, Movie, NowPlayingQuery
 )
 
 import unittest
@@ -58,7 +57,8 @@ class MovieTest(TestCase):
     def test_calls_tmdb_request_if_two_low_update_level(self, mock_tmdb):
         Movie.objects.create(id = 1, title = "JAGO 2000", update_level = 0)
         mock_tmdb.return_value = {"id": 1, "title": "JAGO 2000"}
-        movie = Movie.get(id = 1, min_update_level = POPULAR_UPDATE_LEVEL)
+        movie = Movie.get(id = 1, 
+            min_update_level = MoviePopularQuery.update_level)
         mock_tmdb.assert_called_with(method = "GET", path = "movie/1")
 
 
