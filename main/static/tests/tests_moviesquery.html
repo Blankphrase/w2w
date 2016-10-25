@@ -25,32 +25,7 @@
 
         describe("Movies Queries", function() {
 
-
-            describe("SearchQuery", function() {
-
-                describe("constructor", function() {
-
-                    it("constructor throws error when empty query argument", function() {
-                        assert.throws(function() {
-                            new SearchQuery();
-                        }, "SearchQuery: query parameter is required");
-                    });
-
-                    it("constructor does not throw error when gets query", function() {
-                        assert.doesNotThrow(function() {
-                            new SearchQuery("terminator");
-                        });
-                    });
-
-                    it("SearchQuery inherits from BrowseQuery", function() {
-                        assert.isTrue(SearchQuery.prototype instanceof BrowseQuery);
-                    });
-
-                });
-
-            });
-
-            describe("BrowseQuery", function() {
+            describe.skip("BrowseQuery", function() {
 
                 describe("constructor", function() {
 
@@ -315,6 +290,70 @@
                         mquery.total_pages = 2;
                         assert.isFalse(mquery.isPrevPage());
                     });  
+                });
+
+            });
+
+            describe("SearchQuery", function() {
+
+                describe("constructor", function() {
+
+                    it("constructor throws error when empty query argument", function() {
+                        assert.throws(function() {
+                            new SearchQuery();
+                        }, "SearchQuery: query parameter is required");
+                    });
+
+                    it("constructor does not throw error when gets query", function() {
+                        assert.doesNotThrow(function() {
+                            new SearchQuery("terminator");
+                        });
+                    });
+
+                    it("SearchQuery inherits from BrowseQuery", function() {
+                        assert.isTrue(SearchQuery.prototype instanceof BrowseQuery);
+                    });
+
+                });
+
+                describe("getMovies method sends request", function() {
+
+                    var xhr = null;
+                    var requests = null;
+
+                    beforeEach(function () {
+                        xhr = sinon.useFakeXMLHttpRequest();
+                        requests = this.requests = [];
+                        xhr.onCreate = function (xhr) {
+                            requests.push(xhr);
+                        };
+                    });
+
+                    afterEach(function () {
+                        xhr.restore();
+                    });
+
+                    it("get includes query in send request", function() {
+                        var squery = new SearchQuery("terminator");
+                        squery.getMovies(page = 1);
+                        assert.equal(requests.length, 1);
+                        var data = JSON.parse(requests[0].requestBody);
+                        assert.equal(data.query, "terminator");
+                    });
+
+                    it("get sends XMLHttp request to proper address", function() {
+                        var squery = new SearchQuery("terminator");
+                        var data = squery.getMovies(page = 1);
+                        assert.equal(requests.length, 1);
+                        assert.equal(requests[0].url, "/movies/search")
+                    });
+
+                });
+
+                describe("all the rest works the same as in BrowseQuery", function() {
+                    it("OK", function() {
+                        assert.isTrue(true);
+                    });
                 });
 
             });

@@ -15,9 +15,9 @@ function BrowseQuery(url, page) {
     this.loadInProgress = false;
 }
 
-BrowseQuery.prototype.createRequestParams = function() {
+BrowseQuery.prototype.createRequestParams = function(page) {
     return ({
-        page: this.page
+        page: page
     });
 };
 
@@ -35,7 +35,7 @@ BrowseQuery.prototype.getMovies = function(page, callback) {
         var this_ = this;
         $.post(
             this.url,
-            JSON.stringify({page: page}),
+            JSON.stringify(this.createRequestParams(page)),
             function(response) {
                 this_.loadInProgress = false;
                 if (response.status == "OK") {
@@ -93,7 +93,7 @@ BrowseQuery.prototype.setPage = function(page) {
 
 
 function SearchQuery(query, page) {
-    BrowseQuery.call(this, "movies/search", page);
+    BrowseQuery.call(this, "/movies/search", page);
     if (query === undefined) {
         throw("SearchQuery: query parameter is required");
     }
@@ -102,12 +102,8 @@ function SearchQuery(query, page) {
 SearchQuery.prototype = Object.create(BrowseQuery.prototype);
 SearchQuery.prototype.constructor = SearchQuery;
 
-SearchQuery.prototype.createRequestParams = function() {
-    return ({
-        page: this.page,
-        query: this.query
-    });
+SearchQuery.prototype.createRequestParams = function(page) {
+    var params = BrowseQuery.prototype.createRequestParams.call(this, page);
+    params.query = this.query;
+    return (params);
 };
-
-var squery = new SearchQuery("terminator");
-alert(squery.url);
