@@ -25,9 +25,9 @@ var MoviesHandler = {
                             "<div class='movie-info'>" + 
                                 "<a href='#'>INFO</a>" + 
                             "</div>" +
-                            /*"<div class='movie-watchlist'>" + 
-                                "<a href='#'>+WATCHLIST</a>" + 
-                            "</div>" +*/
+                            // "<div class='movie-watchlist'>" + 
+                            //     "<a href='#'>+WATCHLIST</a>" + 
+                            // "</div>" +
                         "</div>" +
                         "<div class='check-off'>" + 
                             "<div class='check-off-text'><a href=''>CHECK OFF</a></div>" + 
@@ -78,7 +78,7 @@ $(document).on("click", ".movie-rating-star", function() {
     var movieId = $(this).parent().parent().data("movie-id");
     var title = $(this).parent().siblings(".movie-title").html();
 
-    prefsList.update(
+    PrefsList.update(
         movieId = movieId,
         movieTitle = title,
         movieRating = rating   
@@ -104,7 +104,7 @@ $(document).on("click", ".movie-watchlist > a", function(event) {
 
 $(document).on("click", ".check-off a", function(event) {
     var movieId = $(this).parent().parent().parent().data("movie-id");
-    prefsList.remove(movieId);
+    PrefsList.remove(movieId);
     $(".movie-item").filter(function() {
         return $(this).data("movie-id") == movieId
     }).find("input").prop("checked", false); 
