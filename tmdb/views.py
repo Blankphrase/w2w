@@ -7,39 +7,43 @@ from tmdb.settings import TMDB_MAX_PAGE, TMDB_MIN_PAGE
 
 import re
 
-
+@csrf_exempt
 def nowplaying_movies(request):
     if request.method == "POST":
-        page = int(request.PAGE.get("page", 1))
+        page = int(request.POST.get("page", 1))
     else:
         page = int(request.GET.get("page", 1))
     data = Client().get_nowplaying_movies(page = page)
     return JsonResponse(data)
 
+@csrf_exempt
 def upcoming_movies(request):
     if request.method == "POST":
-        page = int(request.PAGE.get("page", 1))
+        page = int(request.POST.get("page", 1))
     else:
         page = int(request.GET.get("page", 1))
     data = Client().get_upcoming_movies(page = page)
     return JsonResponse(data)
 
+@csrf_exempt
 def toprated_movies(request):
     if request.method == "POST":
-        page = int(request.PAGE.get("page", 1))
+        page = int(request.POST.get("page", 1))
     else:
         page = int(request.GET.get("page", 1))
     data = Client().get_toprated_movies(page = page)
     return JsonResponse(data)
 
+@csrf_exempt
 def popular_movies(request):
     if request.method == "POST":
-        page = int(request.PAGE.get("page", 1))
+        page = int(request.POST.get("page", 1))
     else:
         page = int(request.GET.get("page", 1))
     data = Client().get_popular_movies(page = page)
     return JsonResponse(data)
 
+@csrf_exempt
 def search_movies(request):
     if request.method == "POST":
         page = int(request.POST.get("page", 1))

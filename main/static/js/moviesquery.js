@@ -4,6 +4,13 @@
  * - SearchQuery
  */
 
+/******************************************************************************
+ * BrowseQuery
+ * - query movies from available url coressponding to browsse mode (popular,
+ *   upcoming, nawplaying, toprated)
+ * - browse by page
+ ******************************************************************************/
+
 function BrowseQuery(url, page) {
     if (url === undefined) {
         throw("BrowseQuery: url parameter is required");
@@ -13,7 +20,15 @@ function BrowseQuery(url, page) {
     this.total_pages = undefined;
     this.total_results = undefined;
     this.loadInProgress = false;
+    this.callbacks = {
+        onLoad: undefined,
+        onLoaded: undefined
+    };
 }
+
+BrowseQuery.prototype.on = function(event, callback) {
+    this.callbacks[event] = callback;
+};
 
 BrowseQuery.prototype.createRequestParams = function(page) {
     return ({
@@ -32,10 +47,14 @@ BrowseQuery.prototype.getMovies = function(page, callback) {
 
         this.loadInProgress = true;
 
+        if (this.callbacks.onLoad !== undefined) {
+            this.callbacks.onLoad();
+        }
+
         var this_ = this;
         $.post(
             this.url,
-            JSON.stringify(this.createRequestParams(page)),
+            this.createRequestParams(page),
             function(response) {
                 this_.loadInProgress = false;
                 if (response.status == "OK") {
@@ -43,7 +62,12 @@ BrowseQuery.prototype.getMovies = function(page, callback) {
                     this_.total_pages = response.total_pages;
                     this_.total_results = response.total_results;
                 }
-                if (callback !== undefined) callback(response);
+                if (this_.callbacks.onLoaded !== undefined) {
+                    this_.callbacks.onLoaded(response);
+                }
+                if (callback !== undefined) {
+                    callback(response);
+                }
             }
         );
         return (true);
@@ -91,6 +115,11 @@ BrowseQuery.prototype.setPage = function(page) {
     this.page = page;
 };
 
+/******************************************************************************
+ * SearchQuery (inherits from BrowseQuery)
+ * - search movies on the base of the query
+ * - browse by page
+ ******************************************************************************/
 
 function SearchQuery(query, page) {
     BrowseQuery.call(this, "/movies/search", page);

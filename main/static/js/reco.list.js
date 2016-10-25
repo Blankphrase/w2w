@@ -2,14 +2,14 @@
     Reco - list
 *******************************************************************************/
 
-recoList.on("onNewPage", function(movies) {
+RecoList.on("onNewPage", function(movies) {
     updateRecoList(movies);
 });
 
 
 $("#reco-list-next").click(function() {
-    if (recoList.getPage() < recoList.getPagesCount()-1) {
-        recoList.nextPage();
+    if (RecoList.getPage() < RecoList.getPagesCount()-1) {
+        RecoList.nextPage();
     }
 });
 
@@ -35,7 +35,7 @@ $("#btn-reco-title").click(function() {
 
 
 $("#reco-list-prev").click(function() {
-    recoList.prevPage();
+    RecoList.prevPage();
 });
 
 
@@ -108,7 +108,7 @@ function handleRecoResponse(response) {
             $("#reco-output").show();
             $("#reco-title").val(response.title);
             $("#reco-id").val(response.id);
-            recoList.init(movies, 5);
+            RecoList.init(movies, 5);
         }
     } else {
         alert("ERROR: DO STH WITH IT");
@@ -117,13 +117,13 @@ function handleRecoResponse(response) {
 
 
 function updateRecoList(movies) {
-    $("#reco-page").html("Page " + (recoList.getPage() + 1) + " of " +
-            recoList.getPagesCount()
+    $("#reco-page").html("Page " + (RecoList.getPage() + 1) + " of " +
+            RecoList.getPagesCount()
     );
-    var $recoList = $("#reco-list");
-    $recoList.children("li").remove();
+    var $RecoList = $("#reco-list");
+    $RecoList.children("li").remove();
     for (var i = 0; i < movies.length; i++) {
-        $recoList.append($("<li class='reco-item' data-movie-id='" + 
+        $RecoList.append($("<li class='reco-item' data-movie-id='" + 
             movies[i].id + "'>" + movies[i].title + 
             " (<a href='#' class='watchlist-add-btn'>+Watchlist</a>)</li>")); 
     }

@@ -400,11 +400,13 @@
 {% block body_scripts %}
     <script src="{% static 'main/js/owl.carousel.js' %}"></script>
     <script src="{% static 'main/js/jquery.mousewheel.min.js' %}"></script>
+    <script src="{% static 'js/moviesquery.js' %}"></script>
+    <script src="{% static 'js/movieshandler.js' %}"></script>
     <script src="{% static 'js/prefs.source.js' %}"></script>
     <script src="{% static 'js/generic.lists.js' %}"></script>
-    <script src="{% static 'js/movies.list.js' %}"></script>
     <script src="{% static 'js/prefs.list.js' %}"></script>
     <script src="{% static 'js/reco.list.js' %}"></script>
+
     <script>
         var owl = $('.owl-carousel');
         owl.owlCarousel({
@@ -434,7 +436,7 @@
 
         owl.on('changed.owl.carousel', function(event) {
             if (event.item.index + 20 > event.item.count) {
-                moviesList.next(function() {
+                MoviesHandler.getNextPageMovies(function() {
                     alignMoviesListWithUserPrefs(); 
                 });
             } 
@@ -442,8 +444,10 @@
 
         // Required for callback after two asynchronous requests
         var requestStatus = { movies: false, prefs: false, done: false };
-
-        moviesList.popular(page = 1, callback = function() {
+        
+        // Init MoviesHandler
+        MoviesHandler.setMode(new BrowseQuery("/movies/popular"));
+        MoviesHandler.getMovies(page = 1, callback = function() {
             requestStatus.movies = true;
             if (requestStatus.prefs && !requestStatus.done) {
                 alignMoviesListWithUserPrefs(); 
@@ -451,8 +455,9 @@
             }
         });
 
-        prefsList.on("onInitialized", function() {
-            reloadPrefsList(prefsList.getCurrentPage());
+
+        PrefsList.on("onInitialized", function() {
+            reloadPrefsList(PrefsList.getCurrentPage());
             requestStatus.prefs = true;
             if (requestStatus.movies && !requestStatus.done) {
                 alignMoviesListWithUserPrefs(); 
@@ -462,9 +467,9 @@
 
         var recoType = "{{reco_type}}";
         if (recoType == "general") {
-            prefsList.init(new UserBasedPrefsSource(), 5);
+            PrefsList.init(new UserBasedPrefsSource(), 5);
         } else {
-            prefsList.init(new SessionBasedPrefsSource(sessionStorage), 5);  
+            PrefsList.init(new SessionBasedPrefsSource(sessionStorage), 5);  
         }
 
         $("#reco-container").hide();

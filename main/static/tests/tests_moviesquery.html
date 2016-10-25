@@ -25,7 +25,7 @@
 
         describe("Movies Queries", function() {
 
-            describe.skip("BrowseQuery", function() {
+            describe("BrowseQuery", function() {
 
                 describe("constructor", function() {
 
@@ -71,43 +71,43 @@
                         var mquery = new BrowseQuery("/movies/upcoming");
                         mquery.getMovies(page = 5);
                         assert.equal(requests.length, 1);
-                        var data = JSON.parse(requests[0].requestBody);
-                        assert.equal(data.page, 5);
+                        var data = requests[0].requestBody;
+                        assert.equal(data, "page=5");   
                     });
 
                     it("get sets page to 1 when page is missing", function() {
                         var mquery = new BrowseQuery("/movies/upcoming");
                         mquery.getMovies();
-                        var data = JSON.parse(requests[0].requestBody);
-                        assert.equal(data.page, 1);
+                        var data = requests[0].requestBody;
+                        assert.equal(data, "page=1");   
                     });
 
                     it("get sets page to 1 when page is not a number", function() {
                         var mquery = new BrowseQuery("/movies/upcoming");
                         mquery.getMovies(page = "fuck 124");
-                        var data = JSON.parse(requests[0].requestBody);
-                        assert.equal(data.page, 1);                    
+                        var data = requests[0].requestBody;
+                        assert.equal(data, "page=1");                     
                     });
 
                     it("get accepts number as a string", function() {
                         var mquery = new BrowseQuery("/movies/upcoming");
                         mquery.getMovies(page = "124");
-                        var data = JSON.parse(requests[0].requestBody);
-                        assert.equal(data.page, 124);     
+                        var data = requests[0].requestBody;
+                        assert.equal(data, "page=124");     
                     });
 
                     it("get truncates number if not integer", function() {
                         var mquery = new BrowseQuery("/movies/upcoming");
                         mquery.getMovies(page = 1.24);
-                        var data = JSON.parse(requests[0].requestBody);
-                        assert.equal(data.page, 1);   
+                        var data = requests[0].requestBody;
+                        assert.equal(data, "page=1");   
                     });
 
                     it("get sets page to 1 when page is negative", function() {
                         var mquery = new BrowseQuery("/movies/upcoming");
                         mquery.getMovies(page = "-10");
-                        var data = JSON.parse(requests[0].requestBody);
-                        assert.equal(data.page, 1);   
+                        var data = requests[0].requestBody;
+                        assert.equal(data, "page=1");    
                     });
 
                 });
@@ -292,6 +292,50 @@
                     });  
                 });
 
+                describe("callbacks", function() {
+                    var server = null;
+
+                    beforeEach(function () {
+                        server = sinon.fakeServer.create();
+                        server.respondWith("POST", "/movies/popular", [
+                            200, 
+                            {'Content-type': 'application/json'}, 
+                            JSON.stringify({
+                                status: "OK",
+                                page: 1,
+                                total_pages: 2,
+                                total_results: 4,
+                                results: [ 
+                                    { id:550, title: "Fight Club"},
+                                    { id:5, title: "Matrix"}
+                                ]
+                            })
+                        ]);
+                    });
+
+                    afterEach(function () {
+                        server.restore();
+                    });
+
+                    it("getMovies calls onLoad callback before send request", function() {
+                        var mquery = new BrowseQuery("/movies/popular");
+                        var callback = sinon.spy();
+                        mquery.on("onLoad", callback);
+                        mquery.getMovies(page = 1);
+                        assert.isTrue(callback.called);
+                    });
+
+                    it("getMovies calls onLoaded callback in request success", function() {
+                        var mquery = new BrowseQuery("/movies/popular");
+                        var callback = sinon.spy();
+                        mquery.on("onLoaded", callback);
+                        mquery.getMovies(page = 1);
+                        server.respond();
+                        assert.isTrue(callback.called);
+                    });
+
+                });
+
             });
 
             describe("SearchQuery", function() {
@@ -337,8 +381,8 @@
                         var squery = new SearchQuery("terminator");
                         squery.getMovies(page = 1);
                         assert.equal(requests.length, 1);
-                        var data = JSON.parse(requests[0].requestBody);
-                        assert.equal(data.query, "terminator");
+                        var data = requests[0].requestBody;
+                        assert.equal(data, "page=1&query=terminator");
                     });
 
                     it("get sends XMLHttp request to proper address", function() {

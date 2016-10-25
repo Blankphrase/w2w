@@ -1,8 +1,8 @@
 /*******************************************************************************
-    recoList
+    RecoList
 *******************************************************************************/
 
-var recoList = {
+var RecoList = {
 
     callbacks: {
         onNewPage: undefined
@@ -72,10 +72,10 @@ var recoList = {
 
 
 /*******************************************************************************
-    prefsList 
+    PrefsList 
 *******************************************************************************/
 
-var prefsList = {
+var PrefsList = {
 
     callbacks: {
         onInitialized: undefined,
@@ -163,100 +163,6 @@ var prefsList = {
     getCurrentPage: function() {
         return (this.getData());
     }
-};
-
-/******************************************************************************/
-
-/*******************************************************************************
-    movies-list Manager
-*******************************************************************************/
-
-moviesList = {
-
-    loadInProgress: false,
-    callbacks: {
-        onLoad: undefined,
-        onLoaded: undefined,
-        onFail: undefined
-    },
-    page: undefined,
-    totalPages: undefined,
-    currentMovies: undefined, 
-
-    on: function(event, callback) {
-        this.callbacks[event] = callback;
-    },
-
-    next: function(callback) {
-        var this_ = this;
-        this.load(
-            url = "/movies/next",
-            data = undefined,
-            extra = callback
-        );
-    },
-
-    prev: function(callback) {
-        var this_ = this;
-        this.load(
-            url = "/movies/prev",
-            data = undefined,
-            extra = callback
-        );
-    },
-
-    popular: function(page, callback) {   
-        this.load(
-            url = "/movies/popular",
-            data = {page: page},
-            extra = callback
-        );
-    },
-
-    search: function(query, callback) {
-        this.load(
-            url = "/movies/search",
-            data = {query: query},
-            extra = callback
-        );
-    },
-
-    load: function(url, data, extra) {
-        if (this.loadInProgress == false) {
-            var this_ = this;
-            this.loadInProgress = true;
-            if (this_.callbacks.onLoad !== undefined) {
-                this_.callbacks.onLoad(); 
-            }
-            $.post(url, data).done(
-                function(response) {
-                    this_.loadInProgress = false;
-                    this_.page = response.page;
-                    this_.totalPages = response.total_pages;
-                    this_.currentMovies = response.movies;
-
-                    if (this_.callbacks.onLoaded !== undefined) {
-                        this_.callbacks.onLoaded(response); 
-                    }
-                    if (extra !== undefined) {
-                        extra(response);
-                    }
-                }
-            ).fail(
-                function(error) {
-                    this_.loadInProgress = false;
-                    if (this_.callbacks.onFail !== undefined) {
-                        this_.callbacks.onFail(response); 
-                    }               
-                }
-            );      
-        }  
-    },
-
-    current: function() {
-        return (currentMovies);    
-    }
-
 };
 
 /******************************************************************************/

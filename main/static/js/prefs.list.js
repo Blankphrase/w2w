@@ -3,12 +3,12 @@
 *******************************************************************************/
 
 $("#prefs-list-next").click(function() {
-    prefsList.nextPage();
+    PrefsList.nextPage();
 });
 
 
 $("#prefs-list-prev").click(function() {
-    prefsList.prevPage();
+    PrefsList.prevPage();
 });
 
 
@@ -22,7 +22,7 @@ $("#clear-my-prefs").click(function() {
 
 $(document).on("click", ".pref-movie-remove", function() {
     var movieId = $(this).parent().parent().data("movie-id");
-    prefsList.remove(movieId);
+    PrefsList.remove(movieId);
     $(".movie-item").filter(function() {
         return $(this).data("movie-id") == movieId
     }).find("input").prop("checked", false); 
@@ -53,7 +53,7 @@ $(document).on("click", ".pref-rating-star", function() {
     var movieId = $(this).parent().parent().parent().data("movie-id");
     var title = $(this).parent().parent().siblings(".pref-movie-title").html();
 
-    prefsList.update(
+    PrefsList.update(
         movieId = movieId,
         movieTitle = title,
         movieRating = rating   
@@ -72,34 +72,34 @@ $(document).on("click", ".pref-rating-star", function() {
 });
 
 
-prefsList.on("onUpdate", function() {
-    reloadPrefsList(prefsList.getCurrentPage());
+PrefsList.on("onUpdate", function() {
+    reloadPrefsList(PrefsList.getCurrentPage());
 });
 
 
-prefsList.on("onRemove", function(movieId) {
-    var items = prefsList.getCurrentPage();
+PrefsList.on("onRemove", function(movieId) {
+    var items = PrefsList.getCurrentPage();
     // if removal of item leads to empty page than skip to previous page
     if (items.length == 0) {
-        prefsList.prevPage(noCallback = true);
-        items = prefsList.getCurrentPage();
+        PrefsList.prevPage(noCallback = true);
+        items = PrefsList.getCurrentPage();
     } 
     reloadPrefsList(items);
 });
 
 
-prefsList.on("onNextPage", function(page) {
-    var items = prefsList.getCurrentPage();
+PrefsList.on("onNextPage", function(page) {
+    var items = PrefsList.getCurrentPage();
     if (items.length > 0 ) {
         reloadPrefsList(items);
     } else {
-        prefsList.prevPage(noCallback = true);
+        PrefsList.prevPage(noCallback = true);
     }
 });
 
 
-prefsList.on("onPrevPage", function(page) {
-    var items = prefsList.getCurrentPage();
+PrefsList.on("onPrevPage", function(page) {
+    var items = PrefsList.getCurrentPage();
     reloadPrefsList(items);
 });
 
@@ -144,11 +144,11 @@ function reloadPrefsList(items) {
 }
 
 function clearPrefsList() {
-    var movies = prefsList.getData(all = true);
+    var movies = PrefsList.getData(all = true);
     for(var i = 0; i < movies.length; i++) {
-        prefsList.remove(movies[i].id, noCallback = true);
+        PrefsList.remove(movies[i].id, noCallback = true);
     }
-    prefsList.setPage(0);
+    PrefsList.setPage(0);
     $("#pref-list").children("div").remove(); 
     alignMoviesListWithUserPrefs();
 }
