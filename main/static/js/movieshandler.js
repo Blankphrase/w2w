@@ -37,7 +37,8 @@ var MoviesHandler = {
 
                 owl.owlCarousel("add", movie_html);
             }
-            owl.owlCarousel("refresh");  
+            owl.owlCarousel("refresh"); 
+            alignMoviesListWithUserPrefs();  
         } else {
             // alert("NO MORE MOVIES");
         }
@@ -61,6 +62,39 @@ var MoviesHandler = {
 /*******************************************************************************
  Movies List (owl.carousel)
 *******************************************************************************/
+
+$("#popular-browse-mode").click(function(e) {
+    clearMoviesList();
+    MoviesHandler.setMode(new BrowseQuery("/movies/popular"));
+    MoviesHandler.getMovies(page = 1);
+    $(".dropdown-toggle").dropdown("toggle");
+    e.preventDefault();
+    return (false);
+});
+$("#toprated-browse-mode").click(function(e) {
+    clearMoviesList();
+    MoviesHandler.setMode(new BrowseQuery("/movies/toprated"));
+    MoviesHandler.getMovies(page = 1);
+    $(".dropdown-toggle").dropdown("toggle");
+    e.preventDefault();
+    return (false);
+});
+$("#upcoming-browse-mode").click(function(e) {
+    clearMoviesList();
+    MoviesHandler.setMode(new BrowseQuery("/movies/upcoming"));
+    MoviesHandler.getMovies(page = 1);
+    $(".dropdown-toggle").dropdown("toggle");
+    e.preventDefault();
+    return (false);
+});
+$("#nowplaying-browse-mode").click(function(e) {
+    clearMoviesList();
+    MoviesHandler.setMode(new BrowseQuery("/movies/nowplaying"));
+    MoviesHandler.getMovies(page = 1);
+    $(".dropdown-toggle").dropdown("toggle");
+    e.preventDefault();
+    return (false);
+});
 
 $(document).on("mouseover", ".movie-rating-star", function() {
 	$(this).addClass("hovered");
@@ -165,9 +199,10 @@ $("#movie-search-input").keyup(function (e) {
 
 function clearMoviesList() {
     var owl = $(".owl-carousel");
-    while ($(".owl-item").length > 0) {
+    while ($(".owl-item").length) {
         owl.trigger("remove.owl.carousel", 0);
-    }     
+    } 
+    owl.trigger("to.owl.carousel", [0]);   
 }
 
 function showMoviesListInfo(msg) {

@@ -3,16 +3,83 @@
 
 {% block title %}What To Watch{% endblock title %}
 
+
+<!-- 
+    2D99FF 
+    FFFFFF
+    F2FF6D
+    2B3E50
+    FAFFC2
+-->
+
 {% block styles %}
 {{ block.super }}
 <link rel="stylesheet" href="{% static 'main/css/owl.carousel.css' %}">
 <link rel="stylesheet" href="{% static 'main/css/owl.theme.default.min.css' %}">
 <style>
-    .page-header {
+    .mode-selection {
         text-align: center;
     }
-    .movie-search-group {
-        margin-bottom: 10px;
+    .mode-selection small {
+        font-size: 0.6em;
+    }
+
+    .thumbnail {
+        background-color: #2683DB;
+        -webkit-border-radius: 15px;
+        -moz-border-radius: 15px;
+        border-radius: 15px;
+        box-shadow: 0px 2px 5px #444444;
+        text-align: center;
+    }
+    .thumbnail .caption {
+        color: white;
+        padding-top: 0px;
+    }
+    .thumbnail p {
+        text-align: justify;
+        text-justify: inter-word;
+    }
+
+
+    /* Small devices (tablets, 768px and up) */
+    @media(max-width:767px) { 
+        #lg-device-header {
+            display: none;
+        }
+        #sx-device-header {
+            display: block;
+        }
+    }
+
+
+    /* Medium devices (desktops, 992px and up) */
+    @media(min-width:768px) { 
+        #lg-device-header {
+            display: block;
+        }
+        #sx-device-header {
+            display: none;
+        }
+    }
+
+    @media(min-width:992px) { 
+        #lg-device-header {
+            display: block;
+        }
+        #sx-device-header {
+            display: none;
+        }
+    }
+
+    /* Large devices (large desktops, 1200px and up) */
+    @media(min-width: 1200px) { 
+        #lg-device-header {
+            display: block;
+        }
+        #sx-device-header {
+            display: none;
+        }
     }
 
     .container-w2w {
@@ -295,47 +362,45 @@
         padding: 10px;
     }
 </style>
-
-<style>
-.page-header {
-    text-align: center;
-}
-.movie-search-group {
-    margin-bottom: 10px;
-}
-
-</style>
 {% endblock styles %}
 
 {% block body %}
 {{ block.super }}
-<div class="container">
+<div class="container container-w2w mode-selection">
+    <div class="page-header" id="lg-device-header">
+        <h1>Welcome to "<strong>W2W</strong>" - <strong>What To Watch</strong>
+        <br><small>Looking for some new movies to watch? - You've found the right place!</small>
+        </h1>
+    </div>
+    <div class="page-header" id="sx-device-header">
+        <h2>"<strong>W2W</strong>" - <strong>What To Watch</strong>
+        </h2>
+    </div>
+
     <div class="row">
         <div class="col-md-6">
             <div class="thumbnail">
                 <div class="caption">
-                    <h3>Stand-Alone Recommendation</h3>
+                    <h3>Stand-Alone Search</h3>
                     <p>
-                        <ul>
-                            <li>fast, one-time recommendation for anonymous as well as for authenitcated users</li>
-                        </ul>
+                        <strong>Quick</strong>, <strong>one-time</strong> search for 
+                        <strong>anonymous</strong> as well as for <strong>authenitcated users</strong>.
+                        State your preferences and we recommend you some movies worth to watch.
                     </p>
-                    <p><a href="{% url 'reco' %}?type=standalone" class="btn btn-primary" 
-                          id="standalone-reco-btn" role="button">Start</a></p>
+                    <a href="{% url 'reco' %}?type=standalone" class="btn btn-sx btn-default" 
+                          id="standalone-reco-btn" role="button">Begin Stand-Alone Search</a>
                 </div>
             </div>
         </div>
         <div class="col-md-6">
             <div class="thumbnail">
                 <div class="caption">
-                    <h3>General Recommendation</h3>
-                    <p>
-                        <ul>
-                            <li>complex, general recommendation on the base of your all preferences</li>
-                        </ul>
-                    </p>
-                    <p><a href="{% url 'reco' %}?type=general" class="btn btn-primary" 
-                          id="general-reco-btn" role="button">Start</a></p>
+                    <h3>General Search</h3>
+                    <p><strong>Complex</strong> and <strong>general</strong> search for
+                    <strong>authenticated users</strong>. State and adjust your preferences, add new movies to
+                    your watchlist or view your previous recommendations.</p>
+                    <a href="{% url 'reco' %}?type=general" class="btn btn-sx btn-default" 
+                          id="general-reco-btn" role="button">Begin General Search</a>
                 </div>
             </div>
         </div>
@@ -384,7 +449,6 @@
 
     <div class="owl-carousel"></div>
 </div>
-
 {% endblock %}
 
 {% block body_scripts %}
