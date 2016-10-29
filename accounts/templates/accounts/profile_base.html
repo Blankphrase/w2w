@@ -5,37 +5,7 @@
 
 {% block styles %}
 {{ block.super }}
-<style>
-.container-navbar {
-    border-bottom: 2px solid white;
-    margin-bottom: 20px;
-}
-
-ul.side-navbar {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-}
-
-ul.side-navbar li {
-    float: left;
-    color: white;
-}
-
-ul.side-navbar li a {
-    display: block;
-    padding: 8px;
-    color: white;
-    font-size: 1.2em;
-}
-
-.submenu-active {
-    font-weight: bold;
-    color: #707070  !important;
-}
-
-</style>
+    <link href="{% static 'css/w2w.accounts.css' %}" rel="stylesheet">
 {% endblock styles %}
 
 {% block body %}

@@ -5,6 +5,7 @@
 
 {% block styles %}
 {{ block.super }}
+<link rel="stylesheet" href="{% static 'css/w2w.accounts.css' %}">
 <style>
     label {
         color: white;
@@ -12,9 +13,7 @@
 </style>
 {% endblock styles %}
 
-
 {% block body %}
-
 <div class="container">
     <form method="POST" role="form">
         {% csrf_token %}
@@ -49,6 +48,5 @@
 
     </form>
 </div>
-
 {% endblock body %}
 

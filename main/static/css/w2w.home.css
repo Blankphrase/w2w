@@ -1,0 +1,64 @@
+.mode-selection {
+    text-align: center;
+}
+.mode-selection small {
+    font-size: 0.6em;
+}
+
+.thumbnail {
+    background-color: #2683DB;
+    -webkit-border-radius: 15px;
+    -moz-border-radius: 15px;
+    border-radius: 15px;
+    box-shadow: 0px 2px 5px #444444;
+    text-align: center;
+}
+.thumbnail .caption {
+    color: white;
+    padding-top: 0px;
+}
+.thumbnail p {
+    text-align: justify;
+    text-justify: inter-word;
+}
+
+
+/* Small devices (tablets, 768px and up) */
+@media(max-width:767px) { 
+    #lg-device-header {
+        display: none;
+    }
+    #sx-device-header {
+        display: block;
+    }
+}
+
+
+/* Medium devices (desktops, 992px and up) */
+@media(min-width:768px) { 
+    #lg-device-header {
+        display: block;
+    }
+    #sx-device-header {
+        display: none;
+    }
+}
+
+@media(min-width:992px) { 
+    #lg-device-header {
+        display: block;
+    }
+    #sx-device-header {
+        display: none;
+    }
+}
+
+/* Large devices (large desktops, 1200px and up) */
+@media(min-width: 1200px) { 
+    #lg-device-header {
+        display: block;
+    }
+    #sx-device-header {
+        display: none;
+    }
+}

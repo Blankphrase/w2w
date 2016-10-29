@@ -1,6 +1,6 @@
 TO DO:
 - show recommended movies
-- style recommended movies
+- style recommended movies  
 - info window
 - main page
     - the most popular movies

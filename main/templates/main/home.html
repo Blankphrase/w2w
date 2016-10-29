@@ -3,364 +3,14 @@
 
 {% block title %}What To Watch{% endblock title %}
 
-
-<!-- 
-    2D99FF 
-    FFFFFF
-    F2FF6D
-    2B3E50
-    FAFFC2
--->
-
 {% block styles %}
 {{ block.super }}
 <link rel="stylesheet" href="{% static 'main/css/owl.carousel.css' %}">
 <link rel="stylesheet" href="{% static 'main/css/owl.theme.default.min.css' %}">
+<link rel="stylesheet" href="{% static 'css/w2w.home.css' %}">
+<link rel="stylesheet" href="{% static 'css/w2w.carousel.css' %}">
 <style>
-    .mode-selection {
-        text-align: center;
-    }
-    .mode-selection small {
-        font-size: 0.6em;
-    }
 
-    .thumbnail {
-        background-color: #2683DB;
-        -webkit-border-radius: 15px;
-        -moz-border-radius: 15px;
-        border-radius: 15px;
-        box-shadow: 0px 2px 5px #444444;
-        text-align: center;
-    }
-    .thumbnail .caption {
-        color: white;
-        padding-top: 0px;
-    }
-    .thumbnail p {
-        text-align: justify;
-        text-justify: inter-word;
-    }
-
-
-    /* Small devices (tablets, 768px and up) */
-    @media(max-width:767px) { 
-        #lg-device-header {
-            display: none;
-        }
-        #sx-device-header {
-            display: block;
-        }
-    }
-
-
-    /* Medium devices (desktops, 992px and up) */
-    @media(min-width:768px) { 
-        #lg-device-header {
-            display: block;
-        }
-        #sx-device-header {
-            display: none;
-        }
-    }
-
-    @media(min-width:992px) { 
-        #lg-device-header {
-            display: block;
-        }
-        #sx-device-header {
-            display: none;
-        }
-    }
-
-    /* Large devices (large desktops, 1200px and up) */
-    @media(min-width: 1200px) { 
-        #lg-device-header {
-            display: block;
-        }
-        #sx-device-header {
-            display: none;
-        }
-    }
-
-    .container-w2w {
-        max-width: 960px;
-        background-color: white;
-        padding: 5px 25px 25px 25px;
-        margin-left: auto;
-        margin-right: auto;
-        margin-bottom: 25px;
-        border-radius: 10px;
-    }
-    .container-w2w .page-header {
-        margin-top: 0px;
-    }
-
-    .movie {
-        position: relative;
-        display: inline-block;
-        margin-left: 5px;
-        margin-right: 5px;
-        padding: 0px;
-        -webkit-border-radius: 3px;
-        -moz-border-radius: 3px;
-        border-radius: 3px;
-        text-align: center;
-        background-color: blue;
-        height: 278px;
-        width: 185px;
-        max-width: 185px;
-        max-height: 278px; 
-    }
-
-    .movie img {
-        height: 100%;
-        width: 100%;
-        box-shadow: 0px 2px 5px #444444;
-    }
-
-    .movie span.movie-title {
-        display: inline-block;
-        max-width: 185px;
-        text-transform: uppercase;
-    }
-
-    .movie-rating {
-        position: absolute;
-        bottom: 0;
-        margin-left: auto;
-        margin-right: auto;
-        left: 0;
-        right: 0;
-        cursor: pointer;
-    }
-
-    .movie-rating-star.selected,
-    .movie-rating-star.hovered,
-    .movie-rating-star,
-    .pref-rating-star.selected,
-    .pref-rating-star.hovered,
-    .pref-rating-star {
-        display: inline-block;
-        color: #FFBB00;
-        font-size: 2.5em; 
-        text-shadow: 2px 2px #000000;
-    }
-
-    .pref-rating-star:before,
-    .movie-rating-star:before {
-        content: '\2606';    
-    }
-
-    .pref-rating-star.selected:before,
-    .pref-rating-star.hovered:before,
-    .movie-rating-star.selected:before,
-    .movie-rating-star.hovered:before {
-        content: '\2605';    
-    }
-
-    .movie-ui {
-        position: absolute;
-        width: 100%;
-        overflow: hidden;
-        top: 0px;
-        left: 0px;
-    }
-
-    .check-off {
-        display: none;
-        position: absolute;
-        width: 0;
-        height: 0;
-        border-style: solid;
-        border-width: 0 100px 100px 0;
-        border-color: transparent #fff700 transparent transparent;
-        right: 0;
-        top: 0;
-        opacity: 0.75;
-    }
-    .check-off-text {     
-        display: inline-block;  
-        -webkit-transform: rotate(45deg) translate(30px, 10px);
-        -moz-transform: rotate(45deg) translate(30px, 10px);
-        -ms-transform: rotate(45deg) translate(30px, 10px);
-        -o-transform: rotate(45deg) translate(30px, 10px);
-        transform: rotate(45deg) translate(30px, 10px);
-    }
-    .check-off-text > a {
-        color: black; /* #fff700; */
-        font-weight: bold;
-        white-space: nowrap;
-    }
-    .check-off-text > a:link, 
-    .check-off-text > a:visited, 
-    .check-off-text > a:active {
-        text-decoration: none;
-    }
-    .check-off-text > a:hover {
-        text-decoration: underline;
-    }
-
-    .movie-info {
-        background: rgba(91, 192, 222, 0.75);
-        width: 100%;
-        padding: 3px;
-        text-align: left;
-    }
-    .movie-info > a {
-        color: black; 
-        font-weight: bold;
-        white-space: nowrap;
-    }
-    .movie-info > a:link, 
-    .movie-info > a:visited, 
-    .movie-info > a:active {
-        text-decoration: none;
-    }
-    .movie-info > a:hover {
-        text-decoration: underline;
-    }
-
-    .movie-watchlist {
-        background: rgba(217,83,79, 0.75);
-        width: 100%;
-        padding: 3px;
-    }
-    .movie-watchlist > a {
-        color: black; 
-        font-weight: bold;
-        white-space: nowrap;
-    }
-    .movie-watchlist > a:link, 
-    .movie-watchlist > a:visited, 
-    .movie-watchlist > a:active {
-        text-decoration: none;
-    }
-    .movie-watchlist > a:hover {
-        text-decoration: underline;
-    }
-
-    .movies-list-search {
-        overflow: hidden;
-    }
-    .movies-list-search  input {
-        box-sizing : border-box;
-        width: 100%;
-        background-color: gray;
-        color: white;
-        /*border: 1px solid black; */
-        border-radius: 4px;
-        font-size: 1.1em;
-        line-height: 1.2em;
-    }
-    .owl-nav {
-        float: right;
-        margin-left: 20px;
-    }
-    .movies-list-menu-trigger {
-        float: left;
-    }
-    .owl-prev, .owl-next {
-        display: inline-block;
-        background-color: gray;
-        font-weight: bold;
-        color: white;
-    }
-
-    .owl-carousel {
-        clear: both;
-        margin-top: 10px;
-    }
-
-    .alert-info {
-        display: none;
-        color: #31708F;
-        background-color: #D9EDF7;
-        border-color: #BCE8F1;
-        margin-top: 10px;
-        /*height: 2em;*/
-        /*padding: 5px;*/
-    }
-
-    #pref-list {
-        display: table;
-        table-layout: fixed;
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-    .pref-movie {
-        display: table-row;
-        width: 100%;
-        margin: 20px;
-        border-bottom: 1px solid black;
-        padding: 100px;
-        height: 0px;
-    }
-
-    .pref-movie-title {
-        display: table-cell;
-        word-wrap: break-word;
-        vertical-align: middle;
-        padding: 5px;
-        height: 100%;
-        text-align: left;
-        width: 50%;
-
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    .pref-movie-ui {
-        display: table-cell;
-        float: right;
-        white-space: nowrap;
-        vertical-align: middle;
-        padding: 5px;
-        height: 100%;
-    }
-
-    .pref-movie-rating {
-        display: inline-block;
-        vertical-align: middle;
-        margin-right: 20px;
-        margin-left: 20px;
-        cursor: pointer;
-    }
-    .pref-movie-remove {
-        display: inline-block;
-        vertical-align: middle;
-    }
-
-    #prefs-ui {
-        margin-top: 10px;
-    }
-
-    .reco-btn-container {
-        text-align:center;
-        background-color: transparent !important;
-        padding: 0px !important;
-    }
-
-    #reco-btn {
-        margin:auto;
-        background-color: #FFBB00;
-        color: black;
-    }
-
-    #reco-output {
-        display: none;
-    }
-
-    #reco-list {
-        list-style-type: none;
-    }
-
-    .reco-item {
-        border-bottom: 1px solid black;
-        margin: 20px;
-        padding: 10px;
-    }
 </style>
 {% endblock styles %}
 
@@ -413,29 +63,24 @@
         <h4>Movies Browser</h4>
     </div>
     <div class="movies-list-ui">
+        <div class="btn-group" role="group" aria-label="...">
+            <div class="btn-group" role="group">
+                <button type="button" class="btn btn-default dropdown-toggle" 
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Browsing Mode
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a id="popular-browse-mode" href="#">Popular Movies</a></li>
+                    <li><a id="toprated-browse-mode" href="#">Top Rated Movies</a></li>
+                    <li><a id="upcoming-browse-mode" href="#">Upcoming Movies</a></li>
+                    <li><a id="nowplaying-browse-mode" href="#">Now Playing Movies</a></li>
+                </ul>
+            </div>
 
-<div class="btn-group" role="group" aria-label="...">
-
-  <div class="btn-group" role="group">
-    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-      Browsing Mode
-      <span class="caret"></span>
-    </button>
-    <ul class="dropdown-menu">
-      <li><a id="popular-browse-mode" href="#">Popular Movies</a></li>
-      <li><a id="toprated-browse-mode" href="#">Top Rated Movies</a></li>
-      <li><a id="upcoming-browse-mode" href="#">Upcoming Movies</a></li>
-      <li><a id="nowplaying-browse-mode" href="#">Now Playing Movies</a></li>
-      <!-- <li><a href="#">Top Rated Movies</a></li> -->
-    </ul>
-  </div>
-
-    <button class="btn btn-default owl-prev" type="button">&#9666</button>
-    <button class="btn btn-default owl-next" type="button">&#9656</button>
-
-
-</div>
-
+            <button class="btn btn-default owl-prev" type="button">&#9666</button>
+            <button class="btn btn-default owl-next" type="button">&#9656</button>
+        </div>
     </div>
 
     <div class="alert alert-info alert-dismissible" role="alert" 
@@ -456,6 +101,7 @@
     <script src="{% static 'main/js/jquery.mousewheel.min.js' %}"></script>
     <script src="{% static 'js/moviesquery.js' %}"></script>
     <script src="{% static 'js/movieshandler.js' %}"></script>
+    <script src="{% static 'js/home.js' %}"></script>
 
     <script>
         var owl = $('.owl-carousel');
@@ -490,65 +136,9 @@
             } 
         });
 
-        $("#popular-browse-mode").click(function(e) {
-                // Remove all movies from carousel from previous browsing
-            var owl = $(".owl-carousel");
-            while ($(".owl-item").length) {
-                owl.trigger("remove.owl.carousel", 0);
-            } 
-            owl.trigger("to.owl.carousel", [0]);
-            MoviesHandler.setMode(new BrowseQuery("/movies/popular"));
-            MoviesHandler.getMovies(page = 1);
-            $(".dropdown-toggle").dropdown("toggle");
-            e.preventDefault();
-            return (false);
-        });
-        $("#toprated-browse-mode").click(function(e) {
-            // Remove all movies from carousel from previous browsing
-            var owl = $(".owl-carousel");
-            while ($(".owl-item").length) {
-                owl.trigger("remove.owl.carousel", 0);
-            } 
-            owl.trigger("to.owl.carousel", [0]);
-            MoviesHandler.setMode(new BrowseQuery("/movies/toprated"));
-            MoviesHandler.getMovies(page = 1);
-            $(".dropdown-toggle").dropdown("toggle");
-            e.preventDefault();
-            return (false);
-        });
-        $("#upcoming-browse-mode").click(function(e) {
-            // Remove all movies from carousel from previous browsing
-            var owl = $(".owl-carousel");
-            while ($(".owl-item").length) {
-                owl.trigger("remove.owl.carousel", 0);
-            } 
-            owl.trigger("to.owl.carousel", [0]);
-            MoviesHandler.setMode(new BrowseQuery("/movies/upcoming"));
-            MoviesHandler.getMovies(page = 1);
-            $(".dropdown-toggle").dropdown("toggle");
-            e.preventDefault();
-            return (false);
-        });
-        $("#nowplaying-browse-mode").click(function(e) {
-            // Remove all movies from carousel from previous browsing
-            var owl = $(".owl-carousel");
-            while ($(".owl-item").length) {
-                owl.trigger("remove.owl.carousel", 0);
-            } 
-            owl.trigger("to.owl.carousel", [0]);
-            MoviesHandler.setMode(new BrowseQuery("/movies/nowplaying"));
-            MoviesHandler.getMovies(page = 1);
-            $(".dropdown-toggle").dropdown("toggle");
-            e.preventDefault();
-            return (false);
-        });
-
-
-
         // Init MoviesHandler
         MoviesHandler.setMode(new BrowseQuery("/movies/nowplaying"));
         MoviesHandler.getMovies(page = 1);
-
 
         function equalHeight(group) {    
             var tallest = 0;    
