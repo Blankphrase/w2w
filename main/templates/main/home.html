@@ -49,8 +49,16 @@
                     <p><strong>Complex</strong> and <strong>general</strong> search for
                     <strong>authenticated users</strong>. State and adjust your preferences, add new movies to
                     your watchlist or view your previous recommendations.</p>
-                    <a href="{% url 'reco' %}?type=general" class="btn btn-sx btn-default" 
-                          id="general-reco-btn" role="button">Begin General Search</a>
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'reco' %}?type=general" class="btn btn-sx btn-default" 
+                           id="general-reco-btn" role="button">Begin General Search</a>
+                    {% else %}
+                        <p>Please <a id="id_signup" href="{% url 'accounts:signup' %}" 
+                           style="color: white !important;"><strong>Sign Up</strong></a> or 
+                        <a id="id_login" href="{% url 'accounts:login' %}"
+                           style="color: white !important;"><strong>Log In</strong></a> 
+                        into your account to take adventage of general search mode.</p>
+                    {% endif %}
                 </div>
             </div>
         </div>

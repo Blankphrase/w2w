@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.core import serializers
 from django.views.decorators.csrf import csrf_exempt
@@ -26,9 +26,14 @@ def reco_page(request):
     request.session["browse_page"] = 1
 
     reco_type = request.GET.get("type", "standalone")
+    if reco_type != "general" and reco_type != "standalone":
+        reco_type = "standalone"
 
     preflist = []
-    if request.user.is_authenticated and reco_type == "general":
+    if reco_type == "general":
+        if not request.user.is_authenticated:
+            return redirect("/")
+
         preflist = list(request.user.pref.data.values(
             "movie__id", "movie__title", "rating"
         ).annotate(title=F("movie__title"), id=F("movie__id")).values(
@@ -39,7 +44,6 @@ def reco_page(request):
         "preflist": json.dumps(preflist),
         "reco_type": reco_type
     })  
-
 
 @csrf_exempt
 def make_reco(request):

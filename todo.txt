@@ -1,15 +1,20 @@
+Next To Do:
+- info page with movies information
+- about page (first draft)
+- responsive stars
+
 TO DO:
 - show recommended movies
 - style recommended movies  
 - info window
+- about page
+- footer
 - main page
     - the most popular movies
     - the newest movies
     - the upcoming movies
     - last recommendation for logged in users
     - better styling
-- create css file with style for website
-- put js/css in order
 - add alert bar showing what is going on in profile (
     e.g. updating database, adding movie to your preferences, and so on.
 )
@@ -33,3 +38,5 @@ DONE:
     - watchlist
     - edit profile
     - settings (remove profile, change password)
+- create css file with style for website
+- put js/css in order

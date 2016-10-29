@@ -442,7 +442,7 @@ $("#reco-btn").click(function() {
     } else {
         var prefList = null;
         if (recoType == "standalone") {
-            prefList = prefsList.getData(all = true);
+            prefList = PrefsList.getData(all = true);
         }
 
         if (recoType == "standalone" && prefList.length == 0) {
