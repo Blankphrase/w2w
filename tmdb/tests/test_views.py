@@ -12,15 +12,23 @@ from django.http.response import JsonResponse
 class MovieInfoTest(TestCase):
 
     def setUp(self):
-        pass
+        self.mock_response = {"id": 550, "title": "Fight Club"}
 
     def test_returns_json_response(self, mock_client):
+        mock_client.return_value = self.mock_response
         response = self.client.get("/movies/%d/info" % 550)
         self.assertIsInstance(response, JsonResponse)
 
     def test_calls_client_with_the_proper_id(self, mock_client):
+        mock_client.return_value = self.mock_response
         self.client.get("/movies/%d/info" % 550)
         mock_client.assert_called_with(id = 550, min_update_level = ANY)
+
+    def test_returns_json_response_with_data(self, mock_client):
+        mock_client.return_value = self.mock_response
+        response = self.client.get("/movies/%d/info" % 550)
+        data = json.loads(response.content.decode())
+        self.assertTrue(data["id"], 550)
 
 
 @patch("tmdb.views.Client.get_nowplaying_movies")

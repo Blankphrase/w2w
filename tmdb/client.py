@@ -71,10 +71,9 @@ class Client():
             ]
             data = model_to_dict(movie, fields = movie_fields)
             data["status"] = "OK"
-        except (
-            requests.exceptions.RequestException,
-            Movie.DoesNotExist
-        ) as e:
-            data = {"status": "ERROR"}
+        except requests.exceptions.RequestException as e:
+            data = {"status": "ERROR", "msg": "Connection error with TMDB."}
+        except Movie.DoesNotExist:
+            data = {"status": "ERROR", "msg": "Movie with given id does not exist."}
 
         return data

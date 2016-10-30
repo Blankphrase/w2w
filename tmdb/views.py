@@ -13,7 +13,7 @@ import re
 def movie_info(request, id):
     data = Client().get_movie(id = int(id), 
                               min_update_level = INFO_UPDATE_LEVEL)
-    return JsonResponse({})
+    return JsonResponse(data, safe=False)
 
 @csrf_exempt
 def nowplaying_movies(request):

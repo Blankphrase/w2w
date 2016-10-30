@@ -7,8 +7,86 @@ from requests.exceptions import RequestException
 
 from tmdb.util import tmdb_request
 from tmdb.models import (
-    MoviePopularQuery, Movie, NowPlayingQuery
+    MoviePopularQuery, Movie, NowPlayingQuery, Genre
 )
+
+
+class GenreTest(TestCase):
+
+    def test_contains_id_title_and_movies_fields(self):
+        genre = Genre.objects.create(id=18, name="Drama")
+        self.assertIsNotNone(genre.id)
+        self.assertIsNotNone(genre.name)
+        self.assertIsNotNone(genre.movies)
+
+    def test_cannot_create_two_genres_with_the_same_name(self):
+        genre1 = Genre.objects.create(id=18, name="Drama")
+        with self.assertRaises(Exception):
+            genre2 = Genre.objects.create(id=19, name="Drama")
+
+    def test_add_movie_adds_movie_to_movies(self):
+        genre = Genre.objects.create(id=1, name="Drama")
+        movie = Movie.objects.create(id=1, title="Titanic")
+        movie_other = Movie.objects.create(id=2, title="Titanic2")
+        genre.add_movie(id=1)
+        self.assertEqual(genre.movies.count(), 1)
+        self.assertEqual(genre.movies.first().id, 1)
+
+    def test_add_movie_raises_error_when_id_and_movie(self):
+        genre = Genre.objects.create(id=1, name="Drama")
+        movie = Movie.objects.create(id=1, title="Titanic")
+        with self.assertRaises(RuntimeError):
+            genre.add_movie(id = 1, movie = movie)
+
+    def test_add_movie_raises_error_when_no_id_and_movie(self):
+        genre = Genre.objects.create(id=1, name="Drama")
+        movie = Movie.objects.create(id=1, title="Titanic")
+        with self.assertRaises(RuntimeError):
+            genre.add_movie()
+
+    def test_cannot_add_twice_the_same_movie_to_genre(self):
+        genre = Genre.objects.create(id=1, name="Drama")
+        movie = Movie.objects.create(id=1, title="Titanic")
+        movie_other = Movie.objects.create(id=2, title="Titanic2")
+        genre.add_movie(id=1)
+        genre.add_movie(id=1)
+        self.assertEqual(genre.movies.count(), 1)
+        self.assertEqual(genre.movies.first().id, 1)
+       
+    def test_cannot_add_not_existing_movie(self):
+        genre = Genre.objects.create(id=1, name="Drama")
+        movie = Movie.objects.create(id=1, title="Titanic")
+        with self.assertRaises(Movie.DoesNotExist):
+            genre.add_movie(id=2)
+
+    def test_remove_movie_removes_only_relation(self):
+        genre = Genre.objects.create(id=1, name="Drama")
+        movie = Movie.objects.create(id=1, title="Titanic")
+        genre.add_movie(id=1)
+        genre.remove_movie(id=1)
+        self.assertEqual(genre.movies.count(), 0)
+        self.assertEqual(Movie.objects.count(), 1)
+
+    def test_remove_movie_by_obj(self):
+        genre = Genre.objects.create(id=1, name="Drama")
+        movie = Movie.objects.create(id=1, title="Titanic")
+        genre.add_movie(id=1)
+        genre.remove_movie(movie=movie)     
+        self.assertEqual(genre.movies.count(), 0)
+
+    def test_remove_movie_raises_error_when_id_and_movie(self):
+        genre = Genre.objects.create(id=1, name="Drama")
+        movie = Movie.objects.create(id=1, title="Titanic")
+        genre.add_movie(movie=movie)
+        with self.assertRaises(RuntimeError):
+            genre.remove_movie(id = 1, movie = movie)
+
+    def test_remove_movie_raises_error_when_no_id_and_movie(self):
+        genre = Genre.objects.create(id=1, name="Drama")
+        movie = Movie.objects.create(id=1, title="Titanic")
+        genre.add_movie(movie=movie)
+        with self.assertRaises(RuntimeError):
+            genre.remove_movie()
 
 
 class MovieTest(TestCase):
