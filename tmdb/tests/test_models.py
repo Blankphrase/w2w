@@ -89,6 +89,34 @@ class GenreTest(TestCase):
             genre.remove_movie()
 
 
+    @patch("tmdb.models.tmdb_request")
+    def test_update_genres_calls_tmdb_request(self, mock_request):        
+        Genre.update_genres()
+        self.assertTrue(mock_request.called)
+
+    @patch("tmdb.models.tmdb_request")
+    def test_updates_genres_in_database(self, mock_request):
+        mock_request.return_value = {
+            "genres": [
+                {"id": 28, "name": "Action"},
+                {"id": 12, "name": "Adventure"}
+            ]
+        }
+        updated = Genre.update_genres()
+        self.assertEqual(Genre.objects.count(), 2)
+        self.assertEqual(
+            set([28, 12]), 
+            set(Genre.objects.values_list("id", flat=True).all())
+        )
+        self.assertEqual(updated, 2)
+
+    @patch("tmdb.models.tmdb_request")
+    def test_updates_genres_returns_zero_when_exception(self, mock_request):
+        mock_request.side_effect = RequestException()
+        updated = Genre.update_genres()
+        self.assertEqual(updated, 0)
+
+
 class MovieTest(TestCase):
 
     @patch("tmdb.models.Movie.objects.get")
@@ -96,12 +124,10 @@ class MovieTest(TestCase):
         movie = Movie.get(id = 1)
         self.assertTrue(mock_get.called)
 
-
     def test_get_returns_correct_movie_object(self):
         Movie.objects.create(id = 1)
         movie = Movie.get(id = 1)
         self.assertEqual(movie.id, 1)       
-
 
     @patch("tmdb.models.tmdb_request")
     def test_calls_tmdb_request_if_movie_does_not_exist(self, mock_tmdb):
@@ -109,13 +135,11 @@ class MovieTest(TestCase):
         movie = Movie.get(id = 1)
         mock_tmdb.assert_called_with(method = "GET", path = "movie/1")
 
-
     @patch("tmdb.models.tmdb_request")
     def test_raise_error_when_offline(self, mock_tmdb):
         mock_tmdb.return_value = {"id": 1, "title": "JAGO 2000"}
         with self.assertRaises(Movie.DoesNotExist):
             movie = Movie.get(id = 1, offline = True)
-
 
     @patch("tmdb.models.tmdb_request")
     def test_saves_new_movie_in_db(self, mock_tmdb):
@@ -124,13 +148,11 @@ class MovieTest(TestCase):
         self.assertEqual(Movie.objects.count(), 1)
         self.assertEqual(movie.id, 1)
 
-
     @patch("tmdb.models.tmdb_request")
     def test_raises_error_movie_does_not_exist_in_tmdb(self, mock_tmdb):
         mock_tmdb.return_value = {"status_code": 34}
         with self.assertRaises(Movie.DoesNotExist):
             movie = Movie.get(id = 1)
-
 
     @patch("tmdb.models.tmdb_request")
     def test_calls_tmdb_request_if_two_low_update_level(self, mock_tmdb):
@@ -139,7 +161,6 @@ class MovieTest(TestCase):
         movie = Movie.get(id = 1, 
             min_update_level = MoviePopularQuery.update_level)
         mock_tmdb.assert_called_with(method = "GET", path = "movie/1")
-
 
     @patch("tmdb.models.tmdb_request")   
     def test_calls_tmdb_request_when_force_update(self, mock_tmdb):
@@ -153,6 +174,35 @@ class MovieTest(TestCase):
         mock_tmdb.side_effect = RequestException()
         with self.assertRaises(RequestException):
             movie = Movie.get(id = 1, force_update = True)
+
+    def test_adds_movie_to_genre_by_genre_add_movie(self):
+        genre = Genre.objects.create(id=1, name="Drama")
+        movie = Movie.objects.create(id=1, title="Titanic")
+        genre.add_movie(movie=movie)
+        self.assertEqual(movie.genres.count(), 1)
+        self.assertEqual(movie.genres.first().name, "Drama")
+
+    def test_adds_movie_to_genre_by_add_to_genre(self):
+        genre = Genre.objects.create(id=1, name="Drama")
+        movie = Movie.objects.create(id=1, title="Titanic")
+        movie.add_to_genre(genre=genre)
+        self.assertEqual(movie.genres.count(), 1)
+        self.assertEqual(movie.genres.first().name, "Drama")        
+
+    def test_adds_movie_to_genre_by_add_to_genre_with_id(self):
+        genre = Genre.objects.create(id=1, name="Drama")
+        movie = Movie.objects.create(id=1, title="Titanic")
+        movie.add_to_genre(id = 1)
+        self.assertEqual(movie.genres.count(), 1)
+        self.assertEqual(movie.genres.first().name, "Drama")        
+
+    def test_removes_movie_from_genre(self):
+        genre = Genre.objects.create(id=1, name="Drama")
+        movie = Movie.objects.create(id=1, title="Titanic")
+        movie.add_to_genre(genre=genre)
+        movie.remove_from_genre(id=1)
+        self.assertEqual(movie.genres.count(), 0)
+
 
 
 @patch("tmdb.models.tmdb_request")

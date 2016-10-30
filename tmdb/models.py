@@ -1,4 +1,4 @@
-from requests.exceptions import HTTPError
+from requests.exceptions import HTTPError, RequestException
 import json
 
 from django.db import models
@@ -68,6 +68,30 @@ class Genre(models.Model):
         else:
             self.movies.remove(movie)
 
+    @staticmethod
+    def update_genres():
+        """
+        Update all genres in database ata once. TMDB API enables to download
+        all genres in one query. Returns number of updated records. Catches
+        RequestException and returns 0.
+
+        TMDB response: {"genres": [
+            {"id": 28, "name": "Action"},
+            {"id": 12, "name": "Adventure"},
+            ...
+        ]}
+        """
+        try:
+            response = tmdb_request(method = "GET", path = "genre/movie/list")
+            for data_genre in response["genres"]:
+                data = { key: value for key, value in data_genre.items()  }
+                genre, created = Genre.objects.update_or_create(
+                    id = data["id"], defaults = data
+                )   
+            return len(response["genres"]) 
+        except RequestException:
+            return 0
+
 
 class Movie(models.Model):
     id = models.IntegerField(primary_key = True)
@@ -98,6 +122,27 @@ class Movie(models.Model):
 
     def __str__(self):
         return self.title
+
+    def add_to_genre(self, id = None, genre = None):
+        if bool(id) == bool(genre):
+            if not id:
+                raise RuntimeError("Arguments error: id and genre are empty")
+            else:   
+                raise RuntimeError("Ambiguity error: id and genre filled")
+        if id:
+            genre = Genre.objects.get(id = id)
+        self.genres.add(genre)
+
+    def remove_from_genre(self, id = None, genre = None):
+        if bool(id) == bool(genre):
+            if not id:
+                raise RuntimeError("Arguments error: id and genre are empty")
+            else:   
+                raise RuntimeError("Ambiguity error: id and genre filled")
+        if id:
+            self.genres.remove(id)
+        else:
+            self.genres.remove(genre)
 
     @staticmethod
     def download_movie(id):
