@@ -9,6 +9,7 @@
 <link rel="stylesheet" href="{% static 'main/css/owl.theme.default.min.css' %}">
 <link rel="stylesheet" href="{% static 'css/w2w.home.css' %}">
 <link rel="stylesheet" href="{% static 'css/w2w.carousel.css' %}">
+<link rel="stylesheet" href="{% static 'css/w2w.movieinfo.css' %}"?
 <style>
 
 </style>
@@ -16,6 +17,7 @@
 
 {% block body %}
 {{ block.super }}
+{% include 'main/movieinfo.html' %}
 <div class="container container-w2w mode-selection">
     <div class="page-header" id="lg-device-header">
         <h1>Welcome to "<strong>W2W</strong>" - <strong>What To Watch</strong>
@@ -110,7 +112,7 @@
     <script src="{% static 'js/moviesquery.js' %}"></script>
     <script src="{% static 'js/movieshandler.js' %}"></script>
     <script src="{% static 'js/home.js' %}"></script>
-
+    <script src="{% static 'js/movieinfo.js' %}"></script>
     <script>
         var owl = $('.owl-carousel');
         owl.owlCarousel({

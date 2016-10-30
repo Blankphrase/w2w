@@ -10,10 +10,12 @@
 <link rel="stylesheet" href="{% static 'main/css/owl.theme.default.min.css' %}">
 <link rel="stylesheet" href="{% static 'css/w2w.carousel.css' %}">
 <link rel="stylesheet" href="{% static 'css/w2w.reco.css' %}">
+<link rel="stylesheet" href="{% static 'css/w2w.movieinfo.css' %}"?
 {% endblock styles %}
 
 {% block body %}
 {{ block.super }}
+{% include 'main/movieinfo.html' %}
     <div class="container container-w2w">
         <div class="page-header">
             <h3>Select Your Favourite Movies</h3>
@@ -128,7 +130,7 @@
     <script src="{% static 'js/prefs.source.js' %}"></script>
     <script src="{% static 'js/generic.lists.js' %}"></script>
     <script src="{% static 'js/reco.js' %}"></script>
-
+    <script src="{% static 'js/movieinfo.js' %}"></script>
     <script>
         var owl = $('.owl-carousel');
         owl.owlCarousel({

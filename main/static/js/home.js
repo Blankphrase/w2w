@@ -13,7 +13,8 @@ MoviesHandler.onLoaded = function(response) {
                     "<img src='" + img_src + "'>" + // relative
                     "<div class='movie-ui'>" +
                         "<div class='movie-info'>" + 
-                            "<a href='#'>INFO</a>" + 
+                            "<a href='#movieInfo' data-toggle='modal' data-movie-id='" + 
+                                movies[i].id + "'>INFO</a>" + 
                         "</div>" +
                         // "<div class='movie-watchlist'>" + 
                         //     "<a href='#'>+WATCHLIST</a>" + 
@@ -63,18 +64,10 @@ $("#nowplaying-browse-mode").click(function(e) {
     return (false);
 });
 
-$(document).on("click", ".movie-info > a", function(event) {
-    alert("SHOW MOVIE INFO");
-
-    event.preventDefault();
-});
-
 $(document).on("click", ".movie-watchlist > a", function(event) {
     alert("TIME FOR WATCHLIST");
-
     event.preventDefault();
 });
-
 
 function clearMoviesList() {
     var owl = $(".owl-carousel");

@@ -20,7 +20,8 @@ MoviesHandler.onLoaded = function(response) {
                     "</div>" +
                     "<div class='movie-ui'>" +
                         "<div class='movie-info'>" + 
-                            "<a href='#'>INFO</a>" + 
+                            "<a href='#movieInfo' data-toggle='modal' data-movie-id='" + 
+                                movies[i].id + "'>INFO</a>" + 
                         "</div>" +
                         // "<div class='movie-watchlist'>" + 
                         //     "<a href='#'>+WATCHLIST</a>" + 
@@ -100,12 +101,6 @@ $(document).on("click", ".movie-rating-star", function() {
     $(this).addClass("selected");
     $(this).prevAll().addClass("selected");
     $(this).parent().siblings(".check-off").show();
-});
-
-$(document).on("click", ".movie-info > a", function(event) {
-    alert("SHOW MOVIE INFO");
-
-    event.preventDefault();
 });
 
 $(document).on("click", ".movie-watchlist > a", function(event) {
