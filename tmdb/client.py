@@ -57,10 +57,24 @@ class Client():
                     movie["update_level"] = SEARCH_UPDATE_LEVEL
                     Movie.save_movie_in_db(id = movie["id"], data = movie)
 
-        except requests.exceptions.HTTPError:
-            data = {"status": "ERROR" }
+        except requests.exceptions.RequestException:
+            data = {"status": "ERROR"}
         
         return data
 
     def get_movie(self, id, min_update_level = MIN_UPDATE_LEVEL):
-        return Movie.get(id, min_update_level = min_update_level)
+        try:
+            movie = Movie.get(id, min_update_level = min_update_level)
+            movie_fields = [
+                field.name for field in Movie._meta.get_fields() 
+                           if field.related_model is None 
+            ]
+            data = model_to_dict(movie, fields = movie_fields)
+            data["status"] = "OK"
+        except (
+            requests.exceptions.RequestException,
+            Movie.DoesNotExist
+        ) as e:
+            data = {"status": "ERROR"}
+
+        return data

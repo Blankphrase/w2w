@@ -1,6 +1,7 @@
 import json
 import unittest
 from unittest.mock import patch
+from requests.exceptions import RequestException
 
 from django.test import TestCase
 
@@ -9,6 +10,48 @@ from tmdb.models import (
     Movie, MoviePopularQuery, NowPlayingQuery
 )
 from tmdb.util import tmdb_request
+
+
+@patch("tmdb.models.tmdb_request")
+class GetMovieTest(TestCase):
+
+    def setUp(self):
+        self.tmdb_client = Client()
+        self.mock_response = {
+            "id": 550, "title": "Fight Club"
+        }
+
+    def test_returns_dict_instance(self, mock_request):
+        mock_request.return_value = self.mock_response
+        data = Client().get_movie(id = 550)
+        self.assertIsInstance(data, dict)
+
+    def test_returns_data(self, mock_request):
+        mock_request.return_value = self.mock_response
+        data = Client().get_movie(id = 550)
+        self.assertTrue(all(
+            item in data.items() for item in self.mock_response.items()
+        ))
+
+    def test_returns_status_ok(self, mock_request):
+        mock_request.return_value = self.mock_response
+        data = Client().get_movie(id = 550)
+        self.assertIn("status", data)
+        self.assertEqual(data["status"], "OK")
+
+    def test_returns_status_error_when_request_exception(self, mock_request):
+        mock_request.return_value = self.mock_response
+        mock_request.side_effect = RequestException()
+        data = Client().get_movie(id = 550)
+        self.assertIn("status", data)
+        self.assertEqual(data["status"], "ERROR")
+
+    def test_returns_status_error_when_movie_exception(self, mock_request):
+        mock_request.return_value = self.mock_response
+        mock_request.side_effect = Movie.DoesNotExist()
+        data = Client().get_movie(id = 550)
+        self.assertIn("status", data)
+        self.assertEqual(data["status"], "ERROR")
 
 
 class NowPlayingTest(TestCase):
@@ -54,6 +97,13 @@ class NowPlayingTest(TestCase):
         data = self.tmdb_client.get_nowplaying_movies(page = 3)
         self.assertEqual(len(data["movies"]), 0)
 
+    @patch("tmdb.models.tmdb_request")
+    def test_returns_status_error_when_request_exception(self, mock_request):
+        mock_request.side_effect = RequestException()
+        data = self.tmdb_client.get_nowplaying_movies(page = 3)
+        self.assertIn("status", data)
+        self.assertEqual(data["status"], "ERROR")
+
 
 class PopularMoviesTest(TestCase):
 
@@ -98,7 +148,14 @@ class PopularMoviesTest(TestCase):
         data = self.tmdb_client.get_popular_movies(page = 3)
         self.assertEqual(len(data["movies"]), 0)
 
+    @patch("tmdb.models.tmdb_request")
+    def test_returns_status_error_when_request_exception(self, mock_request):
+        mock_request.side_effect = RequestException()
+        data = self.tmdb_client.get_popular_movies(page = 3)
+        self.assertIn("status", data)
+        self.assertEqual(data["status"], "ERROR")
 
+        
 class ClientSearchTest(TestCase):
 
     def setUp(self):

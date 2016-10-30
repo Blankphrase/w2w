@@ -1,11 +1,26 @@
 import json
-from unittest.mock import patch
+from unittest.mock import patch, ANY
 
 from django.test import TestCase
 
 from tmdb.client import Client
 from tmdb.models import Movie, MoviePopularQuery
 from django.http.response import JsonResponse
+
+
+@patch("tmdb.views.Client.get_movie")
+class MovieInfoTest(TestCase):
+
+    def setUp(self):
+        pass
+
+    def test_returns_json_response(self, mock_client):
+        response = self.client.get("/movies/%d/info" % 550)
+        self.assertIsInstance(response, JsonResponse)
+
+    def test_calls_client_with_the_proper_id(self, mock_client):
+        self.client.get("/movies/%d/info" % 550)
+        mock_client.assert_called_with(id = 550, min_update_level = ANY)
 
 
 @patch("tmdb.views.Client.get_nowplaying_movies")

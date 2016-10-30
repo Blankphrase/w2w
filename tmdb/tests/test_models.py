@@ -1,13 +1,14 @@
+import unittest
+from unittest.mock import patch
+import datetime
+
 from django.test import TestCase
+from requests.exceptions import RequestException
 
 from tmdb.util import tmdb_request
 from tmdb.models import (
     MoviePopularQuery, Movie, NowPlayingQuery
 )
-
-import unittest
-from unittest.mock import patch
-import datetime
 
 
 class MovieTest(TestCase):
@@ -69,6 +70,11 @@ class MovieTest(TestCase):
         movie = Movie.get(id = 1, force_update = True)
         mock_tmdb.assert_called_with(method = "GET", path = "movie/1")
 
+    @patch("tmdb.models.tmdb_request")
+    def test_propagates_request_exception(self, mock_tmdb):
+        mock_tmdb.side_effect = RequestException()
+        with self.assertRaises(RequestException):
+            movie = Movie.get(id = 1, force_update = True)
 
 
 @patch("tmdb.models.tmdb_request")

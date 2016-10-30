@@ -4,8 +4,16 @@ from django.views.decorators.csrf import csrf_exempt
 
 from tmdb.client import Client
 from tmdb.settings import TMDB_MAX_PAGE, TMDB_MIN_PAGE
+from tmdb.models import INFO_UPDATE_LEVEL
 
 import re
+
+
+@csrf_exempt
+def movie_info(request, id):
+    data = Client().get_movie(id = int(id), 
+                              min_update_level = INFO_UPDATE_LEVEL)
+    return JsonResponse({})
 
 @csrf_exempt
 def nowplaying_movies(request):
