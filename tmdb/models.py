@@ -17,13 +17,6 @@ MOVIE_UPDATE_LEVEL = 2
 # MAX_UPDATE_LEVEL = 2
 
 
-  # "genres": [
-  #   {
-  #     "id": 18,
-  #     "name": "Drama"
-  #   }
-  # ],
-
   # "production_companies": [
   #   {
   #     "name": "20th Century Fox",
@@ -44,10 +37,17 @@ MOVIE_UPDATE_LEVEL = 2
   # ],
 
 class Genre(models.Model):
+    '''
+    Genre Model
+    Fields: id, name
+    '''
     id = models.IntegerField(primary_key = True)
     name = models.TextField(unique = True)
 
     def add_movie(self, id = None, movie = None):
+        '''
+        Add movie to genre.
+        '''
         if bool(id) == bool(movie):
             if not id:
                 raise RuntimeError("Arguments error: id and movie are empty")
@@ -58,6 +58,9 @@ class Genre(models.Model):
         self.movies.add(movie)
 
     def remove_movie(self, id = None, movie = None):
+        '''
+        Removie movie from genre.
+        '''
         if bool(id) == bool(movie):
             if not id:
                 raise RuntimeError("Arguments error: id and movie are empty")
@@ -156,7 +159,6 @@ class Movie(models.Model):
                 if json.loads(e.response.text)["status_code"] == 34:
                     raise Movie.DoesNotExist()
             raise e
-
         return data
 
     @staticmethod
@@ -172,17 +174,25 @@ class Movie(models.Model):
         return movie      
 
     @staticmethod
-    def save_movie_in_db(id, data = None):
+    def save_movie_in_db(id, *, data = None):
         if data is None:
             data = Movie.download_movie(id)
 
-        fields_to_update = [ field.name for field in Movie._meta.get_fields() ]
-        data = { key: value for key, value in data.items() 
+        # Update movie
+        fields_to_update = [ field.name for field in Movie._meta.get_fields() 
+                                        if field.name not in ("genres") ]
+        data4update = { key: value for key, value in data.items() 
             if key in fields_to_update }
-
         movie, created = Movie.objects.update_or_create(
-            id = id, defaults = data
+            id = id, defaults = data4update
         )    
+
+        # Update genres
+        if "genres" in data:
+            genres_ids = [genre["id"] for genre in data["genres"]]
+            movie.genres.remove()
+            movie.genres.add(*genres_ids)
+
         return movie      
 
     @staticmethod

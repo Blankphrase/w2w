@@ -24,7 +24,7 @@ class Client():
                 "total_results": npq.total_results
             }
         except requests.exceptions.RequestException:
-            data = {"status": "ERROR" }
+            data = {"response-status": "ERROR" }
 
         return data      
 
@@ -45,7 +45,7 @@ class Client():
             data = tmdb_request(method = "POST", path = "search/movie", 
                     params = {"page": page, "query": query})
             data["movies"] = data.pop("results", [])
-            data["status"] = "OK"
+            data["response-status"] = "OK"
 
             for movie in data["movies"]:
                 try:
@@ -58,7 +58,7 @@ class Client():
                     Movie.save_movie_in_db(id = movie["id"], data = movie)
 
         except requests.exceptions.RequestException:
-            data = {"status": "ERROR"}
+            data = {"response-status": "ERROR"}
         
         return data
 
@@ -70,10 +70,16 @@ class Client():
                            if field.related_model is None 
             ]
             data = model_to_dict(movie, fields = movie_fields)
-            data["status"] = "OK"
+            data["genres"] = [
+                {"id": genre.id, "name": genre.name} 
+                for genre in movie.genres.all()
+            ]
+            data["response-status"] = "OK"
         except requests.exceptions.RequestException as e:
-            data = {"status": "ERROR", "msg": "Connection error with TMDB."}
+            data = {"response-status": "ERROR", 
+                    "msg": "Connection error with TMDB."}
         except Movie.DoesNotExist:
-            data = {"status": "ERROR", "msg": "Movie with given id does not exist."}
+            data = {"response-status": "ERROR", 
+                    "msg": "Movie with given id does not exist."}
 
         return data

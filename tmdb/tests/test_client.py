@@ -36,22 +36,22 @@ class GetMovieTest(TestCase):
     def test_returns_status_ok(self, mock_request):
         mock_request.return_value = self.mock_response
         data = Client().get_movie(id = 550)
-        self.assertIn("status", data)
-        self.assertEqual(data["status"], "OK")
+        self.assertIn("response-status", data)
+        self.assertEqual(data["response-status"], "OK")
 
     def test_returns_status_error_when_request_exception(self, mock_request):
         mock_request.return_value = self.mock_response
         mock_request.side_effect = RequestException()
         data = Client().get_movie(id = 550)
-        self.assertIn("status", data)
-        self.assertEqual(data["status"], "ERROR")
+        self.assertIn("response-status", data)
+        self.assertEqual(data["response-status"], "ERROR")
 
     def test_returns_status_error_when_movie_exception(self, mock_request):
         mock_request.return_value = self.mock_response
         mock_request.side_effect = Movie.DoesNotExist()
         data = Client().get_movie(id = 550)
-        self.assertIn("status", data)
-        self.assertEqual(data["status"], "ERROR")
+        self.assertIn("response-status", data)
+        self.assertEqual(data["response-status"], "ERROR")
 
 
 class NowPlayingTest(TestCase):
@@ -101,8 +101,8 @@ class NowPlayingTest(TestCase):
     def test_returns_status_error_when_request_exception(self, mock_request):
         mock_request.side_effect = RequestException()
         data = self.tmdb_client.get_nowplaying_movies(page = 3)
-        self.assertIn("status", data)
-        self.assertEqual(data["status"], "ERROR")
+        self.assertIn("response-status", data)
+        self.assertEqual(data["response-status"], "ERROR")
 
 
 class PopularMoviesTest(TestCase):
@@ -152,8 +152,8 @@ class PopularMoviesTest(TestCase):
     def test_returns_status_error_when_request_exception(self, mock_request):
         mock_request.side_effect = RequestException()
         data = self.tmdb_client.get_popular_movies(page = 3)
-        self.assertIn("status", data)
-        self.assertEqual(data["status"], "ERROR")
+        self.assertIn("response-status", data)
+        self.assertEqual(data["response-status"], "ERROR")
 
         
 class ClientSearchTest(TestCase):

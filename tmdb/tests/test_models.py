@@ -119,6 +119,21 @@ class GenreTest(TestCase):
 
 class MovieTest(TestCase):
 
+    def setUp(self):
+        self.response_id550 = {
+            "id": 550, "title": "Fight Club",
+            "genres": [
+                {"id": 18, "name": "Drama"}
+            ]
+        }
+        self.response_genre = {
+            "genres": [
+                {"id": 28, "name": "Action"},
+                {"id": 12, "name": "Adventure"},
+                {"id": 18, "name": "Drama"}
+            ]
+        }
+
     @patch("tmdb.models.Movie.objects.get")
     def test_querying_db_for_wanted_movie(self, mock_get):
         movie = Movie.get(id = 1)
@@ -203,6 +218,51 @@ class MovieTest(TestCase):
         movie.remove_from_genre(id=1)
         self.assertEqual(movie.genres.count(), 0)
 
+    @patch("tmdb.models.tmdb_request")
+    def test_for_saving_movie_in_db(self, mock_request):
+        mock_request.return_value = self.response_id550
+        Movie.save_movie_in_db(id=550)
+        self.assertEqual(Movie.objects.count(), 1)
+        self.assertEqual(Movie.objects.first().title, 
+                         self.response_id550["title"])
+
+    @patch("tmdb.models.tmdb_request")
+    def test_for_updating_movie_in_db(self, mock_request):
+        mock_request.return_value = self.response_id550
+        Movie.objects.create(id=550, title="Fix Me")
+        Movie.save_movie_in_db(id=550)
+        self.assertEqual(Movie.objects.count(), 1)
+        self.assertEqual(Movie.objects.first().title, 
+                         self.response_id550["title"])
+
+
+    # @patch("tmdb.models.tmdb_request")
+    # @patch("tmdb.models.Genre.update_genres")
+    # def test_save_movie_calls_update_genre_when_new_genre(
+    #     self, mock_genre, mock_request
+    # ):
+    #     mock_request.return_value = self.response_id550
+    #     Movie.save_movie_in_db(id = 550)
+    #     self.assertTrue(mock_genre.called)
+
+    # @patch("tmdb.models.tmdb_request")
+    # @patch("tmdb.models.Genre.update_genres")
+    # def test_save_movie_does_not_call_update_genre_when_genre_in_db(
+    #     self, mock_genre, mock_request
+    # ):
+    #     mock_request.return_value = self.response_id550
+    #     genre = Genre.objects.create(id=18, name="Drama")
+    #     Movie.save_movie_in_db(id = 550)
+    #     self.assertFalse(mock_genre.called)
+
+    @patch("tmdb.models.tmdb_request")
+    def test_save_movie_adds_movie_to_genre(self, mock_request):
+        mock_request.return_value = self.response_id550
+        mock_request.return_value = self.response_id550
+        genre = Genre.objects.create(id=18, name="Drama")
+        Movie.save_movie_in_db(id = 550)
+        self.assertEqual(Movie.objects.get(id=550).genres.count(), 1)
+        self.assertEqual(Movie.objects.get(id=550).genres.first().name, "Drama")
 
 
 @patch("tmdb.models.tmdb_request")
