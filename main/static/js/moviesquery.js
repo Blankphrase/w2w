@@ -57,7 +57,7 @@ BrowseQuery.prototype.getMovies = function(page, callback) {
             this.createRequestParams(page),
             function(response) {
                 this_.loadInProgress = false;
-                if (response.status == "OK") {
+                if (response.w2w_status== "OK") {
                     this_.page = response.page;
                     this_.total_pages = response.total_pages;
                     this_.total_results = response.total_results;

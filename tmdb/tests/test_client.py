@@ -36,22 +36,22 @@ class GetMovieTest(TestCase):
     def test_returns_status_ok(self, mock_request):
         mock_request.return_value = self.mock_response
         data = Client().get_movie(id = 550)
-        self.assertIn("response-status", data)
-        self.assertEqual(data["response-status"], "OK")
+        self.assertIn("w2w_status", data)
+        self.assertEqual(data["w2w_status"], "OK")
 
     def test_returns_status_error_when_request_exception(self, mock_request):
         mock_request.return_value = self.mock_response
         mock_request.side_effect = RequestException()
         data = Client().get_movie(id = 550)
-        self.assertIn("response-status", data)
-        self.assertEqual(data["response-status"], "ERROR")
+        self.assertIn("w2w_status", data)
+        self.assertEqual(data["w2w_status"], "ERROR")
 
     def test_returns_status_error_when_movie_exception(self, mock_request):
         mock_request.return_value = self.mock_response
         mock_request.side_effect = Movie.DoesNotExist()
         data = Client().get_movie(id = 550)
-        self.assertIn("response-status", data)
-        self.assertEqual(data["response-status"], "ERROR")
+        self.assertIn("w2w_status", data)
+        self.assertEqual(data["w2w_status"], "ERROR")
 
 
 class NowPlayingTest(TestCase):
@@ -101,8 +101,8 @@ class NowPlayingTest(TestCase):
     def test_returns_status_error_when_request_exception(self, mock_request):
         mock_request.side_effect = RequestException()
         data = self.tmdb_client.get_nowplaying_movies(page = 3)
-        self.assertIn("response-status", data)
-        self.assertEqual(data["response-status"], "ERROR")
+        self.assertIn("w2w_status", data)
+        self.assertEqual(data["w2w_status"], "ERROR")
 
 
 class PopularMoviesTest(TestCase):
@@ -152,8 +152,8 @@ class PopularMoviesTest(TestCase):
     def test_returns_status_error_when_request_exception(self, mock_request):
         mock_request.side_effect = RequestException()
         data = self.tmdb_client.get_popular_movies(page = 3)
-        self.assertIn("response-status", data)
-        self.assertEqual(data["response-status"], "ERROR")
+        self.assertIn("w2w_status", data)
+        self.assertEqual(data["w2w_status"], "ERROR")
 
         
 class ClientSearchTest(TestCase):
@@ -170,6 +170,7 @@ class ClientSearchTest(TestCase):
             "total_pages": 1
         }
 
+
     @patch("tmdb.client.tmdb_request")
     def test_call_search_with_proper_arguments(self, tmdb_mock):
         query = "Terminator"
@@ -181,6 +182,13 @@ class ClientSearchTest(TestCase):
     def test_get_searching_results(self, request_mock):
         request_mock.return_value.json.return_value = self.request_response
         response = self.tmdb_client.search_movies(query = "terminator", page=1)
+        self.assertEqual(response["total_results"], 2)
+        self.assertEqual(len(response["movies"]), 2)
+
+    @patch("requests.request")
+    def test_for_multikeywords_search(self, request_mock):
+        request_mock.return_value.json.return_value = self.request_response
+        response = self.tmdb_client.search_movies(query = "fight club", page=1)
         self.assertEqual(response["total_results"], 2)
         self.assertEqual(len(response["movies"]), 2)
 

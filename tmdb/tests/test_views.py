@@ -181,3 +181,11 @@ class SearchMoviesTest(TestCase):
         mock_client.return_value = self.mock_response
         self.client.get("/movies/search", data={"query": "terminator", "page": 4})
         mock_client.assert_called_with("terminator", 4)
+
+    def test_multikeywords_search(self, mock_client):
+        mock_client.return_value = self.mock_response
+        response = self.client.get("/movies/search", data={
+            "query": "terminator is the bsest", "page": 1
+        })
+        data = json.loads(response.content.decode())
+        self.assertEqual(data["total_results"], 2)

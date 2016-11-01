@@ -182,7 +182,7 @@ class Movie(models.Model):
         fields_to_update = [ field.name for field in Movie._meta.get_fields() 
                                         if field.name not in ("genres") ]
         data4update = { key: value for key, value in data.items() 
-            if key in fields_to_update }
+            if key in fields_to_update and value}
         movie, created = Movie.objects.update_or_create(
             id = id, defaults = data4update
         )    
