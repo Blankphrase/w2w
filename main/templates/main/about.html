@@ -1,0 +1,13 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}{{block.super}} - About{% endblock title %}
+
+{% block body %}
+{{ block.super }}
+{% include 'main/movieinfo.html' %}
+<div class="container container-w2w">
+    <h2>W2W - What To Watch</h2>
+</div>
+{% endblock %}
+

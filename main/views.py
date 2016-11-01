@@ -1,3 +1,5 @@
+import json
+
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.core import serializers
@@ -13,12 +15,11 @@ from tmdb.models import Movie
 from accounts.models import PrefList
 
 
-import json
-
+def about_page(request):
+    return render(request, "main/about.html")
 
 def home_page(request):
     return render(request, "main/home.html")
-
 
 def reco_page(request):
     # Start with popular browsing mode

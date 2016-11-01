@@ -13,6 +13,14 @@ import json
 User = get_user_model()
 
 
+class AboutTest(TestCase):
+
+    def test_for_using_about_template(self):
+        response = self.client.get("/about")
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "main/about.html")
+
+
 class HomePageTest(TestCase):
 
     def test_show_homepage_template(self):
