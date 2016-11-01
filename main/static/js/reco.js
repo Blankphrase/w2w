@@ -262,8 +262,8 @@ $(document).on("click", ".pref-rating-star", function() {
     // Adjust rating from 1-5 to 1-10
     var rating = $(this).data("value");
 
-    var movieId = $(this).parent().parent().parent().data("movie-id");
-    var title = $(this).parent().parent().siblings(".pref-movie-title").html();
+    var movieId = $(this).parent().parent().parent().parent().data("movie-id");
+    var title = $(this).parent().parent().parent().siblings(".pref-movie-title").html();
 
     PrefsList.update(
         movieId = movieId,
@@ -326,15 +326,21 @@ function addMovieToPrefsList(movieId, movieTitle, movieRating) {
         "data-toggle='modal' data-movie-id='" + movieId + "'>" + 
         movieTitle + "</a></span>"));
     var $prefUI = $("<div class ='pref-movie-ui'></div>");
+
+    var $prefSelection = $("<div class = 'pref-selection'></div>");
+    $prefSelection.append($("<button class='pref-dropbtn'>" +
+        movieRating + "</button>"));
+
     var $ratingForm = $("<div class='pref-movie-rating'></div>");
     for(var i = 1; i <= 5; i++) {
         $ratingForm.append($("<div class='pref-rating-star " +
             (i <= movieRating ? "selected" : "") +
-            "' data-value='" + i + "'><span></span></div>"));
+            "' data-value='" + i + "'><span>" + i + "</span></div>"));
 
     }
-    $prefUI.append($ratingForm);
-    $prefUI.append($("<button class='pref-movie-remove' " +
+    $prefSelection.append($ratingForm);
+    $prefUI.append($prefSelection);
+    $prefUI.append($("<button class='btn btn-default btn-md pref-movie-remove' " +
         "type='button'>Remove</button>"));
     $prefItem.append($prefUI);
     $prefList.append($prefItem);        

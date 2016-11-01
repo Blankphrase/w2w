@@ -8,6 +8,7 @@
 {% block styles %}
 {{ block.super }}
 <link rel="stylesheet" href="{% static 'css/w2w.movieinfo.css' %}">
+<link rel="stylesheet" href="{% static 'css/w2w.prefs.css' %}">
 {% endblock styles %}
 
 {% block body %}
@@ -28,22 +29,25 @@
                     <span class='watchlist-movie-title'>
                         <a href='#movieInfo' data-toggle='modal' data-movie-id="{{movie.id}}">{{movie.title}}</a>
                     </span>
-                    <div class="watchlist-movie-ui">
-                        <div class="pref-movie-rating">
-                            <div class="pref-rating-star {% if 1 <= pref.rating %}selected{% endif %}" data-value="1">
-                                <span></span>
-                            </div>
-                            <div class="pref-rating-star {% if 2 <= pref.rating %}selected{% endif %}" data-value="2">
-                                <span></span>
-                            </div>
-                            <div class="pref-rating-star {% if 3 <= pref.rating %}selected{% endif %}" data-value="3">
-                                <span></span>
-                            </div>
-                            <div class="pref-rating-star {% if 4 <= pref.rating %}selected{% endif %}" data-value="4">
-                                <span></span>
-                            </div>
-                            <div class="pref-rating-star {% if 5 <= pref.rating %}selected{% endif %}" data-value="5">
-                                <span></span>
+                    <div class="pref-movie-ui">
+                        <div class="pref-selection">
+                            <button class="pref-dropbtn">-</button>
+                            <div class="pref-movie-rating">
+                                <div class="pref-rating-star {% if 1 <= pref.rating %}selected{% endif %}" data-value="1">
+                                    <span>1</span>
+                                </div>
+                                <div class="pref-rating-star {% if 2 <= pref.rating %}selected{% endif %}" data-value="2">
+                                    <span>2</span>
+                                </div>
+                                <div class="pref-rating-star {% if 3 <= pref.rating %}selected{% endif %}" data-value="3">
+                                    <span>3</span>
+                                </div>
+                                <div class="pref-rating-star {% if 4 <= pref.rating %}selected{% endif %}" data-value="4">
+                                    <span>4</span>
+                                </div>
+                                <div class="pref-rating-star {% if 5 <= pref.rating %}selected{% endif %}" data-value="5">
+                                    <span>5</span>
+                                </div>
                             </div>
                         </div>
                         <button class='btn btn-default watchlist-movie-remove' 
@@ -99,8 +103,8 @@
 
     $(document).on("click", ".pref-rating-star", function() {
         var rating = $(this).data("value");
-        var movieId = $(this).parent().parent().parent().data("movie-id");
-        var title = $(this).parent().parent().siblings(".watchlist-movie-title").html();
+        var movieId = $(this).parent().parent().parent().parent().data("movie-id");
+        var title = $(this).parent().parent().parent().siblings(".watchlist-movie-title").html();
 
         prefsHandler.update(
             movieId = movieId,

@@ -1,0 +1,122 @@
+.pref-selection {
+    display: inline;
+}
+.pref-movie {
+    display: table-row;
+    width: 100%;
+    margin: 20px;
+    border-bottom: 1px solid black;
+    padding: 100px;
+    height: 0px;
+}
+.pref-movie-title {
+    display: table-cell;
+    word-wrap: break-word;
+    vertical-align: middle;
+    padding: 5px;
+    height: 100%;
+    text-align: left;
+    width: 50%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.pref-movie-ui {
+    display: table-cell;
+    float: right;
+    white-space: nowrap;
+    vertical-align: middle;
+    padding: 5px;
+    height: 100%;
+}
+.pref-movie-remove {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+/* Hide stars on small devices and show dropdown menu */
+@media(max-width:767px) { 
+    .pref-rating-star.selected:before,
+    .pref-rating-star.hovered:before,
+    .pref-rating-star:before {
+        content: none;    
+    }
+    .pref-rating-star > span {
+        display: inline;
+    }
+    .pref-dropbtn {
+        background-color: #FFBB00;
+        color: black;
+        padding: 5px 30px;
+        margin-right: 10px;
+        font-size: 16px;
+        border: none;
+        cursor: pointer;
+        box-shadow: 2px 2px #000000;
+    }
+    .pref-movie-ui {
+        position: relative;
+        display: inline-block;
+    }
+    .pref-movie-rating {
+        display: none;
+        position: absolute;
+        top: 38px;
+        background-color: #F9F9F9;
+        box-shadow: 2px 2px #000000;
+        z-index: 1;
+    }
+    .pref-movie-rating span {
+        font-size: 16px;
+        color: black;
+        padding: 5px 30px;
+        text-decoration: none;
+        display: block;
+        border-bottom: 1px solid black;
+    }
+    .pref-movie-rating span:hover {
+        background-color: #FFBB00;
+        color: black;
+        cursor: pointer;
+    }
+    .pref-selection:hover .pref-movie-rating {
+        background-color: #FAFFC2;
+        display: block;
+    }
+    .pref-selection:hover .pref-dropbtn {
+        background-color: #2D99FF;
+        color: white;
+    }
+}
+
+/* Stars for devices with larger screen */
+@media(min-width:768px) { 
+    .pref-rating-star > span {
+        display: none;
+    }
+    .pref-dropbtn {
+        display: none;
+    }
+    .pref-movie-rating {
+        display: inline-block;
+        vertical-align: middle;
+        margin-right: 20px;
+        margin-left: 20px;
+        cursor: pointer;
+    }
+    .pref-rating-star.selected,
+    .pref-rating-star.hovered,
+    .pref-rating-star {
+        display: inline-block;
+        color: #FFBB00;
+        font-size: 2.5em; 
+        text-shadow: 2px 2px #000000;
+    }
+    .pref-rating-star:before {
+        content: '\2606';    
+    }
+    .pref-rating-star.selected:before,
+    .pref-rating-star.hovered:before {
+        content: '\2605';    
+    }
+}

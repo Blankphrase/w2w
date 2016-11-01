@@ -8,6 +8,7 @@
 {% block styles %}
 {{ block.super }}
 <link rel="stylesheet" href="{% static 'css/w2w.movieinfo.css' %}">
+<link rel="stylesheet" href="{% static 'css/w2w.prefs.css' %}">
 <style>
     .base-list {
         display: none;
@@ -30,6 +31,10 @@
     }
     .reco-list.active {
         display: table !important;
+    }
+    .pref-rating-star,
+    .pref-dropbtn {
+        cursor: auto !important;
     }
 </style>
 {% endblock styles %}
@@ -91,6 +96,7 @@
                     </a>
                 </span>
                 <div class="pref-movie-ui">
+                    <button class="pref-dropbtn">{{movie.rating}}</button>
                     <div class = "pref-movie-rating">
                         <div class="pref-rating-star {% if 1 <= movie.rating %}selected{% endif %}" data-value="1">
                             <span></span>
