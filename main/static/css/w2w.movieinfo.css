@@ -13,12 +13,14 @@
    height: auto;
    overflow: hidden;
 }
+#minfo-loading {
+    text-align: center;
+}
 #minfo-poster-wrapper {
     width: 160px;
     float: left;
     margin-right: 10px;
 }
-
 #minfo-info-wrapper {
     float: none;
     width: auto;

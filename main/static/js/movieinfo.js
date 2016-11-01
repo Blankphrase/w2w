@@ -1,15 +1,9 @@
 $("#movieInfo").on("show.bs.modal", function(event) {
     var modal = $(this);
-
-    var $poster = modal.find("#minfo-poster");
-    var $title = modal.find("#minfo-title");
-    var $overview = modal.find("#minfo-overview");  
-    var $genres = modal.find("#minfo-genres"); 
-
-    $poster.attr("src", "");
-    $title.html("Loading data ...");
-    $overview.html("Wait a second.");
-    $genres.html("");
+    modal.find("#minfo-body").hide();
+    modal.find("#minfo-loading").show();
+    modal.find("#minfo-title").html("Loading data ...");
+    modal.find("#minfo-genres").html("");
 });
 
 $('#movieInfo').on('shown.bs.modal', function (event) {
@@ -19,6 +13,8 @@ $('#movieInfo').on('shown.bs.modal', function (event) {
     $.post(
         "/movies/" + movieId + "/info"
     ).done(function(data) {
+            modal.find("#minfo-loading").hide();           
+            modal.find("#minfo-body").show();
             modal.find("#minfo-poster").attr(
                 "src", "https://image.tmdb.org/t/p/w154" + data.poster_path
             );
