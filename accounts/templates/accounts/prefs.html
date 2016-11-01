@@ -7,6 +7,7 @@
 
 {% block styles %}
 {{ block.super }}
+<link rel="stylesheet" href="{% static 'css/w2w.movieinfo.css' %}">
 <style>
     #pref-list {
         display: table;
@@ -24,6 +25,7 @@
 
 {% block body %}
 {{ block.super }}
+{% include 'main/movieinfo.html' %}
 <div class = "container-w2w">
     <div class="page-header">
         <h3>Your Preferences</h3>
@@ -36,7 +38,9 @@
         <div id="pref-list">
             {% for pref in prefs %}
                 <div class="pref-movie" data-movie-id="{{ pref.id }}">
-                    <span class='pref-movie-title'>{{ pref.title }}</span>
+                    <span class='pref-movie-title'>
+                        <a href='#movieInfo' data-toggle='modal' data-movie-id="{{pref.id}}">{{pref.title}}</a>
+                    </span>
                     <div class="pref-movie-ui">
                         <div class = "pref-movie-rating">
                             <div class="pref-rating-star {% if 1 <= pref.rating %}selected{% endif %}" data-value="1">
@@ -92,6 +96,7 @@
 {% block body_scripts %}
 {{ block.super }}
 <script src="{% static 'js/prefs.source.js' %}"></script>
+<script src="{% static 'js/movieinfo.js' %}"></script>
 <script>
 
     var prefsHandler = new UserBasedPrefsSource();

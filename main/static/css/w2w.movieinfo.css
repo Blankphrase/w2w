@@ -1,3 +1,26 @@
-.minfo-body {
-    margin: 20px;
+#minfo-poster {
+    float: left;
+    box-shadow: 0px 2px 5px #444444;
+    margin-bottom: 5px;
 }
+.modal-footer {
+    clear: both;
+}
+#minfo-overview {
+    text-align: justify;
+}
+#minfo-body {
+   height: auto;
+   overflow: hidden;
+}
+#minfo-poster-wrapper {
+    width: 160px;
+    float: left;
+    margin-right: 10px;
+}
+
+#minfo-info-wrapper {
+    float: none;
+    width: auto;
+    overflow: hidden;
+}​​

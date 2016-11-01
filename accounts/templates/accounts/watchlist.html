@@ -5,8 +5,14 @@
 
 {% block watchlist_active %}submenu-active{% endblock %}
 
+{% block styles %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/w2w.movieinfo.css' %}">
+{% endblock styles %}
+
 {% block body %}
 {{ block.super }}
+{% include 'main/movieinfo.html' %}
 <div class = "container-w2w">
     <div class="page-header">
         <h3>Your Watchlist</h3>
@@ -19,7 +25,9 @@
         <div id="watchlist">
             {% for movie in watchlist %}
                 <div class="watchlist-movie" data-movie-id="{{ movie.id }}">
-                    <span class='watchlist-movie-title'>{{ movie.title }}</span>
+                    <span class='watchlist-movie-title'>
+                        <a href='#movieInfo' data-toggle='modal' data-movie-id="{{movie.id}}">{{movie.title}}</a>
+                    </span>
                     <div class="watchlist-movie-ui">
                         <div class="pref-movie-rating">
                             <div class="pref-rating-star {% if 1 <= pref.rating %}selected{% endif %}" data-value="1">
@@ -71,9 +79,11 @@
 </div>
 {% endblock %}
 
+
 {% block body_scripts %}
 {{ block.super }}
 <script src="{% static 'js/prefs.source.js' %}"></script>
+<script src="{% static 'js/movieinfo.js' %}"></script>
 <script>
     var prefsHandler = new UserBasedPrefsSource();
 

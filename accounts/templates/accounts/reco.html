@@ -7,6 +7,7 @@
 
 {% block styles %}
 {{ block.super }}
+<link rel="stylesheet" href="{% static 'css/w2w.movieinfo.css' %}">
 <style>
     .base-list {
         display: none;
@@ -35,6 +36,7 @@
 
 {% block body %}
 {{ block.super }}
+{% include 'main/movieinfo.html' %}
 <div class = "container-w2w">
     <div class = "page-header">
         <h2>
@@ -53,7 +55,11 @@
         <div class="reco-list active">
         {% for movie in reco.movies.all %}
             <div class="pref-movie">
-                <span class='pref-movie-title'>{{ movie.movie.title }}</span>
+                <span class='pref-movie-title'>
+                    <a href='#movieInfo' data-toggle='modal' data-movie-id="{{movie.movie.id}}">
+                        {{movie.movie.title}}
+                    </a>
+                </span>
             </div>
             {% if forloop.counter|divisibleby:"5" %}
                 {% if not forloop.last %}
@@ -79,7 +85,11 @@
         <div class="base-list active">
         {% for movie in reco.base.all %}
             <div class="pref-movie">
-                <span class='pref-movie-title'>{{ movie.movie.title }}</span>
+                <span class='pref-movie-title'>
+                    <a href='#movieInfo' data-toggle='modal' data-movie-id="{{movie.movie.id}}">
+                        {{movie.movie.title}}
+                    </a>
+                </span>
                 <div class="pref-movie-ui">
                     <div class = "pref-movie-rating">
                         <div class="pref-rating-star {% if 1 <= movie.rating %}selected{% endif %}" data-value="1">
@@ -120,6 +130,7 @@
 
 {% block body_scripts %}
 {{ block.super }}
+<script src="{% static 'js/movieinfo.js' %}"></script>
 <script>
     $("#reco-list-next").click(function() {
         var $current = $(".reco-list.active");

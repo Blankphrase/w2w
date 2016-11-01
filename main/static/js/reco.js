@@ -320,8 +320,11 @@ function addMovieToPrefsList(movieId, movieTitle, movieRating) {
     var $prefList = $("#pref-list");
     var $prefItem = $("<div class='pref-movie'></div>")
        .data("movie-id", movieId);
-    $prefItem.append($("<span class='pref-movie-title'></span>")
-        .html(movieTitle));
+    // $prefItem.append($("<span class='pref-movie-title'></span>")
+        // .html(movieTitle));
+    $prefItem.append($("<span class='pref-movie-title'><a href='#movieInfo' " +
+        "data-toggle='modal' data-movie-id='" + movieId + "'>" + 
+        movieTitle + "</a></span>"));
     var $prefUI = $("<div class ='pref-movie-ui'></div>");
     var $ratingForm = $("<div class='pref-movie-rating'></div>");
     for(var i = 1; i <= 5; i++) {
@@ -493,9 +496,16 @@ function updateRecoList(movies) {
     $RecoList.children("li").remove();
     for (var i = 0; i < movies.length; i++) {
         $RecoList.append($("<li class='reco-item' data-movie-id='" + 
-            movies[i].id + "'>" + movies[i].title + 
+            movies[i].id + "'><a href='#movieInfo' " +
+            "data-toggle='modal' data-movie-id='" + movies[i].id + "'>" + 
+            movies[i].title + "</a>" +
             " (<a href='#' class='watchlist-add-btn'>+Watchlist</a>)</li>")); 
     }
+
+    $prefItem.append($("<span class='pref-movie-title'><a href='#movieInfo' " +
+        "data-toggle='modal' data-movie-id='" + movieId + "'>" + 
+        movieTitle + "</a></span>"));
+
 }
 
 /******************************************************************************/
