@@ -139,15 +139,18 @@
             }
             e.preventDefault();
         });
-
         owl.on('changed.owl.carousel', function(event) {
             if (event.item.index + 20 > event.item.count) {
-                MoviesHandler.getNextPageMovies();
+                if (!MoviesHandler.isEndOfMovies()) {
+                    MoviesHandler.getNextPageMovies();
+                }
             } 
         });
 
         // Init MoviesHandler
         MoviesHandler.setMode(new BrowseQuery("/movies/nowplaying"));
+        MoviesHandler.noMoreMoviesImg = "{% static 'img/nomoremovies.png' %}";
+        MoviesHandler.lackOfPosterImg = "{% static 'img/lackofposter.png' %}";
         MoviesHandler.getMovies(page = 1);
 
         function equalHeight(group) {    

@@ -2,8 +2,28 @@
  Movies List (owl.carousel)
 *******************************************************************************/
 
+MoviesHandler.onLoad = function(response) {
+    var owl = $(".owl-carousel");
+    var movie_html = 
+        "<div class='movie movie-loading' data-movie-id=''>" + // relative
+            '<div id="floatingCirclesG">'+
+                '<div class="f_circleG" id="frotateG_01"></div>'+
+                '<div class="f_circleG" id="frotateG_02"></div>'+
+                '<div class="f_circleG" id="frotateG_03"></div>'+
+                '<div class="f_circleG" id="frotateG_04"></div>'+
+                '<div class="f_circleG" id="frotateG_05"></div>'+
+                '<div class="f_circleG" id="frotateG_06"></div>'+
+                '<div class="f_circleG" id="frotateG_07"></div>'+
+                '<div class="f_circleG" id="frotateG_08"></div>'+
+            '</div>'+
+            "<span class='movie-title'>Loading ...</span>" + // relative
+        "<div>";
+    owl.owlCarousel("add", movie_html);
+}
+
 MoviesHandler.onLoaded = function(response) {
     movies = response.movies;
+    $(".movie-loading").remove();
     if (movies.length > 0) {
         var owl = $(".owl-carousel");
         for (var i = 0; i < movies.length; i++) {
@@ -38,7 +58,14 @@ MoviesHandler.onLoaded = function(response) {
         owl.owlCarousel("refresh"); 
         alignMoviesListWithUserPrefs();  
     } else {
-        // alert("NO MORE MOVIES");
+        MoviesHandler.setEndOfMovies();
+        var owl = $(".owl-carousel");
+        var movie_html = 
+            "<div class='movie movie-loading' data-movie-id=''>" + // relative
+                "<img src='" + MoviesHandler.noMoreMoviesImg + "'>" +
+                "<span class='movie-title'></span>" + // relative
+            "<div>";
+        owl.owlCarousel("add", movie_html);
     }
 };
 

@@ -1,6 +1,11 @@
 Next To Do:
 - about page (first draft)
-- responsive stars
+- add loading picture at the end of carousel
+- NO MORE MOVIES 
+    - SHOW INFORMATION ABOUT LACK OF MOVIES
+    - DO NOT LOAD AGAIN WHEN LACK OF MOVIES WAS DETERMINED
+- NO INFO ABOUT THE MOVIE IN INFOMOVIE
+- NO POSTER -> SHOW SOMETHING
 
 TO DO:
 - show recommended movies
@@ -18,9 +23,7 @@ TO DO:
 )
 - show last recommendation in recommendations section (add to session storage for
   standalone recommendation and for general recommendation ...)
-- adjust star ratings for smaller screen (list box instead of stars)
 - responsieve menu in profile
-- add loading picture at the end of carousel
 - add messages when something is happening (e.g. change title of recommendation)
   user neets to know that sth is hepanning on the server and should wait
   a second or more
@@ -40,3 +43,4 @@ DONE:
 - create css file with style for website
 - put js/css in order
 - info window
+- responsive stars

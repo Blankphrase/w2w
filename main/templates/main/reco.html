@@ -161,9 +161,11 @@
 
         owl.on('changed.owl.carousel', function(event) {
             if (event.item.index + 20 > event.item.count) {
-                MoviesHandler.getNextPageMovies(function() {
-                    alignMoviesListWithUserPrefs(); 
-                });
+                if (!MoviesHandler.isEndOfMovies()) {
+                    MoviesHandler.getNextPageMovies(function() {
+                        alignMoviesListWithUserPrefs(); 
+                    });
+                }
             } 
         });
 
@@ -172,6 +174,8 @@
         
         // Init MoviesHandler
         MoviesHandler.setMode(new BrowseQuery("/movies/popular"));
+        MoviesHandler.noMoreMoviesImg = "{% static 'img/nomoremovies.png' %}";
+        MoviesHandler.lackOfPosterImg = "{% static 'img/lackofposter.png' %}";
         MoviesHandler.getMovies(page = 1, callback = function() {
             requestStatus.movies = true;
             if (requestStatus.prefs && !requestStatus.done) {

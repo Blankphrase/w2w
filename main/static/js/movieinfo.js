@@ -23,9 +23,13 @@ $('#movieInfo').on('shown.bs.modal', function (event) {
                 (new Date(data.release_date)).getFullYear() + ")"
             );
             modal.find("#minfo-overview").html(data.overview);
-            modal.find("#minfo-genres").html(
-                data.genres.map(function(item) { return item.name }).join(", ")
-            );
+            if (data.genres !== undefined) {
+                modal.find("#minfo-genres").html(
+                    data.genres.map(function(item) { return item.name }).join(", ")
+                );
+            } else {
+                modal.find("#minfo-genres").html(""); 
+            }
             modal.find("#minfo-runtime").html(data.runtime);
             modal.find("#minfo-vote").html(
                 data.vote_average + " (" + data.vote_count + " votes)"
