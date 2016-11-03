@@ -20,7 +20,7 @@ def about_page(request):
 
 def home_page(request):
     if request.user.is_authenticated:
-        reco = request.user.recos.first()
+        reco = request.user.recos.order_by("-timestamp").first()
     else:
         reco = None
     return render(request, "main/home.html", { "reco": reco } )

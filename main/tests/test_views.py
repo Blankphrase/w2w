@@ -1,3 +1,7 @@
+from unittest.mock import Mock, patch
+import json
+import datetime
+
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 
@@ -5,9 +9,6 @@ from accounts.models import PrefList
 from reco.models import Reco
 from reco.engine import RecoManager
 from tmdb.models import Movie
-
-from unittest.mock import Mock, patch
-import json
 
 
 User = get_user_model()
@@ -50,6 +51,19 @@ class HomePageTest(TestCase):
         user = self.create_and_login_user()
         response = self.client.get("/")
         self.assertIsNone(response.context["reco"])
+
+    def test_sends_last_reco_to_template(self):
+        user = self.create_and_login_user()
+        reco_first = Reco.objects.create(
+            user = user, title = "Reco #1",
+            timestamp = datetime.datetime(2013, 7, 17, 0, 0, 0, 0)
+        )
+        reco_last = Reco.objects.create(
+            user = user, title = "Reco #2",
+            timestamp = datetime.datetime(2014, 7, 17, 0, 0, 0, 0)
+        )
+        response = self.client.get("/")
+        self.assertEqual(response.context["reco"], reco_last)
 
 
 class RecoTest(TestCase):

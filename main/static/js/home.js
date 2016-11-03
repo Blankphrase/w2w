@@ -58,38 +58,33 @@ MoviesHandler.onLoaded = function(response) {
     }
 };
 
-$("#popular-browse-mode").click(function(e) {
-    clearMoviesList();
-    MoviesHandler.setMode(new BrowseQuery("/movies/popular"));
-    MoviesHandler.getMovies(page = 1);
-    $(".dropdown-toggle").dropdown("toggle");
-    e.preventDefault();
-    return (false);
-});
-$("#toprated-browse-mode").click(function(e) {
-    clearMoviesList();
-    MoviesHandler.setMode(new BrowseQuery("/movies/toprated"));
-    MoviesHandler.getMovies(page = 1);
-    $(".dropdown-toggle").dropdown("toggle");
-    e.preventDefault();
-    return (false);
-});
-$("#upcoming-browse-mode").click(function(e) {
-    clearMoviesList();
-    MoviesHandler.setMode(new BrowseQuery("/movies/upcoming"));
-    MoviesHandler.getMovies(page = 1);
-    $(".dropdown-toggle").dropdown("toggle");
-    e.preventDefault();
-    return (false);
-});
-$("#nowplaying-browse-mode").click(function(e) {
-    clearMoviesList();
-    MoviesHandler.setMode(new BrowseQuery("/movies/nowplaying"));
-    MoviesHandler.getMovies(page = 1);
-    $(".dropdown-toggle").dropdown("toggle");
-    e.preventDefault();
-    return (false);
-});
+function changeBrowseCallback(url, title) {
+    return function(event) {
+        clearMoviesList();
+        MoviesHandler.setMode(new BrowseQuery(url));
+        MoviesHandler.getMovies(page = 1);
+        if (title !== undefined) {
+            $("#browse-mode-name").html(title);
+        }
+        //$(".dropdown-toggle").dropdown("toggle");
+        event.preventDefault();
+        return (false);
+    };
+}
+
+$("#popular-browse-mode").click(
+    changeBrowseCallback("/movies/popular", "Popular Movies")
+);
+$("#toprated-browse-mode").click(
+    changeBrowseCallback("/movies/toprated", "Top Rated Movies")
+);
+$("#upcoming-browse-mode").click(
+    changeBrowseCallback("/movies/upcoming", "Upcoming Movies")
+);
+
+$("#nowplaying-browse-mode").click(
+    changeBrowseCallback("/movies/nowplaying", "Now Playing Movies")
+);
 
 $(document).on("click", ".movie-watchlist > a", function(event) {
     alert("TIME FOR WATCHLIST");

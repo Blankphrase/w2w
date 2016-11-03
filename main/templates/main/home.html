@@ -10,8 +10,27 @@
 <link rel="stylesheet" href="{% static 'css/w2w.home.css' %}">
 <link rel="stylesheet" href="{% static 'css/w2w.carousel.css' %}">
 <link rel="stylesheet" href="{% static 'css/w2w.movieinfo.css' %}">
+<link rel="stylesheet" href="{% static 'css/w2w.prefs.css' %}">
 <style>
-
+    .reco-list {
+        display: none;
+        /*display: table;*/
+        table-layout: fixed;
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 10px;
+    }
+    .reco-list.active {
+        display: table !important;
+    }
+    .pref-rating-star,
+    .pref-dropbtn {
+        cursor: auto !important;
+    }
+    .movies-list-ui {
+        float: right;
+        margin-bottom: 5px;
+    }
 </style>
 {% endblock styles %}
 
@@ -67,11 +86,11 @@
     </div>
 </div>
 
-
 <div class="container container-w2w">
     <div class="page-header">
-        <h4>Movies Browser</h4>
+        <h3>Movies Browser</h3>
     </div>
+
     <div class="movies-list-ui">
         <div class="btn-group" role="group" aria-label="...">
             <div class="btn-group" role="group">
@@ -101,9 +120,55 @@
         </button>
         <span id="movies-list-info-msg"></span>
     </div>
-
+    <h4 id="browse-mode-name">Popular Movies</h4>
     <div class="owl-carousel"></div>
 </div>
+
+{% if reco %}
+    <div class = "container-w2w">
+        <div class = "page-header">
+            <h3>
+                Your Last Recommendation<br>
+                <small>
+                {% if reco.title is None %}
+                    No Title
+                {% else %}
+                    {{ reco.title }}
+                {% endif %}
+                ({{ reco.timestamp|date:'Y-m-d H:i' }})</small>
+            </h3>
+        </div>
+        <h4>Recommended Movies</h4>
+        {% if reco.movies.count == 0 %}
+            It seems there were no movies recommended to you.
+        {% else %}
+            <div class="reco-list active">
+            {% for movie in reco.movies.all %}
+                <div class="pref-movie">
+                    <span class='pref-movie-title'>
+                        <a href='#movieInfo' data-toggle='modal' data-movie-id="{{movie.movie.id}}">
+                            {{movie.movie.title}}
+                        </a>
+                    </span>
+                </div>
+                {% if forloop.counter|divisibleby:"5" %}
+                    {% if not forloop.last %}
+                        </div>
+                        <div class="reco-list">
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+            </div>
+            <dev>
+                <button id="reco-list-prev" class="btn btn-default" 
+                    type="button">Prev</button>
+                <button id="reco-list-next" class="btn btn-default" 
+                    type="button">Next</button>
+            </dev>
+        {% endif %}
+    </div>
+{% endif %}
+
 {% endblock %}
 
 {% block body_scripts %}
@@ -173,6 +238,24 @@
         });
         $("#general-reco-btn").click(function() {
             localStorage.setItem("reco-type", "general");
+        });
+
+        $("#reco-list-next").click(function() {
+            var $current = $(".reco-list.active");
+            var $next = $current.next(".reco-list");
+            if ($next.length) {
+                $current.removeClass("active");
+                $next.addClass("active");
+            }
+        });
+
+        $("#reco-list-prev").click(function() {
+            var $current = $(".reco-list.active");
+            var $prev = $current.prev(".reco-list");
+            if ($prev.length) {
+                $current.removeClass("active");
+                $prev.addClass("active");
+            }
         });
     </script>
 {% endblock %}
