@@ -61,11 +61,14 @@
     </div>
     {% endblock %}
 
-    {% block body %}{% endblock %}
-
-<!--     <div class="container container-w2w">
-        <p>&copy; Copyright 2016 JAGO. Contact hakubaa@gmail.com. </p>
-    </div>    -->
+    {% block body %}{% endblock %}  
+    <footer class="footer-w2w">
+        <div class="container">
+            <p class="text-muted">&copy; 2016 <a href="mailto:hakubaa@gmail.com">JAGO</a>
+            ALL RIGHTS RESERVED
+            </p>
+        </div>
+    </footer>
 
     <script src="{% static 'main/js/jquery-3.1.0.min.js' %}"></script>
     <script src="{% static 'main/js/bootstrap.min.js' %}"></script>

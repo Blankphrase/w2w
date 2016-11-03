@@ -5,9 +5,14 @@
     2B3E50
     FAFFC2
 -->*/
+html {
+    position: relative;
+    min-height: 100%;
+}
 
 body {
     background-color: #2B3E50 !important;
+    margin-bottom: 100px;
 }
 
 .container-w2w {
@@ -17,8 +22,20 @@ body {
     margin-left: auto;
     margin-right: auto;
     margin-bottom: 25px;
-
 }
+
+.footer-w2w {
+    position: absolute;
+    bottom: 0;
+    background-color: #F5F5F5;
+    margin: 0 auto;
+    width: 100%;
+    border-radius: 3px;
+    padding-top: 10px;
+    padding-bottom: 5px;
+    text-align: center;
+}
+
   /* Small devices (tablets, 768px and up) */
 @media(max-width:767px) { 
     .container-w2w {

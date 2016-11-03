@@ -13,6 +13,10 @@
     width: 185px;
     max-width: 185px;
     max-height: 278px; 
+    background-image: url("/static/img/lackofposter.png");
+}
+.movie.movie-loading {
+    background-image: none !important;   
 }
 .movie img {
     height: 100%;

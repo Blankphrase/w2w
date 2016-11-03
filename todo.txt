@@ -1,17 +1,9 @@
 Next To Do:
 - about page (first draft)
-- add loading picture at the end of carousel
-- NO MORE MOVIES 
-    - SHOW INFORMATION ABOUT LACK OF MOVIES
-    - DO NOT LOAD AGAIN WHEN LACK OF MOVIES WAS DETERMINED
-- NO INFO ABOUT THE MOVIE IN INFOMOVIE
-- NO POSTER -> SHOW SOMETHING
 
 TO DO:
 - show recommended movies
 - style recommended movies  
-- about page
-- footer
 - main page
     - the most popular movies
     - the newest movies
@@ -27,7 +19,8 @@ TO DO:
 - add messages when something is happening (e.g. change title of recommendation)
   user neets to know that sth is hepanning on the server and should wait
   a second or more
-- add companies (model, store them in dataset, etc.)
+- add companies (model, store them in dataset, etc.) -> v. 2.0
+- add actress -> v. 2.0
 
 DONE:
 - add functionality to return to popular movies browsing (from search)
@@ -44,3 +37,10 @@ DONE:
 - put js/css in order
 - info window
 - responsive stars
+- add loading spinner at the end of carousel
+- 'No More Movies' information
+    - Show img
+    - Do not send any request again when no more movies detected
+- Show no poster information
+- NO INFO ABOUT THE MOVIE IN INFOMOVIE OR LACK OF SOME DATA (DO STH WITH IT!!!)
+- footer
