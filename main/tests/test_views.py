@@ -23,10 +23,33 @@ class AboutTest(TestCase):
 
 class HomePageTest(TestCase):
 
+    def create_and_login_user(self, email = "test@jago.com", password="test"):
+        user = User(email = email)
+        user.set_password(password)
+        user.save()
+        self.client.login(email = "test@jago.com", password = "test")
+        return user
+
     def test_show_homepage_template(self):
         response = self.client.get("/")
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'main/home.html')
+
+    def test_for_passing_reco_to_template(self):
+        user = self.create_and_login_user()
+        reco = Reco.objects.create(user = user, title = "Reco #1")
+        response = self.client.get("/")
+        self.assertIsInstance(response.context["reco"], Reco)
+        self.assertEqual(response.context["reco"].title, reco.title)
+
+    def test_for_none_reco_if_anonymous_user(self):
+        response = self.client.get("/")
+        self.assertIsNone(response.context["reco"])
+
+    def test_for_none_reco_if_no_previous_recos(self):
+        user = self.create_and_login_user()
+        response = self.client.get("/")
+        self.assertIsNone(response.context["reco"])
 
 
 class RecoTest(TestCase):

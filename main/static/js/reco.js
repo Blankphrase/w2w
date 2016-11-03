@@ -534,11 +534,9 @@ function updateRecoList(movies) {
             movies[i].title + "</a>" +
             " (<a href='#' class='watchlist-add-btn'>+Watchlist</a>)</li>")); 
     }
-
-    $prefItem.append($("<span class='pref-movie-title'><a href='#movieInfo' " +
-        "data-toggle='modal' data-movie-id='" + movieId + "'>" + 
-        movieTitle + "</a></span>"));
-
+    // $prefItem.append($("<span class='pref-movie-title'><a href='#movieInfo' " +
+    //     "data-toggle='modal' data-movie-id='" + movieId + "'>" + 
+    //     movieTitle + "</a></span>"));
 }
 
 /******************************************************************************/

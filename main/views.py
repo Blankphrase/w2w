@@ -19,13 +19,13 @@ def about_page(request):
     return render(request, "main/about.html")
 
 def home_page(request):
-    return render(request, "main/home.html")
+    if request.user.is_authenticated:
+        reco = request.user.recos.first()
+    else:
+        reco = None
+    return render(request, "main/home.html", { "reco": reco } )
 
 def reco_page(request):
-    # Start with popular browsing mode
-    request.session["browse_mode"] = "popular"
-    request.session["browse_page"] = 1
-
     reco_type = request.GET.get("type", "standalone")
     if reco_type != "general" and reco_type != "standalone":
         reco_type = "standalone"
