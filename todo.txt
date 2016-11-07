@@ -3,12 +3,6 @@ Next To Do:
 
 TO DO:
 - better design for log in and sign up 
-- main page
-    - the most popular movies
-    - the newest movies
-    - the upcoming movies
-    - last recommendation for logged in users
-    - better styling
 - add alert bar showing what is going on in profile (
     e.g. updating database, adding movie to your preferences, and so on.
 )
@@ -47,3 +41,9 @@ DONE:
 - footer
 - show recommended movies
 - style recommended movies 
+- main page
+    - the most popular movies
+    - the newest movies
+    - the upcoming movies
+    - last recommendation for logged in users
+    - better styling

@@ -615,7 +615,6 @@
 		this.setup();
 
 		this.optionsLogic();
-
 		this.$element.addClass(this.options.refreshClass);
 
 		this.update();
@@ -624,6 +623,7 @@
 
 		this.leave('refreshing');
 		this.trigger('refreshed');
+
 	};
 
 	/**

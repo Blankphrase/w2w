@@ -37,7 +37,7 @@
 {% block body %}
 {{ block.super }}
 {% include 'main/movieinfo.html' %}
-<div class="container container-w2w mode-selection">
+<div class="container container-w2w">
     <div class="page-header" id="lg-device-header">
         <h1>Welcome to "<strong>W2W</strong>" - <strong>What To Watch</strong>
         <br><small>Looking for some new movies to watch? - You've found the right place!</small>
@@ -86,44 +86,6 @@
     </div>
 </div>
 
-<div class="container container-w2w">
-    <div class="page-header">
-        <h3>Movies Browser</h3>
-    </div>
-
-    <div class="movies-list-ui">
-        <div class="btn-group" role="group" aria-label="...">
-            <div class="btn-group" role="group">
-                <button type="button" class="btn btn-default dropdown-toggle" 
-                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    Browsing Mode
-                    <span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu">
-                    <li><a id="popular-browse-mode" href="#">Popular Movies</a></li>
-                    <li><a id="toprated-browse-mode" href="#">Top Rated Movies</a></li>
-                    <li><a id="upcoming-browse-mode" href="#">Upcoming Movies</a></li>
-                    <li><a id="nowplaying-browse-mode" href="#">Now Playing Movies</a></li>
-                </ul>
-            </div>
-
-            <button class="btn btn-default owl-prev" type="button">&#9666</button>
-            <button class="btn btn-default owl-next" type="button">&#9656</button>
-        </div>
-    </div>
-
-    <div class="alert alert-info alert-dismissible" role="alert" 
-         id="movies-list-info">
-        <button type="button" class="close" data-dismiss="alert" 
-                aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-        </button>
-        <span id="movies-list-info-msg"></span>
-    </div>
-    <h4 id="browse-mode-name">Popular Movies</h4>
-    <div class="owl-carousel"></div>
-</div>
-
 {% if reco %}
     <div class = "container-w2w">
         <div class = "page-header">
@@ -169,6 +131,43 @@
     </div>
 {% endif %}
 
+<div class="container container-w2w container-with-carousel">
+    <div class="page-header">
+        <h3>Movies Browser</h3>
+    </div>
+
+    <div class="movies-list-ui">
+        <div class="btn-group" role="group" aria-label="...">
+            <div class="btn-group" role="group">
+                <button type="button" class="btn btn-default dropdown-toggle" 
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Browsing Mode
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a id="popular-browse-mode" href="#">Popular Movies</a></li>
+                    <li><a id="toprated-browse-mode" href="#">Top Rated Movies</a></li>
+                    <li><a id="upcoming-browse-mode" href="#">Upcoming Movies</a></li>
+                    <li><a id="nowplaying-browse-mode" href="#">Now Playing Movies</a></li>
+                </ul>
+            </div>
+
+            <button class="btn btn-default owl-prev" type="button">&#9666</button>
+            <button class="btn btn-default owl-next" type="button">&#9656</button>
+        </div>
+    </div>
+
+    <div class="alert alert-info alert-dismissible" role="alert" 
+         id="movies-list-info">
+        <button type="button" class="close" data-dismiss="alert" 
+                aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+        </button>
+        <span id="movies-list-info-msg"></span>
+    </div>
+    <h4 id="browse-mode-name">Popular Movies</h4>
+    <div class="owl-carousel"></div>
+</div>
 {% endblock %}
 
 {% block body_scripts %}

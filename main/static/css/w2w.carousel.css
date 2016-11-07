@@ -1,3 +1,6 @@
+.container-with-carousel {
+    height: 478px;
+}
 .movie {
     position: relative;
     display: inline-block;

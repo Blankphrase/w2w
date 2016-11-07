@@ -45,7 +45,7 @@ MoviesHandler.onLoaded = function(response) {
 
             owl.owlCarousel("add", movie_html);
         }
-        owl.owlCarousel("refresh"); 
+        owl.trigger("refresh.owl.carousel");
     } else {
         MoviesHandler.setEndOfMovies();
         var owl = $(".owl-carousel");
@@ -66,7 +66,7 @@ function changeBrowseCallback(url, title) {
         if (title !== undefined) {
             $("#browse-mode-name").html(title);
         }
-        //$(".dropdown-toggle").dropdown("toggle");
+        // $(".dropdown-toggle").dropdown("toggle");
         event.preventDefault();
         return (false);
     };
@@ -96,7 +96,6 @@ function clearMoviesList() {
     while ($(".owl-item").length) {
         owl.trigger("remove.owl.carousel", 0);
     } 
-    owl.trigger("to.owl.carousel", [0]);   
 }
 
 /******************************************************************************/

@@ -69,38 +69,29 @@ MoviesHandler.onLoaded = function(response) {
     }
 };
 
-$("#popular-browse-mode").click(function(e) {
-    clearMoviesList();
-    MoviesHandler.setMode(new BrowseQuery("/movies/popular"));
-    MoviesHandler.getMovies(page = 1);
-    $(".dropdown-toggle").dropdown("toggle");
-    e.preventDefault();
-    return (false);
-});
-$("#toprated-browse-mode").click(function(e) {
-    clearMoviesList();
-    MoviesHandler.setMode(new BrowseQuery("/movies/toprated"));
-    MoviesHandler.getMovies(page = 1);
-    $(".dropdown-toggle").dropdown("toggle");
-    e.preventDefault();
-    return (false);
-});
-$("#upcoming-browse-mode").click(function(e) {
-    clearMoviesList();
-    MoviesHandler.setMode(new BrowseQuery("/movies/upcoming"));
-    MoviesHandler.getMovies(page = 1);
-    $(".dropdown-toggle").dropdown("toggle");
-    e.preventDefault();
-    return (false);
-});
-$("#nowplaying-browse-mode").click(function(e) {
-    clearMoviesList();
-    MoviesHandler.setMode(new BrowseQuery("/movies/nowplaying"));
-    MoviesHandler.getMovies(page = 1);
-    $(".dropdown-toggle").dropdown("toggle");
-    e.preventDefault();
-    return (false);
-});
+function changeBrowseCallback(url) {
+    return function(event) {
+        clearMoviesList();
+        MoviesHandler.setMode(new BrowseQuery(url));
+        MoviesHandler.getMovies(page = 1);
+        $(".dropdown-toggle").dropdown("toggle");
+        e.preventDefault();
+        return (false);
+    };
+}
+
+$("#popular-browse-mode").click(
+    changeBrowseCallback("/movies/popular")
+);
+$("#toprated-browse-mode").click(
+    changeBrowseCallback("/movies/toprated")
+);
+$("#upcoming-browse-mode").click(
+    changeBrowseCallback("/movies/upcoming")
+);
+$("#nowplaying-browse-mode").click(
+    changeBrowseCallback("/movies/nowplaying")
+);
 
 $(document).on("mouseover", ".movie-rating-star", function() {
     $(this).addClass("hovered");
