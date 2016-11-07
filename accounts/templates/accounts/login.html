@@ -5,16 +5,18 @@
 
 {% block styles %}
 {{ block.super }}
-<link rel="stylesheet" href="{% static 'css/w2w.accounts.css' %}">
 <style>
-    label {
-        color: white;
+    .container-w2w {
+        width: 300px !important;
     }
 </style>
 {% endblock styles %}
 
 {% block body %}
-<div class="container">
+<div class="container container-w2w">
+    <div class = "page-header">
+        <h2>Login</h2>
+    </div>
     <form method="POST" role="form">
         {% csrf_token %}
 

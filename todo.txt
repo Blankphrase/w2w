@@ -2,7 +2,6 @@ Next To Do:
 - about page (first draft)
 
 TO DO:
-- better design for log in and sign up 
 - add alert bar showing what is going on in profile (
     e.g. updating database, adding movie to your preferences, and so on.
 )
@@ -47,3 +46,4 @@ DONE:
     - the upcoming movies
     - last recommendation for logged in users
     - better styling
+- better design for log in and sign up 
