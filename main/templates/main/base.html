@@ -46,7 +46,9 @@
                                aria-expanded="false"
                             >{{user.email}}<span class="caret"></span></a>
                             <ul class="dropdown-menu">
-                                <li><a href="{% url 'accounts:profile' %}">Profile</a></li>
+                                {% block navbar_profile %}
+                                    <li><a href="{% url 'accounts:profile' %}">Profile</a></li>
+                                {% endblock %}
                                 <li role="separator" class="divider"></li>
                                 <li><a id="id_logout" href="{% url 'accounts:logout' %}">Log Out</a></li>
                             </ul>

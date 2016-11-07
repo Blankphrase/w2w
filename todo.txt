@@ -7,7 +7,6 @@ TO DO:
 )
 - show last recommendation in recommendations section (add to session storage for
   standalone recommendation and for general recommendation ...)
-- responsieve menu in profile
 - add messages when something is happening (e.g. change title of recommendation)
   user neets to know that sth is hepanning on the server and should wait
   a second or more
@@ -47,3 +46,4 @@ DONE:
     - last recommendation for logged in users
     - better styling
 - better design for log in and sign up 
+- responsieve menu in profile

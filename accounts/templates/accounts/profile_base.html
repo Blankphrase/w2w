@@ -12,7 +12,7 @@
 <div class="container container-navbar">
     <ul class="side-navbar">
       <li><a class="{% block edit_active %}{% endblock %}" 
-             href="{% url 'accounts:profile' %}">Edit Profile</a></li>
+             href="{% url 'accounts:profile' %}">Edit</a></li>
       <li><a class="{% block prefs_active %}{% endblock %}" 
              href="{% url 'accounts:prefs' %}">Preferences</a></li>
       <li><a class="{% block watchlist_active %}{% endblock %}"
@@ -26,3 +26,12 @@
     </ul>
 </div>
 {% endblock body %}
+
+{% block navbar_profile %}
+    <li><a href="{% url 'accounts:profile' %}">Edit</a></li>
+    <li><a href="{% url 'accounts:prefs' %}">Preferences</a></li>
+    <li><a href="{% url 'accounts:watchlist' %}">Watchlist</a></li>
+    <li><a href="{% url 'accounts:recos' %}">Recommendations</a></li>
+    <li><a href="{% url 'accounts:password' %}">Change Password</a></li>
+    <li><a href="{% url 'accounts:delete' %}">Delete Account</a></li>
+{% endblock %}

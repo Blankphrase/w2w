@@ -61,3 +61,11 @@ ul.side-navbar li a {
     display: inline-block;
     vertical-align: middle;
 }
+
+/* Devices with small screen - hide sub navbar */
+@media(max-width:767px) { 
+    .container-navbar {
+        display: none;
+    }
+}
+
