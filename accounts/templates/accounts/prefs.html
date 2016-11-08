@@ -63,25 +63,6 @@
                                 </div>
                             </div>
                         </div>
-
-
-<!--                    <div class = "pref-movie-rating">
-                            <div class="pref-rating-star {% if 1 <= pref.rating %}selected{% endif %}" data-value="1">
-                                <span></span>
-                            </div>
-                            <div class="pref-rating-star {% if 2 <= pref.rating %}selected{% endif %}" data-value="2">
-                                <span></span>
-                            </div>
-                            <div class="pref-rating-star {% if 3 <= pref.rating %}selected{% endif %}" data-value="3">
-                                <span></span>
-                            </div>
-                            <div class="pref-rating-star {% if 4 <= pref.rating %}selected{% endif %}" data-value="4">
-                                <span></span>
-                            </div>
-                            <div class="pref-rating-star {% if 5 <= pref.rating %}selected{% endif %}" data-value="5">
-                                <span></span>
-                            </div>
-                        </div> -->
                         <button class='btn btn-default pref-movie-remove' 
                                 type='button'>Remove</button>
                     </div>
@@ -136,33 +117,61 @@
 
     $(document).on("click", ".pref-rating-star", function() {
         var rating = $(this).data("value");
-        var movieId = $(this).parent().parent().parent().parent().data("movie-id");
-        var title = $(this).parent().parent().parent().siblings(".pref-movie-title").html();
+        var movieId = $(this).parent().parent().parent().parent().
+                              data("movie-id");
+        var $titleElement = $(this).parent().parent().parent().
+                                    siblings(".pref-movie-title");
+        var title = $titleElement.find("a").html();
+
+        $titleElement.find("span").remove();
+        $titleElement.append("<span>| Updating preference ...</span>");
 
         prefsHandler.update(
             movieId = movieId,
             movieTitle = title,
             movieRating = rating,
-            function() {
-                var $movie = $(".pref-movie").filter(function() { 
-                    return $(this).data("movie-id") == movieId
-                });
-                $movie.find(".pref-movie-rating").children().removeClass("selected");
+            function(response) {
+                $titleElement.find("span").remove();
+                if (response.status.toUpperCase() === "OK") {
+                    $titleElement.append("<span>| Done, preference updated.</span>");
+                    setTimeout(function() { 
+                        $titleElement.find("span").remove();        
+                    }, 1000);
 
-                var $movieStar =  $movie.find(".pref-movie-rating").
-                    find("[data-value='" + rating + "']");
-                $movieStar.addClass("selected");
-                $movieStar.prevAll().addClass("selected"); 
+                    var $movie = $(".pref-movie").filter(function() { 
+                        return $(this).data("movie-id") == movieId
+                    });
+                    $movie.find(".pref-movie-rating").children().
+                           removeClass("selected");
 
-                $movie.find(".pref-dropbtn").html(movieRating);
+                    var $movieStar =  $movie.find(".pref-movie-rating").
+                        find("[data-value='" + rating + "']");
+                    $movieStar.addClass("selected");
+                    $movieStar.prevAll().addClass("selected"); 
+
+                    $movie.find(".pref-dropbtn").html(movieRating);
+                } else {
+                    $titleElement.append(
+                        "<span>| Error, preference not updated.</span>");
+                }
             }  
         );   
     });
 
     $(document).on("click", ".pref-movie-remove", function() {
         var $movie = $(this).parent().parent();
-        prefsHandler.remove($movie.data("movie-id"), function() {
-            $movie.remove();
+        var $titleElement = $movie.children(".pref-movie-title");
+
+        $titleElement.find("span").remove();
+        $titleElement.append("<span>| Removing ...</span>");
+
+        prefsHandler.remove($movie.data("movie-id"), function(response) {
+            if (response.status.toUpperCase() === "OK") {
+                $movie.remove();
+            } else {
+                $titleElement.find("span").remove();
+                $titleElement.append("<span>| Error, preference not removed.</span>");
+            }
         });
     });
 

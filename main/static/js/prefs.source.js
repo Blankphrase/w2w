@@ -25,11 +25,9 @@ UserBasedPrefsSource.prototype.update = function(
                     movie.rating = rating;
                     movie.title = title;
                 }
-            } else {
-                alert("WTF");
             }
             if (callback !== undefined) {
-                callback(this_);
+                callback(response);
             }
         }
     );
@@ -61,7 +59,7 @@ UserBasedPrefsSource.prototype.remove = function(id, callback) {
                 }
             }
             if (callback !== undefined) {
-                callback(this_);
+                callback(response);
             }
         }
     );
@@ -84,7 +82,7 @@ UserBasedPrefsSource.prototype.loadData = function(callback) {
                 }
             }
             if (callback !== undefined) {
-                callback(this_);
+                callback(response);
             }
         }
     );   
@@ -141,7 +139,7 @@ SessionBasedPrefsSource.prototype.update = function(
     }
     this.saveStorageData(data);
     if (callback !== undefined) {
-        callback(this);
+        callback({status: "OK"});
     }
 }
 
@@ -167,7 +165,7 @@ SessionBasedPrefsSource.prototype.remove = function(id, callback) {
         data.splice(index, 1);
         this.saveStorageData(data);
         if (callback !== undefined) {
-            callback(this);
+            callback({status: "OK"});
         }
     }
 }
@@ -177,7 +175,7 @@ SessionBasedPrefsSource.prototype.loadData = function(callback) {
     // Do nothing. Required for ensuring similar interface for
     // all preferences managers.
     if (callback !== undefined) {
-        callback(this);
+        callback({status: "OK"});
     }
 }
 

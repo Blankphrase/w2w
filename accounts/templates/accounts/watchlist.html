@@ -103,31 +103,47 @@
 
     $(document).on("click", ".pref-rating-star", function() {
         var rating = $(this).data("value");
-        var movieId = $(this).parent().parent().parent().parent().data("movie-id");
-        var title = $(this).parent().parent().parent().siblings(".watchlist-movie-title").html();
+        var $movie = $(this).parent().parent().parent().parent();
+        var movieId = $movie.data("movie-id");
+        var $titleElement = $movie.children(".watchlist-movie-title");
+        var title = $titleElement.find("a").html();
+    
+        $titleElement.find("span").remove();
+        $titleElement.append("<span> | Saving preference ...</span>");
 
         prefsHandler.update(
             movieId = movieId,
             movieTitle = title,
             movieRating = rating,
-            function() {
-                var $movie = $(".watchlist-movie").filter(function() { 
-                    return $(this).data("movie-id") == movieId
-                });
-                $movie.find(".pref-movie-rating").children().removeClass("selected");
-
-                var $movieStar =  $movie.find(".pref-movie-rating").
-                    find("[data-value='" + rating + "']");
-                $movieStar.addClass("selected");
-                $movieStar.prevAll().addClass("selected");  
-
-                $movie.remove();          
+            function(response) {
+                $titleElement.find("span").remove();
+                if (response.status.toUpperCase() === "OK") {
+                    $titleElement.append("<span> | Done, preference saved.</span>");
+                    $.post(
+                        "/accounts/watchlist/remove",
+                        {id: movieId},
+                        function(response) {
+                            if (response.status.toUpperCase() === "OK") {
+                                $movie.remove();     
+                            } else {
+                                $titleElement.append("<span> | Error, watchlist not updated.</span>");    
+                            }
+                        }
+                    );
+                } else {
+                    $titleElement.append("<span> | Error, preference not saved.</span>");
+                }     
             }  
         );   
     });
 
     $(document).on("click", ".watchlist-movie-remove", function() {
         var $movie = $(this).parent().parent();
+        var $titleElement = $movie.children(".watchlist-movie-title");
+
+        $titleElement.find("span").remove();
+        $titleElement.append("<span> | Removing ...</span>");
+
         $.post(
             "/accounts/watchlist/remove",
             {id: $movie.data("movie-id")},

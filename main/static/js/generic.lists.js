@@ -113,9 +113,9 @@ var PrefsList = {
         var this_ = this;
         this.source.remove(
             movieId,
-            function() {
+            function(response) {
                 if (!noCallback && this_.callbacks.onRemove !== undefined) {
-                    this_.callbacks.onRemove(movieId);
+                    this_.callbacks.onRemove(response);
                 }
             }
         );   

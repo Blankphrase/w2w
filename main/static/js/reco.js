@@ -109,6 +109,15 @@ $(document).on("click", ".movie-rating-star", function() {
     var movieId = $(this).parent().parent().data("movie-id");
     var title = $(this).parent().siblings(".movie-title").html();
 
+    var $movie = $(".pref-movie").filter(function() { 
+        return $(this).data("movie-id") == movieId 
+    });
+    if ($movie.length > 0) {
+        var $titleElement = $movie.children(".pref-movie-title");
+        $titleElement.find("span").remove();
+        $titleElement.append("<span> | Updating preference ...</span>");
+    }
+    
     PrefsList.update(
         movieId = movieId,
         movieTitle = title,
@@ -129,6 +138,16 @@ $(document).on("click", ".movie-watchlist > a", function(event) {
 
 $(document).on("click", ".check-off a", function(event) {
     var movieId = $(this).parent().parent().parent().data("movie-id");
+
+    var $movie = $(".pref-movie").filter(function() {
+        return $(this).data("movie-id") == movieId
+    });
+    if ($movie.length > 0) {
+        var $titleElement = $movie.children(".pref-movie-title");
+        $titleElement.find("span").remove();
+        $titleElement.append("<span> | Removing ...</span>");
+    }
+
     PrefsList.remove(movieId);
     $(".movie-item").filter(function() {
         return $(this).data("movie-id") == movieId
@@ -148,43 +167,52 @@ $(document).on("click", ".check-off a", function(event) {
 
 $("#movie-search-button").click(function() {
     var query = $("#movie-search-input").val();
-    showMoviesListInfo("Searching movies...");
-    MoviesHandler.setMode(new SearchQuery(query));
-    MoviesHandler.getMovies(page = 1, function(response) {
-        if (response.movies.length > 0) {
-            // Remove all movies from carousel from previous browsing
-            var owl = $(".owl-carousel");
-            while ($(".owl-item").length > response.movies.length) {
-                owl.trigger("remove.owl.carousel", 0);
-            } 
-            owl.trigger("to.owl.carousel", [0]);
-            alignMoviesListWithUserPrefs();
-            hideMoviesListInfo(); 
-        } else {
-            showMoviesListInfo("No movies found matching your query.");
-        }
-    });
-});
-
-
-$("#movie-search-input").keyup(function (e) {
-    if (e.keyCode == 13) {
+    if (query.trim() === "") {
+        showMoviesListInfo("Invalid query ...");
+    } else {
         showMoviesListInfo("Searching movies...");
-        MoviesHandler.setMode(new SearchQuery($(this).val()));
+        MoviesHandler.setMode(new SearchQuery(query));
         MoviesHandler.getMovies(page = 1, function(response) {
             if (response.movies.length > 0) {
                 // Remove all movies from carousel from previous browsing
                 var owl = $(".owl-carousel");
                 while ($(".owl-item").length > response.movies.length) {
                     owl.trigger("remove.owl.carousel", 0);
-                }    
-                alignMoviesListWithUserPrefs();
+                } 
                 owl.trigger("to.owl.carousel", [0]);
+                alignMoviesListWithUserPrefs();
                 hideMoviesListInfo(); 
             } else {
                 showMoviesListInfo("No movies found matching your query.");
             }
         });
+    }
+});
+
+
+$("#movie-search-input").keyup(function (e) {
+    if (e.keyCode == 13) {
+        var query = $(this).val();
+        if (query.trim() === "") {
+            showMoviesListInfo("Invalid query ...");
+        } else {
+            showMoviesListInfo("Searching movies...");
+            MoviesHandler.setMode(new SearchQuery(query));
+            MoviesHandler.getMovies(page = 1, function(response) {
+                if (response.movies.length > 0) {
+                    // Remove all movies from carousel from previous browsing
+                    var owl = $(".owl-carousel");
+                    while ($(".owl-item").length > response.movies.length) {
+                        owl.trigger("remove.owl.carousel", 0);
+                    }    
+                    alignMoviesListWithUserPrefs();
+                    owl.trigger("to.owl.carousel", [0]);
+                    hideMoviesListInfo(); 
+                } else {
+                    showMoviesListInfo("No movies found matching your query.");
+                }
+            });
+        }
     }
 });
 
@@ -197,9 +225,10 @@ function clearMoviesList() {
 }
 
 function showMoviesListInfo(msg) {
-    var info = $("#movies-list-info");
-    info.find("#movies-list-info-msg").html(msg);
-    info.show();
+    var $info = $("#movies-list-info");
+    $info.show();
+    $info.find("#movies-list-info-msg").html(msg);
+    $info.show();
 }
 
 function hideMoviesListInfo() {
@@ -251,7 +280,13 @@ $("#clear-my-prefs").click(function() {
 
 
 $(document).on("click", ".pref-movie-remove", function() {
-    var movieId = $(this).parent().parent().data("movie-id");
+    var $movie = $(this).parent().parent();
+    var movieId = $movie.data("movie-id");
+
+    var $titleElement = $movie.children(".pref-movie-title");
+    $titleElement.find("span").remove();
+    $titleElement.append("<span> | Removing ...</span>");
+
     PrefsList.remove(movieId);
     $(".movie-item").filter(function() {
         return $(this).data("movie-id") == movieId
@@ -279,14 +314,18 @@ $(document).on("mouseout", ".pref-rating-star", function() {
 $(document).on("click", ".pref-rating-star", function() {
     // Adjust rating from 1-5 to 1-10
     var rating = $(this).data("value");
+    var $movie = $(this).parent().parent().parent().parent();
+    var movieId = $movie.data("movie-id");
 
-    var movieId = $(this).parent().parent().parent().parent().data("movie-id");
-    var title = $(this).parent().parent().parent().siblings(".pref-movie-title").html();
+    var $titleElement = $movie.children(".pref-movie-title");
+    var title = $titleElement.html();
+    $titleElement.find("span").remove();
+    $titleElement.append("<span> | Updating preference ...</span>");
 
     PrefsList.update(
         movieId = movieId,
         movieTitle = title,
-        movieRating = rating   
+        movieRating = rating
     );   
 
     // alignMoviesListWithUserPrefs();
@@ -302,12 +341,14 @@ $(document).on("click", ".pref-rating-star", function() {
 });
 
 
-PrefsList.on("onUpdate", function() {
-    reloadPrefsList(PrefsList.getCurrentPage());
+PrefsList.on("onUpdate", function(response) {
+    if (response.status.toUpperCase() == "OK") {
+        reloadPrefsList(PrefsList.getCurrentPage());
+    }
 });
 
 
-PrefsList.on("onRemove", function(movieId) {
+PrefsList.on("onRemove", function(response) {
     var items = PrefsList.getCurrentPage();
     // if removal of item leads to empty page than skip to previous page
     if (items.length == 0) {
@@ -423,6 +464,7 @@ $("#btn-reco-title").click(function() {
             success = function(response) {
                 if (response.status.toUpperCase() === "ERROR") {
                     alert(response.msg);
+                } else {
                 }
             }
         );
