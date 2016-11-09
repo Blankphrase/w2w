@@ -1,6 +1,7 @@
 $("#movieInfo").on("show.bs.modal", function(event) {
     var modal = $(this);
     modal.find("#minfo-body").hide();
+    modal.find("#minfo-add-watchlist").hide();
     modal.find("#minfo-loading").show();
     modal.find("#minfo-title").html("Loading data ...");
     modal.find("#minfo-genres").html("");
@@ -24,6 +25,7 @@ $('#movieInfo').on('shown.bs.modal', function (event) {
             } else {
                 modal.find("#minfo-loading").hide();           
                 modal.find("#minfo-body").show();
+                modal.find("#minfo-add-watchlist").show();    
                 if (data.poster_path !== null) {
                     modal.find("#minfo-poster").attr(
                         "src", "https://image.tmdb.org/t/p/w154" + data.poster_path

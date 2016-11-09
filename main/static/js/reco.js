@@ -577,7 +577,7 @@ function handleRecoResponse(response) {
         
         if (movies.length === 0) {
             showRecoInfo("Unable to make recommendation on the " +
-                "base of your preferneces. Please state your preferences " +
+                "base of your preferences. Please state your preferences " +
                 "for a few more movies and try again.", alertClass="alert-warning");
         } else {
             $("#reco-container").show();
