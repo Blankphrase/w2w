@@ -10,6 +10,11 @@ $('#movieInfo').on('shown.bs.modal', function (event) {
     var movieId = $(event.relatedTarget).data("movie-id");
     var modal = $(this);
 
+    var $watchlist = modal.find("#minfo-add-watchlist");
+    $watchlist.show();
+    $watchlist.find("a").show();
+    $watchlist.children("span").remove();
+
     $.post(
         "/movies/" + movieId + "/info"
     ).done(function(data) {
@@ -19,9 +24,13 @@ $('#movieInfo').on('shown.bs.modal', function (event) {
             } else {
                 modal.find("#minfo-loading").hide();           
                 modal.find("#minfo-body").show();
-                modal.find("#minfo-poster").attr(
-                    "src", "https://image.tmdb.org/t/p/w154" + data.poster_path
-                );
+                if (data.poster_path !== null) {
+                    modal.find("#minfo-poster").attr(
+                        "src", "https://image.tmdb.org/t/p/w154" + data.poster_path
+                    );
+                } else {
+                    modal.find("#minfo-poster").hide().attr("src", "#");
+                }
                 modal.find("#minfo-title").html(
                     (data.title === null ? "<Title not available>" : data.title) + 
                     (data.release_date === null ? "" : 
@@ -55,6 +64,7 @@ $('#movieInfo').on('shown.bs.modal', function (event) {
                     "href",
                     "https://www.themoviedb.org/movie/" + data.id
                 );
+                modal.find("#minfo-add-watchlist").data("movie-id", movieId);
             }
         }
     );
@@ -64,4 +74,30 @@ $("#minfo-poster").on("load", function() {
     $(this).show();
 }).on("error", function() { 
     $(this).hide();
+});
+
+$(document).on("click", "#minfo-add-watchlist > a", function(event) {
+    var $self = $(this).parent();
+    $self.find("a").hide();
+    $self.children("span").remove();
+    $self.append("<span>Adding to watchlist ...</span>");
+    $.post(
+        "/accounts/watchlist/add",
+        {id: $self.data("movie-id")},
+        success = function(response) {
+            $self.children("span").remove();
+            if (response.status.toUpperCase() === "ERROR") {
+                console.log(response.msg);
+                $self.append("<span>Unexpected error when adding to watchlist.</span>");
+            } else {
+                $self.append("<span>Movie added to your watchlist.</span>");
+                setTimeout(function() {
+                    $self.hide();
+                }, 2000);
+            }
+        }
+    );
+
+    event.preventDefault();
+    return (false);
 });

@@ -1,13 +1,27 @@
 {% extends 'main/base.html' %}
 {% load static %}
 
-{% block title %}{{block.super}} - About{% endblock title %}
+{% block title %}{{block.super}} About{% endblock title %}
+
+{% block styles %}
+{{ block.super }}
+<style>
+    p {
+        text-align: justify;
+    }
+</style>
+{% endblock %}
 
 {% block body %}
 {{ block.super }}
 {% include 'main/movieinfo.html' %}
 <div class="container container-w2w">
-    <h2>W2W - What To Watch</h2>
+    <div class="page-header" id="sx-device-header">
+        <h2>"<strong>W2W</strong>" - <strong>What To Watch</strong></h2>
+    </div>
+    <p>
+        Movie Recommendations.    
+    </p>
 </div>
 {% endblock %}
 

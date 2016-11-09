@@ -27,7 +27,10 @@ MoviesHandler.onLoaded = function(response) {
     if (movies.length > 0) {
         var owl = $(".owl-carousel");
         for (var i = 0; i < movies.length; i++) {
-            var img_src = "https://image.tmdb.org/t/p/w154" + movies[i].poster_path;
+            var img_src = "#";
+            if (movies[i].poster_path !== null) {
+                img_src = "https://image.tmdb.org/t/p/w154" + movies[i].poster_path;
+            }
             var movie_html = 
                 "<div class='movie' data-movie-id='" + movies[i].id + "'>" + // relative
                     "<img src='" + img_src + "'>" + // relative
@@ -105,6 +108,28 @@ $(document).on("click", ".movie-watchlist > a", function(event) {
                 $self.text("Added to watchlist");
             }
             $self.click(function() { return (false); });
+        }
+    );
+
+    event.preventDefault();
+    return (false);
+});
+
+$(document).on("click", ".pref-movie-title > a:nth-child(2)", function(event) {
+    var $self = $(this).parent();
+    $self.append("<span> | Adding to watchlist ...</span>");
+    $.post(
+        "/accounts/watchlist/add",
+        {id: $(this).data("movie-id")},
+        success = function(response) {
+            $self.children("span").remove();
+            if (response.status.toUpperCase() === "ERROR") {
+                console.log(response.msg);
+                $self.append("<span> | Unexpected error.</span>");
+            } else {
+                $self.append("<span> | Added to watchlist,</span>");
+            }
+            $self.find("a:nth-child(2)").click(function() { return (false); });
         }
     );
 

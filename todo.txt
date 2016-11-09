@@ -1,8 +1,6 @@
 TO DO:
 - about page (first draft)
-- add to watchlist:
-    - info page
-    - reco on home page (for logged in users)
+- add data source information (tmdb)
 
 W2W V2.0:
 - add companies (model, store them in dataset, etc.) -> v. 2.0
@@ -54,3 +52,6 @@ DONE:
 - add watchlist in reco history
 - show last recommendation in recommendations section (add to session storage for
   standalone recommendation and for general recommendation ...)
+- add to watchlist:
+    - info page
+    - reco on home page (for logged in users)

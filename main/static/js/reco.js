@@ -27,7 +27,10 @@ MoviesHandler.onLoaded = function(response) {
     if (movies.length > 0) {
         var owl = $(".owl-carousel");
         for (var i = 0; i < movies.length; i++) {
-            var img_src = "https://image.tmdb.org/t/p/w154" + movies[i].poster_path;
+            var img_src = "#";
+            if (movies[i].poster_path !== null) {
+                img_src = "https://image.tmdb.org/t/p/w154" + movies[i].poster_path;
+            }
             var movie_html = 
                 "<div class='movie' data-movie-id='" + movies[i].id + "'>" + // relative
                     "<img src='" + img_src + "'>" + // relative

@@ -15,7 +15,6 @@
     text-justify: inter-word;
 }
 
-
 /* Small devices (tablets, 768px and up) */
 @media(max-width:767px) { 
     #lg-device-header {
@@ -25,7 +24,6 @@
         display: block;
     }
 }
-
 
 /* Medium devices (desktops, 992px and up) */
 @media(min-width:768px) { 
@@ -37,21 +35,25 @@
     }
 }
 
-@media(min-width:992px) { 
-    #lg-device-header {
-        display: block;
-    }
-    #sx-device-header {
-        display: none;
-    }
+.reco-list {
+    display: none;
+    /*display: table;*/
+    table-layout: fixed;
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 10px;
 }
-
-/* Large devices (large desktops, 1200px and up) */
-@media(min-width: 1200px) { 
-    #lg-device-header {
-        display: block;
-    }
-    #sx-device-header {
-        display: none;
-    }
+.reco-list.active {
+    display: table !important;
+}
+.pref-rating-star,
+.pref-dropbtn {
+    cursor: auto !important;
+}
+.movies-list-ui {
+    float: right;
+    margin-bottom: 5px;
+}
+.container-tmdb {
+    text-align: center;
 }
