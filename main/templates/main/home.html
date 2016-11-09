@@ -215,6 +215,7 @@
         MoviesHandler.setMode(new BrowseQuery("/movies/nowplaying"));
         MoviesHandler.noMoreMoviesImg = "{% static 'img/nomoremovies.png' %}";
         MoviesHandler.lackOfPosterImg = "{% static 'img/lackofposter.png' %}";
+        MoviesHandler.is_authenticated = {% if user.is_authenticated %}true{%else%}false{%endif%};
         MoviesHandler.getMovies(page = 1);
 
         function equalHeight(group) {    

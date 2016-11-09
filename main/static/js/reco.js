@@ -42,10 +42,14 @@ MoviesHandler.onLoaded = function(response) {
                         "<div class='movie-info'>" + 
                             "<a href='#movieInfo' data-toggle='modal' data-movie-id='" + 
                                 movies[i].id + "'>INFO</a>" + 
-                        "</div>" +
-                        // "<div class='movie-watchlist'>" + 
-                        //     "<a href='#'>+WATCHLIST</a>" + 
-                        // "</div>" +
+                        "</div>";
+            if (MoviesHandler.is_authenticated === true) {
+                movie_html +=          
+                        "<div class='movie-watchlist'>" + 
+                            "<a href='#'>+WATCHLIST</a>" + 
+                        "</div>";
+            }
+            movie_html +=
                     "</div>" +
                     "<div class='check-off'>" + 
                         "<div class='check-off-text'><a href=''>CHECK OFF</a></div>" + 
@@ -131,9 +135,25 @@ $(document).on("click", ".movie-rating-star", function() {
 });
 
 $(document).on("click", ".movie-watchlist > a", function(event) {
-    alert("TIME FOR WATCHLIST");
+    var $self = $(this);
+    var $movie = $(this).parent().parent().parent();
+    $self.text("Adding to watchlist");
+    $.post(
+        "/accounts/watchlist/add",
+        {id: $movie.data("movie-id")},
+        success = function(response) {
+            if (response.status.toUpperCase() === "ERROR") {
+                console.log(response.msg);
+                $self.text("Unexpected error");
+            } else {
+                $self.text("Added to watchlist");
+            }
+            $self.click(function() { return (false); });
+        }
+    );
 
     event.preventDefault();
+    return (false);
 });
 
 $(document).on("click", ".check-off a", function(event) {
@@ -226,8 +246,15 @@ function clearMoviesList() {
 
 function showMoviesListInfo(msg) {
     var $info = $("#movies-list-info");
-    $info.show();
     $info.find("#movies-list-info-msg").html(msg);
+    $info.show();
+}
+
+function showRecoInfo(msg, alertClass) {
+    if (alertClass === undefined) alertClass = "alert-info";
+    var $info = $("#reco-status");
+    $info.find("#reco-status-msg").html(msg);
+    $info.attr("class", ["alert", alertClass].join(" "))
     $info.show();
 }
 
@@ -455,16 +482,22 @@ $("#btn-reco-title").click(function() {
     var recoId = $("#reco-id").val();
     var recoTitle = $("#reco-title").val();
 
+    showRecoInfo("Updating title ...", alertClass="alert-info");
+
     if (recoTitle === "") {
-        alert("The given title seems to be empty. Please fill correct title into input box.");
+        showRecoInfo("The title seems to be empty. Please enter a correct " +
+            "title and try again.", alertClass="alert-warning");
     } else {
         $.post(
             "/accounts/reco/" + recoId + "/title",
             {title: recoTitle},
             success = function(response) {
                 if (response.status.toUpperCase() === "ERROR") {
-                    alert(response.msg);
+                    showRecoInfo("Unexpected Error. Unable to changed " +
+                        "recommendations' title.", alertClass="alert-danger");
                 } else {
+                    showRecoInfo("Recommendation's title has been changed.",
+                        alertClass="alert-success");
                 }
             }
         );
@@ -478,19 +511,26 @@ $("#reco-list-prev").click(function() {
 
 
 $(document).on("click", ".watchlist-add-btn", function(event) {
-    event.preventDefault();
-    
     var $movie = $(this).parent();
+    $movie.append("<span> | Adding to watchlist ...</span>");
     $.post(
         "/accounts/watchlist/add",
         {id: $movie.data("movie-id")},
         success = function(response) {
+            $movie.children("span").remove();
             if (response.status.toUpperCase() === "ERROR") {
-                alert(response.msg);
+                console.log(response.msg);
+                $movie.append("<span> | Unexpected error.</span>");
+            } else {
+                $movie.append("<span> | Added to watchlist.</span>");    
+                setTimeout(function() {
+                    $movie.children("span").remove();
+                }, 2000);
             }
         }
     );
 
+    event.preventDefault();
     return (false);
 });
 
@@ -508,12 +548,10 @@ $("#reco-btn").click(function() {
         if (recoType == "standalone") {
             prefList = PrefsList.getData(all = true);
         }
-
         if (recoType == "standalone" && prefList.length == 0) {
             alert("Please specifiy your preferences");
         } else {
-            $("#reco-status").show();
-            $("#reco-status-msg").html("Recommendation in progres ...");
+            showRecoInfo("Recommendation in progress ...");
             recoInProgress = true;
             $.post(
                 "/make_reco",
@@ -536,20 +574,20 @@ function handleRecoResponse(response) {
         var movies = response.movies;
         
         if (movies.length === 0) {
-            $("#reco-status").show();
-            $("#reco-status-msg").html("Unable to make recommendation on the " +
-                "base of your preferneces");
+            showRecoInfo("Unable to make recommendation on the " +
+                "base of your preferneces. Please state your preferences " +
+                "for a few more movies and try again.", alertClass="alert-warning");
         } else {
             $("#reco-container").show();
-            $("#reco-status").show();
-            $("#reco-status-msg").html("Recommendation complete.");
+            showRecoInfo("Recommendation complete.");
             $("#reco-output").show();
             $("#reco-title").val(response.title);
             $("#reco-id").val(response.id);
             RecoList.init(movies, 5);
         }
     } else {
-        alert("ERROR: DO STH WITH IT");
+        showRecoInfo("Unexpected error. Please try again later.", 
+            alertClass="alert-danger");
     }
 }
 

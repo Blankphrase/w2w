@@ -1,19 +1,12 @@
-Next To Do:
-- about page (first draft)
-
 TO DO:
-- add alert bar showing what is going on in profile (
-    e.g. updating database, adding movie to your preferences, and so on.
-)
 - show last recommendation in recommendations section (add to session storage for
   standalone recommendation and for general recommendation ...)
-- add messages when something is happening (e.g. change title of recommendation)
-  user neets to know that sth is hepanning on the server and should wait
-  a second or more
+- about page (first draft)
 
 W2W V2.0:
 - add companies (model, store them in dataset, etc.) -> v. 2.0
 - add actress -> v. 2.0
+- watchlist aware movies (movies in user's watchlist should be marked somehow)
 
 DONE:
 - add functionality to return to popular movies browsing (from search)
@@ -47,3 +40,14 @@ DONE:
     - better styling
 - better design for log in and sign up 
 - responsieve menu in profile
+- update message when updating reco's title
+- add message when adding reco's movie to watchlist
+- add watchlist into movies browsing
+- add wathclist on home page
+- add alert bar showing what is going on in profile (
+    e.g. updating database, adding movie to your preferences, and so on.
+)
+- add messages when something is happening (e.g. change title of recommendation)
+  user neets to know that sth is hepanning on the server and should wait
+  a second or more
+- add watchlist in reco history

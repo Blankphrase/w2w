@@ -88,10 +88,8 @@
         <div class="page-header">
             <h3>Recomendation</h3>
         </div>
-        <div class="alert alert-info alert-dismissible" role="alert" 
-             id="reco-status">
-            <button type="button" class="close" data-dismiss="alert" 
-                    aria-label="Close">
+        <div class="alert alert-info" role="alert" id="reco-status">
+            <button type="button" class="close alert-close" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
             </button>
             <span id="reco-status-msg"></span>
@@ -176,6 +174,7 @@
         MoviesHandler.setMode(new BrowseQuery("/movies/popular"));
         MoviesHandler.noMoreMoviesImg = "{% static 'img/nomoremovies.png' %}";
         MoviesHandler.lackOfPosterImg = "{% static 'img/lackofposter.png' %}";
+        MoviesHandler.is_authenticated = {% if user.is_authenticated %}true{%else%}false{%endif%};
         MoviesHandler.getMovies(page = 1, callback = function() {
             requestStatus.movies = true;
             if (requestStatus.prefs && !requestStatus.done) {
@@ -201,7 +200,12 @@
             PrefsList.init(new SessionBasedPrefsSource(sessionStorage), 5);  
         }
 
-        $("#reco-container").hide();
         $("#reco-status").hide();
+        showRecoInfo("State your preferences and press 'Make Recommendation' " +
+            "button. Wait a second while we preprere a recommendation for you.");
+
+        $(document).on('click', '.alert-close', function() {
+            $(this).parent().hide();
+        })
     </script>
 {% endblock %}

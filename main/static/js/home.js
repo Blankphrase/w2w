@@ -35,10 +35,14 @@ MoviesHandler.onLoaded = function(response) {
                         "<div class='movie-info'>" + 
                             "<a href='#movieInfo' data-toggle='modal' data-movie-id='" + 
                                 movies[i].id + "'>INFO</a>" + 
-                        "</div>" +
-                        // "<div class='movie-watchlist'>" + 
-                        //     "<a href='#'>+WATCHLIST</a>" + 
-                        // "</div>" +
+                        "</div>";
+            if (MoviesHandler.is_authenticated === true) {
+                movie_html +=
+                        "<div class='movie-watchlist'>" + 
+                            "<a href='#'>+WATCHLIST</a>" + 
+                        "</div>";
+            }
+            movie_html += 
                     "</div>" +
                     "<span class='movie-title'>" + movies[i].title + "</span>" + // relative
                 "<div>";
@@ -87,8 +91,25 @@ $("#nowplaying-browse-mode").click(
 );
 
 $(document).on("click", ".movie-watchlist > a", function(event) {
-    alert("TIME FOR WATCHLIST");
+    var $self = $(this);
+    var $movie = $(this).parent().parent().parent();
+    $self.text("Adding to watchlist");
+    $.post(
+        "/accounts/watchlist/add",
+        {id: $movie.data("movie-id")},
+        success = function(response) {
+            if (response.status.toUpperCase() === "ERROR") {
+                console.log(response.msg);
+                $self.text("Unexpected error");
+            } else {
+                $self.text("Added to watchlist");
+            }
+            $self.click(function() { return (false); });
+        }
+    );
+
     event.preventDefault();
+    return (false);
 });
 
 function clearMoviesList() {

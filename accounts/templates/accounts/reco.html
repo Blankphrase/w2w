@@ -62,8 +62,11 @@
             <div class="pref-movie">
                 <span class='pref-movie-title'>
                     <a href='#movieInfo' data-toggle='modal' data-movie-id="{{movie.movie.id}}">
-                        {{movie.movie.title}}
+                        {{movie.movie.title}} 
                     </a>
+                    <span class="watchlist-add-btn-wrapper">
+                        (<a href='#' data-movie-id="{{movie.movie.id}}">+Watchlist</a>)
+                    </span>
                 </span>
             </div>
             {% if forloop.counter|divisibleby:"5" %}
@@ -173,5 +176,32 @@
             $prev.addClass("active");
         }
     });
+
+    $(document).on("click", ".watchlist-add-btn-wrapper > a", function(event) {
+        var movieId = $(this).data("movie-id");
+        var $self = $(this).parent().append("<span></span>");
+        $(this).remove();
+
+        $self.html(" | Adding to watchlist");
+        $.post(
+            "/accounts/watchlist/add",
+            {id: movieId},
+            success = function(response) {
+                if (response.status.toUpperCase() === "ERROR") {
+                    console.log(response.msg);
+                    $self.html(" | Unexpected error");
+                } else {
+                    $self.html(" | Added to watchlist");
+                    setTimeout(function() {
+                        $self.remove();
+                    }, 2000);
+                }
+            }
+        );
+
+        event.preventDefault();
+        return (false);
+    });
+
 </script>
 {% endblock %}
