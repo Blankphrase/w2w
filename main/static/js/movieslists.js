@@ -10,12 +10,57 @@ var RecoList = {
     page: 0,
     data: undefined,
     pageSize: 10,
+    type: undefined,
 
-    init: function(data, pageSize) {
-        this.data = data;
+    setType: function(type) {
+        this.type = type;
+    },
+
+    getType: function(type) {
+        return this.type;
+    },
+
+    initFromData: function(data, pageSize) {
         if (pageSize !== undefined) this.pageSize = pageSize;
+        this.data = data;
         if (this.callbacks.onNewPage !== undefined) {
             this.callbacks.onNewPage(this.getData(this.page));
+        }
+    },
+
+    saveInStorage: function(type) {
+        if (this.type !== undefined) {
+            try {
+                sessionStorage.setItem("reco-" + this.type, 
+                                     JSON.stringify(this.data));
+                return true;
+            } catch(e) {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    },
+
+    initFromStorage: function(pageSize) {
+        if (pageSize !== undefined) this.pageSize = pageSize;
+        if (this.type !== undefined) {
+            try {
+                var data = JSON.parse(sessionStorage.getItem("reco-" + this.type));
+                if (data !== undefined) {
+                    this.data = data;
+                    if (this.callbacks.onNewPage !== undefined) {
+                        this.callbacks.onNewPage(this.getData(this.page));
+                    }
+                    return true;
+                } else {
+                    return false;
+                }
+            } catch(e) {
+                return false;
+            }
+        } else {
+            return false;
         }
     },
 
@@ -87,6 +132,7 @@ var PrefsList = {
     source: undefined,
     page: 0,
     pageSize: 10,
+    type: undefined,
 
     init: function(source, pageSize) {
         this.source = source; 
@@ -162,6 +208,10 @@ var PrefsList = {
 
     getCurrentPage: function() {
         return (this.getData());
+    },
+
+    size: function() {
+        return (this.source.size());
     }
 };
 

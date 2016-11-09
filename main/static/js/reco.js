@@ -545,10 +545,10 @@ $("#reco-btn").click(function() {
         alert("The recommendation is already being perpered for you. Please wait.");
     } else {
         var prefList = null;
-        if (recoType == "standalone") {
+        if (RecoList.getType() == "standalone") {
             prefList = PrefsList.getData(all = true);
         }
-        if (recoType == "standalone" && prefList.length == 0) {
+        if (RecoList.getType() == "standalone" && prefList.length == 0) {
             alert("Please specifiy your preferences");
         } else {
             showRecoInfo("Recommendation in progress ...");
@@ -556,7 +556,7 @@ $("#reco-btn").click(function() {
             $.post(
                 "/make_reco",
                 JSON.stringify({
-                    type: recoType,
+                    type: RecoList.getType(),
                     prefs: prefList
                 }),
                 function(response) {
@@ -568,7 +568,6 @@ $("#reco-btn").click(function() {
     }
 });
 
-
 function handleRecoResponse(response) {
     if (response.status == "OK") {
         var movies = response.movies;
@@ -579,11 +578,17 @@ function handleRecoResponse(response) {
                 "for a few more movies and try again.", alertClass="alert-warning");
         } else {
             $("#reco-container").show();
+            if (RecoList.getType() === "general") {
+                $("#reco-title-wrapper").show();
+            } else {
+                $("#reco-title-wrapper").hide();
+            }
             showRecoInfo("Recommendation complete.");
             $("#reco-output").show();
             $("#reco-title").val(response.title);
             $("#reco-id").val(response.id);
-            RecoList.init(movies, 5);
+            RecoList.initFromData(movies, 5);
+            RecoList.saveInStorage();
         }
     } else {
         showRecoInfo("Unexpected error. Please try again later.", 

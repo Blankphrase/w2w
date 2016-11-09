@@ -97,6 +97,7 @@
 
         <div id="reco-output">
             {% if user.is_authenticated %}
+            <div id="reco-title-wrapper">
                 <label for="reco-title">Title (display in your recommednations' history)</label>
                 <div class="input-group">
                     <input type="text" class="form-control" id="reco-title">
@@ -107,6 +108,7 @@
                         </button>
                     </span>
                 </div>
+            </div>
             {% endif %}
             <ul id="reco-list" class="list-group row"></ul>
             <dev id="reco-ui">
@@ -127,7 +129,7 @@
     <script src="{% static 'js/moviesquery.js' %}"></script>
     <script src="{% static 'js/movieshandler.js' %}"></script>
     <script src="{% static 'js/prefs.source.js' %}"></script>
-    <script src="{% static 'js/generic.lists.js' %}"></script>
+    <script src="{% static 'js/movieslists.js' %}"></script>
     <script src="{% static 'js/reco.js' %}"></script>
     <script src="{% static 'js/movieinfo.js' %}"></script>
     <script>
@@ -193,16 +195,28 @@
             }
         });
 
-        var recoType = "{{reco_type}}";
-        if (recoType == "general") {
-            PrefsList.init(new UserBasedPrefsSource(), 5);
+        RecoList.setType("{{reco_type}}");
+        if (RecoList.initFromStorage(pageSize=5)) {
+            $("#reco-output").show();
+            $("#reco-title-wrapper").hide();
+            showRecoInfo("What you see below is the your last recommendation " +
+                " saved in your browser session storage.");
         } else {
-            PrefsList.init(new SessionBasedPrefsSource(sessionStorage), 5);  
+            $("#reco-output").hide();
+            showRecoInfo("State your preferences and press 'Make Recommendation' " +
+                "button. Wait a second while we preprere a recommendation for you.");
         }
 
-        $("#reco-status").hide();
-        showRecoInfo("State your preferences and press 'Make Recommendation' " +
-            "button. Wait a second while we preprere a recommendation for you.");
+        if (RecoList.getType() == "general") {
+            PrefsList.init(new UserBasedPrefsSource(), 5);
+        } else {
+            PrefsList.init(new SessionBasedPrefsSource(sessionStorage), 5); 
+            if (PrefsList.size() > 0) {
+                showMoviesListInfo("Some preferences saved in your browser " +
+                    "session storage has been detected. Press " +
+                    "'Clear My Preferences' if they are out of date.");
+            }
+        }
 
         $(document).on('click', '.alert-close', function() {
             $(this).parent().hide();
