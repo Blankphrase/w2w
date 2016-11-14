@@ -7,7 +7,7 @@
 
 {% block styles %}
 {{ block.super }}
-<link href="{% static 'accounts/css/jquery.datetimepicker.min.css' %}" rel="stylesheet">
+<link href="{% static 'css/jquery.datetimepicker.min.css' %}" rel="stylesheet">
 {% endblock styles %}
 
 {% block body %}
@@ -82,7 +82,7 @@
 
 {% block body_scripts %}
 {{ block.super }}
-<script src="{% static 'accounts/js/jquery.datetimepicker.full.min.js' %}"></script>
+<script src="{% static 'js/jquery.datetimepicker.full.min.js' %}"></script>
 <script>
     $.datetimepicker.setLocale('en');
     $('#id_birthday').datetimepicker({
