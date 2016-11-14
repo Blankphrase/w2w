@@ -1,6 +1,7 @@
 TO DO:
-- about page (first draft)
-- add data source information (tmdb)
+- turn off saving movies queries in local database (NO!)
+- force update when updated more than few days
+- move to MySQL
 
 W2W V2.0:
 - add companies (model, store them in dataset, etc.) -> v. 2.0
@@ -55,3 +56,5 @@ DONE:
 - add to watchlist:
     - info page
     - reco on home page (for logged in users)
+- about page (first draft)
+- add data source information (tmdb)

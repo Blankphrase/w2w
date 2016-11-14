@@ -3,7 +3,7 @@ from django.forms import model_to_dict
 from django.views.decorators.csrf import csrf_exempt
 
 from tmdb.client import Client
-from tmdb.settings import TMDB_MAX_PAGE, TMDB_MIN_PAGE
+from tmdb.settings import TMDB_FORCE_UPDATE
 from tmdb.models import INFO_UPDATE_LEVEL
 
 import re
@@ -12,7 +12,8 @@ import re
 @csrf_exempt
 def movie_info(request, id):
     data = Client().get_movie(id = int(id), 
-                              min_update_level = INFO_UPDATE_LEVEL)
+                              min_update_level = INFO_UPDATE_LEVEL,
+                              force_update = TMDB_FORCE_UPDATE)
     return JsonResponse(data, safe=False)
 
 @csrf_exempt
@@ -21,7 +22,9 @@ def nowplaying_movies(request):
         page = int(request.POST.get("page", 1))
     else:
         page = int(request.GET.get("page", 1))
-    data = Client().get_nowplaying_movies(page = page)
+    data = Client().get_nowplaying_movies(
+        page = page, force_update = TMDB_FORCE_UPDATE
+    )
     return JsonResponse(data)
 
 @csrf_exempt
@@ -30,7 +33,9 @@ def upcoming_movies(request):
         page = int(request.POST.get("page", 1))
     else:
         page = int(request.GET.get("page", 1))
-    data = Client().get_upcoming_movies(page = page)
+    data = Client().get_upcoming_movies(
+        page = page, force_update = TMDB_FORCE_UPDATE
+    )
     return JsonResponse(data)
 
 @csrf_exempt
@@ -39,7 +44,9 @@ def toprated_movies(request):
         page = int(request.POST.get("page", 1))
     else:
         page = int(request.GET.get("page", 1))
-    data = Client().get_toprated_movies(page = page)
+    data = Client().get_toprated_movies(
+        page = page, force_update = TMDB_FORCE_UPDATE
+    )
     return JsonResponse(data)
 
 @csrf_exempt
@@ -48,7 +55,9 @@ def popular_movies(request):
         page = int(request.POST.get("page", 1))
     else:
         page = int(request.GET.get("page", 1))
-    data = Client().get_popular_movies(page = page)
+    data = Client().get_popular_movies(
+        page = page, force_update = TMDB_FORCE_UPDATE
+    )
     return JsonResponse(data)
 
 @csrf_exempt

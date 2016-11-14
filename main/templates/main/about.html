@@ -9,6 +9,10 @@
     p {
         text-align: justify;
     }
+    #tmdb-logo {
+        margin: 10px;
+        width: 300px;
+    }
 </style>
 {% endblock %}
 
@@ -19,35 +23,60 @@
     <div class="page-header" id="sx-device-header">
         <h2>"<strong>W2W</strong>" - <strong>What To Watch</strong></h2>
     </div>
+
     <p>What To Watch (W2W) is a web-based application providing movies
-    recommendation on the base of the users preferences. In order to receive
-    a recommendation a user has to explicitly state her/his preferences by 
-    grading selected movies on five point scale (1-5).
+    recommendation on the base of the users preferences. It's just the first 
+    installment of the app so we ask for a little bit of understanding. If you
+    have any questions, remarks or you found a bug, please give us notice by
+    <a href="mailto:hakubaa@gmail.com">e-mail.</a>
     </p>
 
+    <p>The recommendations are made on the base of item-based collaborative 
+    filtering. To put is simple, when we prepare a recommendation for a user,
+    we take into consideration the preferences of other users. Collaborative
+    filtering algorithms are widly used in many domains and provide significant 
+    improvement in comparison with other methods. For the present moment,
+    algorithm that is used by W2W is SlopeOne. Despite its simplicity, it is
+    comparable to more complicated and computationally expensive algorithms. 
+    You can find more information about this algorithm on 
+    <a href="https://en.wikipedia.org/wiki/Slope_One">Wikipedia</a>.</p>
+
+    <h4>Functionalities</h4>
     <p>
-    Algorithm used to makes recommendation is Slope One. It belongs to
-    collaboratie filtring family of alrogithsm. In general it takes into
-    account preferences of other users
-
-Slope One is a family of algorithms used for collaborative filtering, introduced in a 2005 paper by Daniel Lemire and Anna Maclachlan.[1] Arguably, it is the simplest form of non-trivial item-based collaborative filtering based on ratings. Their simplicity makes it especially easy to implement them efficiently while their accuracy is often on par with more complicated and computationally expensive algorithms.[1][2] They have also been used as building blocks to improve other algorithms.[3][4][5][6][7][8][9] They are part of major open-source libraries such as Apache Mahout and Easyrec.
-
+    W2W provieds movies recommendation. In order to receive a recommendation a 
+    user has to explicitly state her/his preferences by grading selected movies 
+    on five points scale (1-5). There are two modes:
+    <ul>
+    <li>Stand-Alone Search</li>
+    <li>General Search</li>
+    </ul>
     </p>
-
     <p>
-    Functionalities
-    </p>
+    <strong>Stand-Alone Search</strong> was primarily designed for new and not 
+    authenticated users. However logged in users can also take adventage of this
+    mode. You have to state your preferences from the very beginning every time
+    you want a recommendation. It can be a little bit burdensome when one 
+    frequently makes use of W2W. That is why <strong>General Search</strong> 
+    mode was introduced.</p>
 
-    <p>
-    Data are provided by TMDB.
-    </p>
+    <p><strong>General Search</strong> mode is intended only for signed up users. 
+    We remember your preferences, which you can adjust any time, and we prepare 
+    comprehensive recommendation on the base of all your preferences. You can 
+    create list of movies you want to watch - watchlist. You can also visits your 
+    past recommendations. Of-course if you would like receive new recommendation 
+    not related to your overall preferences, you can always choose Stand-Alone 
+    Search.</p>
 
+    <p>We would like to fully appreciate <a href="https://www.themoviedb.org">TMDB</a> 
+    for providing data used by W2W. Thank You Very Much.</p>
 
+    <a href="https://www.themoviedb.org">
+    <img id="tmdb-logo" src="https://www.themoviedb.org/assets/bb45549239e25f1770d5f76727bcd7c0/images/v4/logos/408x161-powered-by-rectangle-blue.png">
+    </a>
 
-
-<p>
-So explore a little. Search for your favorite movie. Build a list of movies you want to watch. We're really proud of the service we've built and hope you find it as useful as we do. 
-    </p>
+    <p>So explore a little. Search for your favorite movies. Build a list of movies 
+    you want to watch. We're really proud of the service we've built and hope 
+    you find it as useful.</p>
 </div>
 {% endblock %}
 

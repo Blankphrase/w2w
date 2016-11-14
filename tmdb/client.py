@@ -62,9 +62,11 @@ class Client():
         
         return data
 
-    def get_movie(self, id, min_update_level = MIN_UPDATE_LEVEL):
+    def get_movie(self, id, min_update_level = MIN_UPDATE_LEVEL,
+                  force_update = False):
         try:
-            movie = Movie.get(id, min_update_level = min_update_level)
+            movie = Movie.get(id, min_update_level = min_update_level,
+                              force_update = force_update)
             movie_fields = [
                 field.name for field in Movie._meta.get_fields() 
                            if field.related_model is None 
