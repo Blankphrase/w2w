@@ -82,7 +82,7 @@ function changeBrowseCallback(url) {
         MoviesHandler.setMode(new BrowseQuery(url));
         MoviesHandler.getMovies(page = 1);
         $(".dropdown-toggle").dropdown("toggle");
-        e.preventDefault();
+        event.preventDefault();
         return (false);
     };
 }
