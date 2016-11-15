@@ -17,25 +17,6 @@ MOVIE_UPDATE_LEVEL = 2
 # MAX_UPDATE_LEVEL = 2
 
 
-  # "production_companies": [
-  #   {
-  #     "name": "20th Century Fox",
-  #     "id": 25
-  #   }
-  # ],
-  # "production_countries": [
-  #   {
-  #     "iso_3166_1": "US",
-  #     "name": "United States of America"
-  #   }
-  # ],
-  # "spoken_languages": [
-  #   {
-  #     "iso_639_1": "en",
-  #     "name": "English"
-  #   }
-  # ],
-
 class Genre(models.Model):
     '''
     Genre Model
@@ -166,9 +147,10 @@ class Movie(models.Model):
         if data is None:
             data = Movie.download_movie(id)
 
-        fields_to_update = [ field.name for field in Movie._meta.get_fields() ]
+        fields_to_update = [ field.name for field in Movie._meta.get_fields() 
+                                        if field.name not in ("genres") ]
         data = { key: value for key, value in data.items() 
-            if key in fields_to_update }
+            if key in fields_to_update and value }
 
         movie = Movie(**data)
         return movie      
@@ -218,7 +200,7 @@ class TMDBQueryModel(models.Model):
     timestamp = models.DateTimeField(default = timezone.now)
     total_pages = models.IntegerField(blank = True, null = True)
     total_results = models.IntegerField(blank = True, null = True)
-    movies = models.ManyToManyField(Movie, related_name = "+")
+    movies = models.ManyToManyField(Movie, related_name = "query+")
 
     class Meta:
         unique_together = ("page", )
@@ -248,7 +230,6 @@ class TMDBQueryModel(models.Model):
         except cls.DoesNotExist:
             data = tmdb_request(method = "GET", path = cls.url, 
                 params = {"page": page})
-            
             # Filter already updated movies
             updated_movies = Movie.objects.filter(
                 id__in=[ int(movie["id"]) for movie in data["results"] ]
@@ -265,15 +246,28 @@ class TMDBQueryModel(models.Model):
             if not created:
                 npq.movies.clear()
             npq.movies.add(*updated_movies)
-                        
+
+            movies2create = dict()
             for movie in data["results"]:
                 if movie["id"] not in updated_ids:
                     movie["update_level"] = cls.update_level
-                    movie_db = Movie.save_movie_in_db(
+                    movie_db = Movie.create_movie(
                         id = movie["id"],
                         data = movie
                     )
-                    npq.movies.add(movie_db)
+                    movies2create[movie["id"]] = movie_db
+            if len(movies2create) > 0:
+                Movie.objects.filter(id__in=list(movies2create.keys())).delete()
+                Movie.objects.bulk_create(movies2create)
+                npq.movies.add(*movies2create.values())
+            # for movie in data["results"]:
+            #     if movie["id"] not in updated_ids:
+            #         movie["update_level"] = cls.update_level
+            #         movie_db = Movie.save_movie_in_db(
+            #             id = movie["id"],
+            #             data = movie
+            #         )
+            #         npq.movies.add(movie_db)
         return npq
 
 

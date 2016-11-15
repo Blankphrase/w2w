@@ -4,7 +4,7 @@ from django.db import models
 from django.utils import timezone
 from django.conf import settings
 from reco.exceptions import SimCalculationError
-from django.shortcuts import reverse
+from django.core.urlresolvers import reverse
 
 
 class Reco(models.Model):
@@ -43,11 +43,11 @@ class Reco(models.Model):
 
 class RecoBase(models.Model):
     reco = models.ForeignKey(Reco, related_name = "base")
-    movie = models.ForeignKey(Movie, related_name = "+")
+    movie = models.ForeignKey(Movie, related_name = "reco_base+")
     rating = models.IntegerField()
 
 
 class RecoMovie(models.Model):
     reco = models.ForeignKey(Reco, related_name = "movies")
-    movie = models.ForeignKey(Movie, related_name = "+")
+    movie = models.ForeignKey(Movie, related_name = "reco_movie+")
     score = models.FloatField(blank=True,null=True)

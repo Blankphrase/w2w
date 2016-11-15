@@ -5,6 +5,8 @@ from django.http import JsonResponse
 from django.core import serializers
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import F
+from django.template import Context
+from django.template.loader import get_template
 
 from reco.source import UserSource, JsonSource
 from reco.engine import RecoManager, SlopeOne
@@ -19,7 +21,7 @@ def about_page(request):
     return render(request, "main/about.html")
 
 def home_page(request):
-    if request.user.is_authenticated:
+    if request.user.is_authenticated():
         reco = request.user.recos.order_by("-timestamp").first()
     else:
         reco = None
@@ -32,7 +34,7 @@ def reco_page(request):
 
     preflist = []
     if reco_type == "general":
-        if not request.user.is_authenticated:
+        if not request.user.is_authenticated():
             return redirect("/")
 
         preflist = list(request.user.pref.data.values(
@@ -51,14 +53,14 @@ def make_reco(request):
     reco_request = json.loads(request.body.decode())
     reco_type = reco_request["type"]
 
-    if request.user.is_authenticated and reco_type == "general":
+    if request.user.is_authenticated() and reco_type == "general":
         source = UserSource(user = request.user)
     else:
         source = JsonSource(data = reco_request["prefs"], user = request.user)
 
     # Save pseudo preflist for anonymouse users. They can improve
     # recommendations for other users.
-    if not request.user.is_authenticated:
+    if not request.user.is_authenticated():
         preflist = PrefList.objects.create()
         for movie in source.get_data():
             preflist.add(movie["id"], movie["rating"])

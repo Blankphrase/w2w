@@ -52,7 +52,7 @@
                 <div class="reco-movie" data-movie-id="{{ reco.id }}">
                     <span class='reco-movie-title'>
                         <a href="{{ reco.get_absolute_url }}">
-                        {% if reco.title is None %}
+                        {% if reco.title %}
                             No Title
                         {% else %}
                             {{ reco.title }} 

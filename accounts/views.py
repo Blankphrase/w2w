@@ -1,5 +1,5 @@
-from django.shortcuts import render, redirect, reverse
-from django.urls import reverse
+from django.shortcuts import render, redirect
+from django.core.urlresolvers import reverse
 from django.contrib.auth import login, authenticate, get_user_model, logout
 from django.contrib.auth.decorators import login_required
 from django.db.models import F
@@ -7,7 +7,10 @@ from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.core.paginator import Page, Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth import update_session_auth_hash
+from django.template import Context
+from django.template.loader import get_template
 
+import w2w.settings
 from accounts.forms import (
     SignUpForm, LoginForm, INVALID_LOGIN_ERROR, EditProfileForm,
     ChangePasswordForm, DeleteAccountForm
@@ -23,6 +26,7 @@ def signup_user(request):
         form = SignUpForm(request.POST)
         if form.is_valid():
             user = form.save()
+            user.backend = w2w.settings.AUTHENTICATION_BACKENDS[0]
             login(request, user)
             return redirect("/")
     else:
@@ -39,6 +43,7 @@ def login_user(request):
             password = form.cleaned_data["password"]
             user = authenticate(email = email, password = password)
             if user is not None:
+                user.backend = w2w.settings.AUTHENTICATION_BACKENDS[0]
                 login(request, user)
                 return redirect("/")
             else:

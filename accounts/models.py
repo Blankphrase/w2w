@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.base_user import (
+from django.contrib.auth.models import (
     AbstractBaseUser, BaseUserManager
 )
 from django.conf import settings
@@ -194,7 +194,7 @@ class WatchList(models.Model):
     )
 
     # Do not create related objects in Movie
-    movies = models.ManyToManyField(Movie, related_name = "+")
+    movies = models.ManyToManyField(Movie, related_name = "watchlist+")
 
     def add(self, id):
         movie = Movie.objects.get(id = id)
