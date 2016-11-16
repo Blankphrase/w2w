@@ -11,11 +11,6 @@ $('#movieInfo').on('shown.bs.modal', function (event) {
     var movieId = $(event.relatedTarget).data("movie-id");
     var modal = $(this);
 
-    var $watchlist = modal.find("#minfo-add-watchlist");
-    $watchlist.show();
-    $watchlist.find("a").show();
-    $watchlist.children("span").remove();
-
     $.post(
         "/movies/" + movieId + "/info"
     ).done(function(data) {
@@ -24,8 +19,7 @@ $('#movieInfo').on('shown.bs.modal', function (event) {
                 alert("Error while loading information about the movie. Please try again latter.");
             } else {
                 modal.find("#minfo-loading").hide();           
-                modal.find("#minfo-body").show();
-                modal.find("#minfo-add-watchlist").show();    
+                modal.find("#minfo-body").show();  
                 if (data.poster_path !== null) {
                     modal.find("#minfo-poster").attr(
                         "src", "https://image.tmdb.org/t/p/w154" + data.poster_path
@@ -66,7 +60,13 @@ $('#movieInfo').on('shown.bs.modal', function (event) {
                     "href",
                     "https://www.themoviedb.org/movie/" + data.id
                 );
-                modal.find("#minfo-add-watchlist").data("movie-id", movieId);
+                if (modal.data("active") == "1") {
+                    var $watchlist = modal.find("#minfo-add-watchlist");
+                    $watchlist.show();
+                    $watchlist.find("a").show();
+                    $watchlist.children("span").remove();
+                    $watchlist.data("movie-id", movieId);
+                }
             }
         }
     );

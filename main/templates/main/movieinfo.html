@@ -9,7 +9,7 @@
                 </button>
                 <h3 id="minfo-title" class="modal-title"></h3>
                 <p id="minfo-genres"></p>
-                <div id="minfo-add-watchlist">
+                <div id="minfo-add-watchlist" data-active="{% if user.is_authenticated %}1{%else%}0{% endif %}">
                     <a href="#">+Watchlist</a>
                 </div>
             </div>

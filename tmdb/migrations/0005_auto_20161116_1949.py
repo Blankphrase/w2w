@@ -7,13 +7,15 @@ from django.db import models, migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('accounts', '0020_auto_20161115_2010'),
+        ('tmdb', '0004_auto_20161116_1942'),
     ]
 
     operations = [
-        migrations.AlterField(
-            model_name='watchlist',
+        migrations.RemoveField(
+            model_name='movieslist',
             name='movies',
-            field=models.ManyToManyField(related_name='watchlist+', to='tmdb.Movie'),
+        ),
+        migrations.DeleteModel(
+            name='MoviesList',
         ),
     ]
