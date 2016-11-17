@@ -58,6 +58,7 @@ def make_reco(request):
     else:
         source = JsonSource(data = reco_request["prefs"], user = request.user)
 
+
     # Save pseudo preflist for anonymouse users. They can improve
     # recommendations for other users.
     if not request.user.is_authenticated():

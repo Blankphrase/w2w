@@ -24,13 +24,13 @@ class SlopeOne():
         #1   ITERATE OVER ALL MOVIES IN THE USER'S PREFERENCES LIST (MOVIE_B)
         for movie in reco_base:
             #1.1 FOR EACH MOVIE B IDENTIFY ALL USERS WHO RATED THIS MOVIE
-            if source.get_user().is_authenticated:
+            if source.get_user().is_authenticated():
                 movie_prefs = MoviePref.objects.values("preflist").exclude(
                     preflist=source.get_user().pref).filter(movie__id=movie["id"])
             else:
                 movie_prefs = MoviePref.objects.values("preflist").filter(
                     movie__id=movie["id"])
-
+                
             if len(movie_prefs) == 0:
                 continue
 

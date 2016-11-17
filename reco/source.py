@@ -1,18 +1,14 @@
-from abc import ABC, abstractmethod
-
 from django.db.models import F
 
 
-class Source(ABC):
+class Source():
 
     def __init__(self, user = None):
         self.user = user
 
-    @abstractmethod
     def get_data(self):
         pass
 
-    @abstractmethod
     def is_empty(self):
         pass
 
