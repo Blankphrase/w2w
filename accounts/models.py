@@ -149,7 +149,10 @@ class PrefList(models.Model):
         related_name = "preflist")
 
     def add(self, id, rating = 10, timestamp = None, save = True):
-        movie = Movie.objects.get(id = id)
+        try:
+            movie = Movie.objects.get(id = id)
+        except Movie.DoesNotExist:
+            return None
         timestamp = timestamp if timestamp else timezone.now()
 
         try: # update preferences 

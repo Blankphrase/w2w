@@ -208,7 +208,10 @@ class TMDBQueryModel(models.Model):
     timestamp = models.DateTimeField(default = timezone.now)
     total_pages = models.IntegerField(blank = True, null = True)
     total_results = models.IntegerField(blank = True, null = True)
-    movies = models.ManyToManyField(Movie, related_name = "+")
+    movies = models.ManyToManyField(
+        Movie, 
+        related_name = "%(app_label)s_%(class)s_query+"
+    )
 
     class Meta:
         unique_together = ("page", )

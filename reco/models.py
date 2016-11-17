@@ -35,7 +35,7 @@ class Reco(models.Model):
             obj2save.append(movie2reco)
         RecoMovie.objects.bulk_create(obj2save)
 
-        if user and user.is_authenticated:
+        if user and user.is_authenticated():
             user.recos.add(reco_)
 
         return reco_
